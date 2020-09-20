@@ -1,4 +1,4 @@
-# services/users/project/__init__.py
+# services/server/project/__init__.py
 
 
 import os

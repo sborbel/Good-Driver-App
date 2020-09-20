@@ -1,4 +1,4 @@
-# services/users/project/api/users/views.py
+# services/server/project/api/users/views.py
 
 
 from flask import request
@@ -22,6 +22,7 @@ user = users_namespace.model(
         "id": fields.Integer(readOnly=True),
         "username": fields.String(required=True),
         "email": fields.String(required=True),
+        "role": fields.String(required=True),
         "created_date": fields.DateTime,
     },
 )
@@ -46,6 +47,7 @@ class UsersList(Resource):
         username = post_data.get("username")
         email = post_data.get("email")
         password = post_data.get("password")
+        role = post_data.get("role")
         response_object = {}
 
         user = get_user_by_email(email)
@@ -76,6 +78,7 @@ class Users(Resource):
         post_data = request.get_json()
         username = post_data.get("username")
         email = post_data.get("email")
+        role = post_data.get("role")
         response_object = {}
 
         user = get_user_by_id(user_id)
