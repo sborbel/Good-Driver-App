@@ -34,8 +34,8 @@ class EventsList(Resource):
         """Returns all events."""
         return get_all_events(), 200
 
-    # @events_namespace.expect(user_post, validate=True)
-    # @events_namespace.response(201, "<user_email> was added!")
+    # @events_namespace.expect(event_post, validate=True)
+    # @events_namespace.response(201, "<event_email> was added!")
     # @events_namespace.response(400, "Sorry. That email already exists.")
     def post(self):
         """Creates a new event."""
@@ -60,8 +60,8 @@ class EventsListbyUser(Resource):
 
 class Events(Resource):
     @events_namespace.marshal_with(event)
-    # @users_namespace.response(200, "Success")
-    # @users_namespace.response(404, "User <user_id> does not exist")
+    # @events_namespace.response(200, "Success")
+    # @events_namespace.response(404, "Event <event_id> does not exist")
     def get(self, event_id):
         """Returns all details for a single event."""
         event = get_event_by_id(event_id)
@@ -70,9 +70,9 @@ class Events(Resource):
         return event, 200
 
 
-    # @users_namespace.expect(user, validate=True)
-    # @users_namespace.response(200, "<user_is> was updated!")
-    # @users_namespace.response(404, "User <user_id> does not exist")
+    # @events_namespace.expect(event, validate=True)
+    # @events_namespace.response(200, "<event_id> was updated!")
+    # @events_namespace.response(404, "Uvent <event_id> does not exist")
     def put(self, event_id):
         """Updates an event."""
         post_data = request.get_json()
@@ -87,8 +87,8 @@ class Events(Resource):
         response_object["message"] = f"{event.id} was updated!"
         return response_object, 200
 
-    # @users_namespace.response(200, "<user_is> was removed!")
-    # @users_namespace.response(404, "User <user_id> does not exist")
+    # @events_namespace.response(200, "<event_id> was removed!")
+    # @events_namespace.response(404, "Event <event_id> does not exist")
     def delete(self, event_id):
         """Updates a event."""
         response_object = {}
