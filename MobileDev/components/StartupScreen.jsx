@@ -1,10 +1,5 @@
 import React, {Component} from 'react';
-import {ImageBackground, StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Text, TouchableWithoutFeedbackComponent} from 'react-native';
-
-const onRegisterPress = () => {
-    console.log("register pressed");
-
-}
+import {ImageBackground, StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Text} from 'react-native';
 
 function StartUp({navigation}){
 
