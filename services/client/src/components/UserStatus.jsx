@@ -8,7 +8,8 @@ class UserStatus extends Component {
     super(props);
     this.state = {
       email: "",
-      username: ""
+      username: "",
+      role: ""
     };
   }
   componentDidMount() {
@@ -20,14 +21,15 @@ class UserStatus extends Component {
       method: "get",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${this.props.accessToken}`
+        Authorization: `${this.props.accessToken}`
       }
     };
     return axios(options)
       .then(res => {
         this.setState({
           email: res.data.email,
-          username: res.data.username
+          username: res.data.username,
+          role: res.data.role
         });
       })
       .catch(error => {
@@ -48,6 +50,10 @@ class UserStatus extends Component {
           <li>
             <strong>Username:</strong>&nbsp;
             <span data-testid="user-username">{this.state.username}</span>
+          </li>
+          <li>
+            <strong>Role:</strong>&nbsp;
+            <span data-testid="user-role">{this.state.role}</span>
           </li>
         </ul>
       </div>
