@@ -21,7 +21,7 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
     active = db.Column(db.Boolean(), default=True, nullable=False)
     created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
-    role = db.Column(db.String(16), nullable=False)
+    role = db.Column(db.String(16), default="driver", nullable=False)
     # events = db.relationship('Event', backref='user', lazy=True)
 
     def __init__(self, username="", email="", password="", role=""):
