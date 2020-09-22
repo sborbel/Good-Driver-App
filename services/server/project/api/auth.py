@@ -13,7 +13,7 @@ auth_namespace = Namespace("auth")
 
 user = auth_namespace.model(
     "User",
-    {"username": fields.String(required=True), "email": fields.String(required=True)},
+    {"username": fields.String(required=True), "email": fields.String(required=True), "role": fields.String(required=True)},
 )
 
 full_user = auth_namespace.clone(
@@ -120,7 +120,7 @@ class Status(Resource):
         auth_header = request.headers.get("Authorization")
         if auth_header:
             try:
-                access_token = auth_header.split(" ")[1]
+                access_token = auth_header.split(" ")[0]
                 resp = User.decode_token(access_token)
                 user = get_user_by_id(resp)
                 if not user:

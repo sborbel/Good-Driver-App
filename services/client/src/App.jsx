@@ -11,6 +11,9 @@ import RegisterForm from "./components/RegisterForm";
 import UserStatus from "./components/UserStatus";
 import Message from "./components/Message";
 import AddUser from "./components/AddUser";
+import DriverHome from "./components/DriverHome";
+import AdminHome from "./components/AdminHome";
+import SponsorHome from "./components/SponsorHome";
 
 const modalStyles = {
   content: {
@@ -30,11 +33,13 @@ class App extends Component {
     super();
     this.state = {
       users: [],
+      myID: "Init",
       title: "Good Driver Rewards Program",
       accessToken: null,
       messageType: null,
       messageText: null,
-      showModal: false
+      showModal: false,
+      role: ""
     };
   }
 
@@ -83,13 +88,35 @@ class App extends Component {
       });
   };
 
+  setrole = () => {
+    const options = {
+      url: `${process.env.REACT_APP_USERS_SERVICE_URL}/auth/status`,
+      method: "get",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: this.state.accessToken
+      }
+    };
+    axios(options)
+      .then(res => {
+        this.setState({
+          role: res.data.role
+        });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
+
   handleLoginFormSubmit = data => {
     const url = `${process.env.REACT_APP_USERS_SERVICE_URL}/auth/login`;
     axios
       .post(url, data)
       .then(res => {
         this.setState({ accessToken: res.data.access_token });
+        this.setState({ myID: data.email });
         this.getUsers();
+        this.setrole();
         window.localStorage.setItem("refreshToken", res.data.refresh_token);
         this.createMessage("success", "You have logged in successfully.");
       })
@@ -99,6 +126,8 @@ class App extends Component {
       });
   };
 
+  
+
   logoutUser = () => {
     window.localStorage.removeItem("refreshToken");
     this.setState({ accessToken: null });
@@ -106,6 +135,16 @@ class App extends Component {
   };
 
   isAuthenticated = () => {
+    if (this.state.accessToken || this.validRefresh()) {
+      return true;
+    }
+    return false;
+  };
+  isDriver = () => {
+    let myUsers = this.state.users;
+    return myUsers;
+  };
+  isSponsor = () => {
     if (this.state.accessToken || this.validRefresh()) {
       return true;
     }
@@ -171,12 +210,26 @@ class App extends Component {
   };
 
   render() {
+    let homePage = <Route exact path="/about" component={About} />;
+    if(this.state.role === "Driver"){
+      homePage = <Route exact path="/about" component={DriverHome} />;
+    }
+    else if(this.state.role === "Admin"){
+      homePage = <Route exact path="/about" component={AdminHome} />;
+    }
+    else if(this.state.role === "Sponsor"){
+      homePage = <Route exact path="/about" component={SponsorHome} />;
+    }
+    
+
     return (
       <div>
         <NavBar
           title={this.state.title}
           logoutUser={this.logoutUser}
           isAuthenticated={this.isAuthenticated}
+          isDriver={this.isDriver}
+          isSponsor={this.isSponsor}
         />
         <section className="section">
           <div className="container">
@@ -191,12 +244,11 @@ class App extends Component {
               <div className="column is-half">
                 <br />
                 <Switch>
-                  <Route
-                    exact
-                    path="/"
+                  <Route exact path="/"
                     render={() => (
                       <div>
                         <h1 className="title is-1">Users</h1>
+                        <h2 className="title is-2">{this.state.role}</h2>
                         <hr />
                         <br />
                         {this.isAuthenticated() && (
@@ -234,11 +286,13 @@ class App extends Component {
                           users={this.state.users}
                           removeUser={this.removeUser}
                           isAuthenticated={this.isAuthenticated}
+                          isDriver={this.isDriver}
+                          isSponsor={this.isSponsor}
                         />
                       </div>
                     )}
                   />
-                  <Route exact path="/about" component={About} />
+                  {homePage}
                   <Route
                     exact
                     path="/register"
@@ -247,6 +301,8 @@ class App extends Component {
                         // eslint-disable-next-line react/jsx-handler-names
                         handleRegisterFormSubmit={this.handleRegisterFormSubmit}
                         isAuthenticated={this.isAuthenticated}
+                        isDriver={this.isDriver}
+                        isSponsor={this.isSponsor}
                       />
                     )}
                   />
@@ -258,6 +314,8 @@ class App extends Component {
                         // eslint-disable-next-line react/jsx-handler-names
                         handleLoginFormSubmit={this.handleLoginFormSubmit}
                         isAuthenticated={this.isAuthenticated}
+                        isDriver={this.isDriver}
+                        isSponsor={this.isSponsor}
                       />
                     )}
                   />
@@ -268,6 +326,8 @@ class App extends Component {
                       <UserStatus
                         accessToken={this.state.accessToken}
                         isAuthenticated={this.isAuthenticated}
+                        isDriver={this.isDriver}
+                        isSponsor={this.isSponsor}
                       />
                     )}
                   />
