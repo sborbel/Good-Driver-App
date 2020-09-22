@@ -1,4 +1,4 @@
-# services/users/project/api/users/admin.py
+# services/server/project/api/users/admin.py
 
 
 from flask import current_app
@@ -16,6 +16,7 @@ class UsersAdminView(ModelView):
         "username",
         "email",
         "created_date",
+        "role",
     )
     column_filters = (
         "username",

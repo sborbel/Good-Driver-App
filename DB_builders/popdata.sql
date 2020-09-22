@@ -1,4 +1,4 @@
--- TIMESTAMP format: '1970-01-01 00:00:01'  'YYYY-MM-DD hh:mm:ss'
+ -- TIMESTAMP format: '1970-01-01 00:00:01'  'YYYY-MM-DD hh:mm:ss'
 
 INSERT INTO USR VALUES(100, 'Wes Bailey', 'pass');
 INSERT INTO USR VALUES(2345, 'Sean Borbely', 'pass');
