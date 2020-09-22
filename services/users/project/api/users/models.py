@@ -1,4 +1,4 @@
-# services/server/project/api/users/models.py
+# services/users/project/api/users/models.py
 
 
 import os
@@ -21,13 +21,10 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
     active = db.Column(db.Boolean(), default=True, nullable=False)
     created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
-    role = db.Column(db.String(16), nullable=False)
-    # events = db.relationship('Event', backref='user', lazy=True)
 
-    def __init__(self, username="", email="", password="", role=""):
+    def __init__(self, username="", email="", password=""):
         self.username = username
         self.email = email
-        self.role = role
         self.password = bcrypt.generate_password_hash(
             password, current_app.config.get("BCRYPT_LOG_ROUNDS")
         ).decode()
@@ -52,9 +49,9 @@ class User(db.Model):
         payload = jwt.decode(token, current_app.config.get("SECRET_KEY"))
         return payload["sub"]
 
+
 if os.getenv("FLASK_ENV") == "development":
     from project import admin
     from project.api.users.admin import UsersAdminView
 
     admin.add_view(UsersAdminView(User, db.session))
-

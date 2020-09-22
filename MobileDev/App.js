@@ -1,14 +1,15 @@
-import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, ImageBackground, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import Navigator from './Routes/homestack';
+import { StyleSheet, Text, View } from 'react-native';
+import TestComp from './components/testComp'
 
 export default function App() {
-  return ( /* make this work at highest level? */
-    <TouchableWithoutFeedback onPress={() => { console.log("keyboard dropped") }}> 
-      <Navigator/>
-    </TouchableWithoutFeedback>
+  return (
+    <View style={styles.container}>
+      <Text>Point app for point things... and other things</Text>
+      <Text>This is Yellow now. To check if pushes will work right</Text>
+      <StatusBar style="auto" />
+    </View>
   );
 }
 

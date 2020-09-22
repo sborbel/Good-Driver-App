@@ -1,4 +1,4 @@
-# services/server/project/api/auth.py
+# services/users/project/api/auth.py
 
 
 import jwt

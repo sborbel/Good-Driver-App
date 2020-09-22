@@ -2,26 +2,26 @@ version: '3.7'
 
 services:
 
-  server:
+  users:
     build:
-      context: ./services/server
+      context: ./services/users
       dockerfile: Dockerfile
     entrypoint: ['/usr/src/app/entrypoint.sh']
     volumes:
-      - './services/server:/usr/src/app'
+      - './services/users:/usr/src/app'
     ports:
       - 5001:5000
     environment:
       - FLASK_ENV=development
       - APP_SETTINGS=project.config.DevelopmentConfig
-      - DATABASE_URL=postgresql://postgres:postgres@good-drivers-db:5432/good_drivers_dev
-      - DATABASE_TEST_URL=postgresql://postgres:postgres@good-drivers-db:5432/good_drivers_test
+      - DATABASE_URL=postgresql://postgres:postgres@users-db:5432/users_dev
+      - DATABASE_TEST_URL=postgresql://postgres:postgres@users-db:5432/users_test
     depends_on:
-      - good-drivers-db
+      - users-db
 
-  good-drivers-db:
+  users-db:
     build:
-      context: ./services/server/project/db
+      context: ./services/users/project/db
       dockerfile: Dockerfile
     expose:
       - 5432
@@ -45,7 +45,7 @@ services:
       - REACT_APP_USERS_SERVICE_URL=${REACT_APP_USERS_SERVICE_URL}
       - CHOKIDAR_USEPOLLING=true
     depends_on:
-      - server
+      - users
 
 volumes:
   db-data:
