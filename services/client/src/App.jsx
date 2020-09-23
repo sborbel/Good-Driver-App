@@ -220,16 +220,12 @@ class App extends Component {
     else if(this.state.role === "Sponsor"){
       homePage = <Route exact path="/about" component={SponsorHome} />;
     }
-    
-
     return (
       <div>
         <NavBar
           title={this.state.title}
           logoutUser={this.logoutUser}
           isAuthenticated={this.isAuthenticated}
-          isDriver={this.isDriver}
-          isSponsor={this.isSponsor}
         />
         <section className="section">
           <div className="container">
