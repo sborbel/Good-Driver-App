@@ -99,5 +99,5 @@ class Announcements(Resource):
 
 
 announcements_namespace.add_resource(AnnouncementsList, "/")
-announcements_namespace.add_resource(AnnouncementsListbySponsor, "/<int:sponsor_id>")
+announcements_namespace.add_resource(AnnouncementsListbySponsor, "/by_sponsor/<int:sponsor_id>")
 announcements_namespace.add_resource(Announcements, "/<int:announcement_id>")

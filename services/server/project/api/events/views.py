@@ -75,15 +75,17 @@ class Events(Resource):
     # @events_namespace.response(404, "Uvent <event_id> does not exist")
     def put(self, event_id):
         """Updates an event."""
-        post_data = request.get_json()
-        description = post_data.get("description")
-        points = post_data.get("points")
-        response_object = {}
 
         event = get_event_by_id(event_id)
         if not event:
             events_namespace.abort(404, f"Event {event_id} does not exist")
-        update_event(event, description, email)
+
+        post_data = request.get_json()
+        description = post_data.get("description") or event.description
+        points = post_data.get("points") or event.points
+        response_object = {}
+
+        update_event(event, description, points)
         response_object["message"] = f"{event.id} was updated!"
         return response_object, 200
 
@@ -96,10 +98,10 @@ class Events(Resource):
         if not event:
             events_namespace.abort(404, f"Event {event_id} does not exist")
         delete_event(event)
-        response_object["message"] = f"{event.email} was removed!"
+        response_object["message"] = f"Event {event.id} was removed!"
         return response_object, 200
 
 
 events_namespace.add_resource(EventsList, "")
-events_namespace.add_resource(EventsListbyUser, "/<int:user_id>")
+events_namespace.add_resource(EventsListbyUser, "/by_user/<int:user_id>")
 events_namespace.add_resource(Events, "/<int:event_id>")
