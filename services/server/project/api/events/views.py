@@ -100,6 +100,6 @@ class Events(Resource):
         return response_object, 200
 
 
-events_namespace.add_resource(EventsList, "/")
+events_namespace.add_resource(EventsList, "")
 events_namespace.add_resource(EventsListbyUser, "/<int:user_id>")
 events_namespace.add_resource(Events, "/<int:event_id>")

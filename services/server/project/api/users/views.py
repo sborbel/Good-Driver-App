@@ -54,7 +54,7 @@ class UsersList(Resource):
         if user:
             response_object["message"] = "Sorry. That email already exists."
             return response_object, 400
-        add_user(username, email, password)
+        add_user(username, email, password, role)
         response_object["message"] = f"{email} was added!"
         return response_object, 201
 
@@ -70,25 +70,27 @@ class Users(Resource):
             users_namespace.abort(404, f"User {user_id} does not exist")
         return user, 200
 
-    @users_namespace.expect(user, validate=True)
+    @users_namespace.expect(user)
     @users_namespace.response(200, "<user_is> was updated!")
     @users_namespace.response(404, "User <user_id> does not exist")
     def put(self, user_id):
         """Updates a user."""
-        post_data = request.get_json()
-        username = post_data.get("username")
-        email = post_data.get("email")
-        role = post_data.get("role")
-        response_object = {}
 
         user = get_user_by_id(user_id)
         if not user:
             users_namespace.abort(404, f"User {user_id} does not exist")
-        update_user(user, username, email)
+
+        post_data = request.get_json()
+        username = post_data.get("username") or user.username
+        email = post_data.get("email") or user.email
+        role = post_data.get("role") or user.role
+        response_object = {}
+
+        update_user(user, username, email, role)
         response_object["message"] = f"{user.id} was updated!"
         return response_object, 200
 
-    @users_namespace.response(200, "<user_is> was removed!")
+    @users_namespace.response(200, "<user_id> was removed!")
     @users_namespace.response(404, "User <user_id> does not exist")
     def delete(self, user_id):
         """Updates a user."""
