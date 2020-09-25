@@ -18,7 +18,7 @@ class Announcement(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
     content = db.Column(db.String(1024), nullable=False)
-    sponsor_id = db.Column(db.Integer, db.ForeignKey('sponsors.id'), nullable=False)
+    sponsor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
 
     def __init__(self, content="", sponsor_id=""):

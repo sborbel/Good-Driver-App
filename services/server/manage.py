@@ -8,6 +8,7 @@ from flask.cli import FlaskGroup
 from project import create_app, db
 from project.api.events.models import Event
 from project.api.users.models import User
+from project.api.announcements.models import Announcement
 
 
 app = create_app()
@@ -26,12 +27,19 @@ def seed_db():
     db.session.add(User(username="Wes Bailey", email="jwb4@clemson.edu", password="jwb4", role="admin"))
     db.session.add(User(username="Shelton Shaw", email="sshaw5@clemson.edu", password="sshaw", role="sponsor_mgr"))
     db.session.add(User(username="Sean Borbely", email="sborbel@clemson.edu", password="sborbel", role="driver"))
+    db.session.add(User(username="Yellow Freight", email="info@yf.com", password="yellow", role="sponsor"))
     db.session.commit()
 
 @cli.command("seed_events")
 def seed_events(): 
     db.session.add(Event(description="Safe driving award.", points=15, user_id=3))
     db.session.add(Event(description="Avoided hitting pedestrian.", points=25, user_id=3))
+    db.session.commit()
+
+@cli.command("seed_annc")
+def seed_annc(): 
+    db.session.add(Announcement(content="Try not to run over anything!", sponsor_id=3))
+    db.session.add(Announcement(content="Be careful out there.", sponsor_id=3))
     db.session.commit()
 
 

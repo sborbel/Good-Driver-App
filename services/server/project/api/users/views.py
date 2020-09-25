@@ -34,6 +34,11 @@ user_post = users_namespace.inherit(
 
 class UsersList(Resource):
     @users_namespace.marshal_with(user, as_list=True)
+    @users_namespace.doc(params={
+        "username": "String",
+        "email": "String",
+        "role": "String",
+    })
     def get(self):
         """Returns all users."""
         return get_all_users(), 200

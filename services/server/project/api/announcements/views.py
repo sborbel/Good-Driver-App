@@ -43,7 +43,7 @@ class AnnouncementsList(Resource):
         sponsor_id = post_data.get("sponsor_id")
         response_object = {}
 
-        add_announcement(content, points, sponsor_id)
+        add_announcement(content, sponsor_id)
         response_object["message"] = f"Announcement was added!"
         return response_object, 201
 
