@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { Route, Switch } from "react-router-dom";
+import { Route, Switch, withRouter } from "react-router-dom";
 import Modal from "react-modal";
 
 import UsersList from "./components/UsersList";
@@ -34,6 +34,7 @@ class App extends Component {
     this.state = {
       users: [],
       myID: "Init",
+      email: "",
       title: "Good Driver Rewards Program",
       accessToken: null,
       messageType: null,
@@ -107,6 +108,25 @@ class App extends Component {
         console.log(error);
       });
   };
+  setid = () => {
+    const options = {
+      url: `${process.env.REACT_APP_USERS_SERVICE_URL}/auth/status`,
+      method: "get",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: this.state.accessToken
+      }
+    };
+    axios(options)
+      .then(res => {
+        this.setState({
+          myID: res.data.id
+        });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  };
 
   handleLoginFormSubmit = data => {
     const url = `${process.env.REACT_APP_USERS_SERVICE_URL}/auth/login`;
@@ -114,7 +134,7 @@ class App extends Component {
       .post(url, data)
       .then(res => {
         this.setState({ accessToken: res.data.access_token });
-        this.setState({ myID: data.email });
+        this.setState({ email: data.email });
         this.getUsers();
         this.setrole();
         window.localStorage.setItem("refreshToken", res.data.refresh_token);
@@ -131,6 +151,9 @@ class App extends Component {
   logoutUser = () => {
     window.localStorage.removeItem("refreshToken");
     this.setState({ accessToken: null });
+    this.setState({ role: "" });
+    this.props.history.push('/login')
+    
     this.createMessage("success", "You have logged out.");
   };
 
@@ -140,16 +163,7 @@ class App extends Component {
     }
     return false;
   };
-  isDriver = () => {
-    let myUsers = this.state.users;
-    return myUsers;
-  };
-  isSponsor = () => {
-    if (this.state.accessToken || this.validRefresh()) {
-      return true;
-    }
-    return false;
-  };
+  
 
   validRefresh = () => {
     const token = window.localStorage.getItem("refreshToken");
@@ -161,6 +175,8 @@ class App extends Component {
         .then(res => {
           this.setState({ accessToken: res.data.access_token });
           this.getUsers();
+
+          this.setrole();
           window.localStorage.setItem("refreshToken", res.data.refresh_token);
           return true;
         })
@@ -180,6 +196,10 @@ class App extends Component {
       this.removeMessage();
     }, 3000);
   };
+
+  getRole = () => {
+    return this.state.role;
+  }
 
   removeMessage = () => {
     this.setState({
@@ -211,21 +231,48 @@ class App extends Component {
 
   render() {
     let homePage = <Route exact path="/about" component={About} />;
-    if(this.state.role === "Driver"){
-      homePage = <Route exact path="/about" component={DriverHome} />;
+    if(this.state.role === "driver"){
+      homePage = <Route exact path="/"
+      render={() => (
+        <div>
+          <h1 className="title is-1">Driver Home</h1>
+          <hr />
+          
+        </div>
+      )}
+    />;
     }
-    else if(this.state.role === "Admin"){
-      homePage = <Route exact path="/about" component={AdminHome} />;
+    else if(this.state.role === "admin"){
+      homePage = <Route exact path="/"
+      render={() => (
+        <div>
+          <h1 className="title is-1">Admin Home</h1>
+          <hr />
+          
+        </div>
+      )}
+    />;
     }
-    else if(this.state.role === "Sponsor"){
-      homePage = <Route exact path="/about" component={SponsorHome} />;
+    else if(this.state.role === "sponsor_mgr"){
+      homePage = <Route exact path="/"
+                    render={() => (
+                      <div>
+                        <h1 className="title is-1">Sponsor Home</h1>
+                        <hr />
+                        
+                      </div>
+                    )}
+                  />;
     }
+    
     return (
       <div>
         <NavBar
           title={this.state.title}
           logoutUser={this.logoutUser}
           isAuthenticated={this.isAuthenticated}
+          getRole={this.getRole}
+
         />
         <section className="section">
           <div className="container">
@@ -240,11 +287,11 @@ class App extends Component {
               <div className="column is-half">
                 <br />
                 <Switch>
-                  <Route exact path="/"
+                  {homePage}
+                  <Route exact path="/addUser"
                     render={() => (
                       <div>
                         <h1 className="title is-1">Users</h1>
-                        <h2 className="title is-2">{this.state.role}</h2>
                         <hr />
                         <br />
                         {this.isAuthenticated() && (
@@ -282,13 +329,11 @@ class App extends Component {
                           users={this.state.users}
                           removeUser={this.removeUser}
                           isAuthenticated={this.isAuthenticated}
-                          isDriver={this.isDriver}
-                          isSponsor={this.isSponsor}
                         />
                       </div>
                     )}
                   />
-                  {homePage}
+                  
                   <Route
                     exact
                     path="/register"
@@ -322,8 +367,7 @@ class App extends Component {
                       <UserStatus
                         accessToken={this.state.accessToken}
                         isAuthenticated={this.isAuthenticated}
-                        isDriver={this.isDriver}
-                        isSponsor={this.isSponsor}
+                        
                       />
                     )}
                   />
@@ -337,4 +381,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withRouter(App);
