@@ -17,17 +17,18 @@ def get_user_by_email(email):
     return User.query.filter_by(email=email).first()
 
 
-def add_user(username, email, password, role):
-    user = User(username=username, email=email, password=password, role=role)
+def add_user(username, email, password, role, sponsor_name):
+    user = User(username=username, email=email, password=password, role=role, sponsor_name=sponsor_name)
     db.session.add(user)
     db.session.commit()
     return user
 
 
-def update_user(user, username, email, role):
+def update_user(user, username, email, role, sponsor_name):
     user.username = username
     user.email = email
     user.role = role
+    user.sponsor_name = sponsor_name
     db.session.commit()
     return user
 

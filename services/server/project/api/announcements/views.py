@@ -33,9 +33,9 @@ class AnnouncementsList(Resource):
         """Returns all announcements."""
         return get_all_announcements(), 200
 
-    # @announcements_namespace.expect(announcement_post, validate=True)
-    # @announcements_namespace.response(201, "<announcement_email> was added!")
-    # @announcements_namespace.response(400, "Sorry. That email already exists.")
+    @announcements_namespace.expect(announcement, validate=True)
+    @announcements_namespace.response(201, "<announcement_id> was added!")
+    @announcements_namespace.response(400, "Sorry. That announcement already exists.")
     def post(self):
         """Creates a new announcement."""
         post_data = request.get_json()
@@ -58,8 +58,8 @@ class AnnouncementsListbySponsor(Resource):
 
 class Announcements(Resource):
     @announcements_namespace.marshal_with(announcement)
-    # @announcements_namespace.response(200, "Success")
-    # @announcements_namespace.response(404, "Announcement <announcement_id> does not exist")
+    @announcements_namespace.response(200, "Success")
+    @announcements_namespace.response(404, "Announcement <announcement_id> does not exist")
     def get(self, announcement_id):
         """Returns all details for a single announcement."""
         announcement = get_announcement_by_id(announcement_id)
@@ -68,9 +68,9 @@ class Announcements(Resource):
         return announcement, 200
 
 
-    # @announcements_namespace.expect(announcement, validate=True)
-    # @announcements_namespace.response(200, "<announcement_id> was updated!")
-    # @announcements_namespace.response(404, "Uvent <announcement_id> does not exist")
+    @announcements_namespace.expect(announcement, validate=False)
+    @announcements_namespace.response(200, "<announcement_id> was updated!")
+    @announcements_namespace.response(404, "Announcement <announcement_id> does not exist")
     def put(self, announcement_id):
         """Updates an announcement."""
         post_data = request.get_json()
@@ -85,8 +85,8 @@ class Announcements(Resource):
         response_object["message"] = f"{announcement.id} was updated!"
         return response_object, 200
 
-    # @announcements_namespace.response(200, "<announcement_id> was removed!")
-    # @announcements_namespace.response(404, "Announcement <announcement_id> does not exist")
+    @announcements_namespace.response(200, "<announcement_id> was removed!")
+    @announcements_namespace.response(404, "Announcement <announcement_id> does not exist")
     def delete(self, announcement_id):
         """Updates a announcement."""
         response_object = {}

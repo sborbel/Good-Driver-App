@@ -39,7 +39,7 @@ class OrdersList(Resource):
         """Returns all orders."""
         return get_all_orders(), 200
 
-    # @orders_namespace.expect(order_post, validate=True)
+    @orders_namespace.expect(order, validate=True)
     @orders_namespace.response(201, "<order_id> was added!")
     @orders_namespace.response(400, "Sorry. That id already exists.")
     def post(self):
@@ -49,7 +49,7 @@ class OrdersList(Resource):
         user_id = post_data.get("user_id")
         response_object = {}
 
-        add_order(name, supplier, user_id)
+        add_order(status, user_id)
         response_object["message"] = f"Order was added!"
         return response_object, 201
 
@@ -73,7 +73,7 @@ class Orders(Resource):
         return order, 200
 
 
-    @orders_namespace.expect(order, validate=True)
+    @orders_namespace.expect(order, validate=False)
     @orders_namespace.response(200, "<order_id> was updated!")
     @orders_namespace.response(404, "Order <order_id> does not exist")
     def put(self, order_id):
@@ -111,12 +111,14 @@ order_items_namespace = Namespace("order_items")
 order_item = order_items_namespace.model(
     "OrderItem",
     {
-        "order_id": fields.Integer(readOnly=True),
-        "catalog_id": fields.Integer(readOnly=True),
-        "catalog_item_id": fields.Integer(readOnly=True),
-        "quantity": fields.Integer(readOnly=True),
+        "id": fields.Integer(readOnly=True),
+        "order_id": fields.Integer(required=True),
+        "catalog_id": fields.Integer(required=True),
+        "catalog_item_id": fields.Integer(required=True),
+        "quantity": fields.Integer(required=True),
         "actual_cost": fields.Fixed(decimals=2, required=True),
-        "points_cost": fields.Integer(readOnly=True),
+        "points_cost": fields.Integer(required=True),
+        "created_date": fields.DateTime,
     },
 )
 
@@ -126,7 +128,7 @@ class OrderItemsList(Resource):
         """Returns all orders."""
         return get_all_order_items(), 200
 
-    # @order_items_namespace.expect(order_post, validate=True)
+    @order_items_namespace.expect(order_item, validate=True)
     @order_items_namespace.response(201, "<order_item> was added!")
     @order_items_namespace.response(400, "Sorry. An item with that name already exists.")
     def post(self):
@@ -145,7 +147,7 @@ class OrderItemsList(Resource):
 
 
 class OrderItemsListbyOrder(Resource):
-    @order_items_namespace.marshal_with(order, as_list=True)
+    @order_items_namespace.marshal_with(order_item, as_list=True)
     def get(self, order_id):
         """Returns all order items for a single order."""
         return get_all_order_items_by_order_id(order_id), 200
@@ -163,7 +165,7 @@ class OrderItems(Resource):
         return order_item, 200
 
 
-    @order_items_namespace.expect(order_item, validate=True)
+    @order_items_namespace.expect(order_item, validate=False)
     @order_items_namespace.response(200, "<order_item_id> was updated!")
     @order_items_namespace.response(404, "Order item <order_item_id> does not exist")
     def put(self, order_item_id):

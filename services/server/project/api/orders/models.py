@@ -31,10 +31,10 @@ class OrderItem(db.Model):
     __tablename__ = "order_items"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
+    order_id = db.Column(db.Integer, nullable=False)
     # The following 2 key constraints may cause errors if the imports are not right
-    catalog_id = db.Column(db.Integer, db.ForeignKey('catalogs.id'), nullable=False)
-    catalog_item_id = db.Column(db.Integer, db.ForeignKey('catalog_items.id'), nullable=False)
+    catalog_id = db.Column(db.Integer, nullable=False)
+    catalog_item_id = db.Column(db.Integer, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     points_cost = db.Column(db.Integer, nullable=False)
     actual_cost = db.Column(db.Numeric(10,2), nullable=False)

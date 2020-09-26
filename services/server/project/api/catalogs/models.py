@@ -37,7 +37,7 @@ class CatalogItem(db.Model):
     points_cost = db.Column(db.Integer, nullable=False)
     actual_cost = db.Column(db.Numeric(10,2), nullable=False)
     created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
-    catalog_id = db.Column(db.Integer, db.ForeignKey('catalogs.id'), nullable=False)
+    catalog_id = db.Column(db.Integer, nullable=False)
 
 
     def __init__(self, name="", description="", image_url="", points_cost="", actual_cost="", catalog_id=""):

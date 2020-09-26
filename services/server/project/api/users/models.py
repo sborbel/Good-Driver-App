@@ -22,12 +22,14 @@ class User(db.Model):
     active = db.Column(db.Boolean(), default=True, nullable=False)
     created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
     role = db.Column(db.String(16), default="driver", nullable=False)
+    sponsor_name = db.Column(db.String, nullable=True)
     # events = db.relationship('Event', backref='user', lazy=True)
 
-    def __init__(self, username="", email="", password="", role=""):
+    def __init__(self, username="", email="", password="", role="", sponsor_name=""):
         self.username = username
         self.email = email
         self.role = role
+        self.sponsor_name = sponsor_name
         self.password = bcrypt.generate_password_hash(
             password, current_app.config.get("BCRYPT_LOG_ROUNDS")
         ).decode()

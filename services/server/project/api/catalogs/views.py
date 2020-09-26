@@ -40,7 +40,7 @@ class CatalogsList(Resource):
         """Returns all catalogs."""
         return get_all_catalogs(), 200
 
-    # @catalogs_namespace.expect(catalog_post, validate=True)
+    @catalogs_namespace.expect(catalog, validate=True)
     @catalogs_namespace.response(201, "<catalog_name> was added!")
     @catalogs_namespace.response(400, "Sorry. That name already exists.")
     def post(self):
@@ -76,7 +76,7 @@ class Catalogs(Resource):
         return catalog, 200
 
 
-    @catalogs_namespace.expect(catalog, validate=True)
+    @catalogs_namespace.expect(catalog, validate=False)
     @catalogs_namespace.response(200, "<catalog_id> was updated!")
     @catalogs_namespace.response(404, "Catalog <catalog_id> does not exist")
     def put(self, catalog_id):
@@ -131,7 +131,7 @@ class CatalogItemsList(Resource):
         """Returns all catalog items."""
         return get_all_catalog_items(), 200
 
-    # @catalog_items_namespace.expect(catalog_post, validate=True)
+    @catalog_items_namespace.expect(catalog_item, validate=True)
     @catalog_items_namespace.response(201, "<catalog_item> was added!")
     @catalog_items_namespace.response(400, "Sorry. An item with that name already exists.")
     def post(self):
@@ -145,12 +145,12 @@ class CatalogItemsList(Resource):
         catalog_id = post_data.get("catalog_id")
         response_object = {}
         add_catalog_item(name, description, image_url, points_cost, actual_cost, catalog_id)
-        response_object["message"] = f"Catalog was added!"
+        response_object["message"] = f"Catalog item was added!"
         return response_object, 201
 
 
 class CatalogItemsListbyCatalog(Resource):
-    @catalog_items_namespace.marshal_with(catalog, as_list=True)
+    @catalog_items_namespace.marshal_with(catalog_item, as_list=True)
     def get(self, catalog_id):
         """Returns all catalog items for a single catalog."""
         return get_all_catalog_items_by_catalog_id(catalog_id), 200
@@ -168,7 +168,7 @@ class CatalogItems(Resource):
         return catalog_item, 200
 
 
-    @catalog_items_namespace.expect(catalog_item, validate=True)
+    @catalog_items_namespace.expect(catalog_item, validate=False)
     @catalog_items_namespace.response(200, "<catalog_item_id> was updated!")
     @catalog_items_namespace.response(404, "Catalog item <catalog_item_id> does not exist")
     def put(self, catalog_item_id):

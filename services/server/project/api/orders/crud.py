@@ -48,7 +48,7 @@ def get_order_item_by_id(item_id):
 
 
 def add_order_item(order_id, catalog_id, catalog_item_id, quantity, actual_cost, points_cost):
-    order_item = Order(order_id=order_id, catalog_id=catalog_id, catalog_item_id=catalog_item_id, quantity=quantity, actual_cost=actual_cost, points_cost=points_cost)
+    order_item = OrderItem(order_id=order_id, catalog_id=catalog_id, catalog_item_id=catalog_item_id, quantity=quantity, actual_cost=actual_cost, points_cost=points_cost)
     db.session.add(order_item)
     db.session.commit()
     return order_item

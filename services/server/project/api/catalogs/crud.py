@@ -48,7 +48,7 @@ def get_catalog_item_by_id(item_id):
 
 
 def add_catalog_item(name, description, image_url, points_cost, actual_cost, catalog_id):
-    catalog_item = Catalog(name=name, description=description, image_url=image_url, points_cost=points_cost, actual_cost=actual_cost, catalog_id=catalog_id)
+    catalog_item = CatalogItem(name=name, description=description, image_url=image_url, points_cost=points_cost, actual_cost=actual_cost, catalog_id=catalog_id)
     db.session.add(catalog_item)
     db.session.commit()
     return catalog_item

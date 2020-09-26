@@ -23,6 +23,7 @@ user = users_namespace.model(
         "username": fields.String(required=True),
         "email": fields.String(required=True),
         "role": fields.String(required=True),
+        "sponsor_name": fields.String(required=True),
         "created_date": fields.DateTime,
     },
 )
@@ -38,6 +39,7 @@ class UsersList(Resource):
         "username": "String",
         "email": "String",
         "role": "String",
+        "sponsor_name": "String"
     })
     def get(self):
         """Returns all users."""
@@ -53,13 +55,14 @@ class UsersList(Resource):
         email = post_data.get("email")
         password = post_data.get("password")
         role = post_data.get("role")
+        sponsor_name = post_data.get("sponsor_name")
         response_object = {}
 
         user = get_user_by_email(email)
         if user:
             response_object["message"] = "Sorry. That email already exists."
             return response_object, 400
-        add_user(username, email, password, role)
+        add_user(username, email, password, role, sponsor_name)
         response_object["message"] = f"{email} was added!"
         return response_object, 201
 
@@ -89,9 +92,10 @@ class Users(Resource):
         username = post_data.get("username") or user.username
         email = post_data.get("email") or user.email
         role = post_data.get("role") or user.role
+        sponsor_name = post_data.get("sponsor_name") or user.sponsor_name
         response_object = {}
 
-        update_user(user, username, email, role)
+        update_user(user, username, email, role, sponsor_name)
         response_object["message"] = f"{user.id} was updated!"
         return response_object, 200
 
