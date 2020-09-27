@@ -2,6 +2,21 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
 import { Redirect } from "react-router-dom";
+import Modal from "react-modal";
+import UsersList from "./UsersList";
+
+const modalStyles = {
+  content: {
+    top: "0",
+    left: "0",
+    right: "0",
+    bottom: "0",
+    border: 0,
+    background: "transparent"
+  }
+};
+
+Modal.setAppElement(document.getElementById("root"));
 
 class UserStatus extends Component {
   constructor(props) {
@@ -15,6 +30,9 @@ class UserStatus extends Component {
   componentDidMount() {
     this.getUserStatus();
   }
+  handleOpenModal = () => {
+    this.setState({ showModal: true });
+  };
   getUserStatus(event) {
     const options = {
       url: `${process.env.REACT_APP_USERS_SERVICE_URL}/auth/status`,
@@ -42,20 +60,25 @@ class UserStatus extends Component {
     }
     return (
       <div>
-        <ul>
-          <li>
-            <strong>Email:</strong>&nbsp;
-            <span data-testid="user-email">{this.state.email}</span>
-          </li>
-          <li>
-            <strong>Username:</strong>&nbsp;
-            <span data-testid="user-username">{this.state.username}</span>
-          </li>
-          <li>
-            <strong>Role:</strong>&nbsp;
-            <span data-testid="user-role">{this.state.role}</span>
-          </li>
-        </ul>
+        <h1 className="title is-1">Users</h1>
+        <hr />
+        <br />
+        
+        <br />
+        <br />
+        <Modal
+          isOpen={this.props.showModal}
+          style={modalStyles}
+        >
+          
+        </Modal>
+        <UsersList
+          users={this.props.users}
+          removeUser={this.props.removeUser}
+          isAuthenticated={this.props.isAuthenticated}
+          myUser={this.props.myUser}
+          role={this.props.role}
+        />
       </div>
     );
   }
@@ -63,7 +86,10 @@ class UserStatus extends Component {
 
 UserStatus.propTypes = {
   accessToken: PropTypes.string,
-  isAuthenticated: PropTypes.func.isRequired
+  isAuthenticated: PropTypes.func.isRequired,
+  users: PropTypes.array,
+  role: PropTypes.string,
+  myUser: PropTypes.string
 };
 
 export default UserStatus;

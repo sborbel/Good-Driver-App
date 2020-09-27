@@ -367,7 +367,13 @@ class App extends Component {
                       <UserStatus
                         accessToken={this.state.accessToken}
                         isAuthenticated={this.isAuthenticated}
-                        
+                        users={this.state.users}
+                        showModal={this.state.showModal}
+                        addUser={this.addUser}
+                        removeUser={this.removeUser}
+                        role={this.state.role}
+                        myUser={this.state.email}
+
                       />
                     )}
                   />

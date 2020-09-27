@@ -1,23 +1,74 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const UsersList = props => {
+function UsersList(props) {
+  const {users} = props;
+  let sortedUsers = [];
+  const [sortedField, setSortedField] = React.useState(null);
+  for(let idx in users){
+    const item = users[idx];
+    if(props.role === "admin"){
+      if(item.role === "sponsor_mgr"){
+        sortedUsers.push(item);
+      }
+      if(item.role === "driver"){
+        sortedUsers.push(item);
+      }
+    }
+    if(props.role === "sponsor_mgr"){
+      if(item.role === "driver"){
+        sortedUsers.push(item);
+      }
+    }
+    if(props.role === "driver"){
+      if(item.email === props.myUser){
+        sortedUsers.push(item);
+      }
+    }
+  }
+  if(sortedField !== null) {
+    sortedUsers.sort((a, b) => {
+      if (a[sortedField] < b[sortedField]){
+        return -1;
+      }
+      if (a[sortedField] > b[sortedField]){
+        return 1;
+      }
+      return 0;
+    });
+  }
+  
   return (
     <div>
       <table className="table is-hoverable is-fullwidth">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Email</th>
-            <th>Username</th>
+            <th>
+              <button type="button" onClick={() => setSortedField('role')}>
+                Role
+              </button>
+            </th>
+            <th>
+              <button type="button" onClick={() => setSortedField('email')}>
+                Email
+              </button>
+            </th>
+            
+            <th>
+              <button type="button" onClick={() => setSortedField('username')}>
+                Username
+              </button>
+            </th>
             {props.isAuthenticated() && <th />}
           </tr>
         </thead>
         <tbody>
-          {props.users.map(user => {
+          {sortedUsers.map(user => {
             return (
               <tr key={user.id}>
                 <td>{user.id}</td>
+                <td>{user.role}</td>
                 <td>{user.email}</td>
                 <td className="username">{user.username}</td>
                 {props.isAuthenticated() && (
@@ -37,12 +88,15 @@ const UsersList = props => {
       </table>
     </div>
   );
-};
+
+}
 
 UsersList.propTypes = {
   users: PropTypes.array.isRequired,
   removeUser: PropTypes.func.isRequired,
-  isAuthenticated: PropTypes.func.isRequired
+  isAuthenticated: PropTypes.func.isRequired,
+  role: PropTypes.string,
+  myUser: PropTypes.string
 };
 
 export default UsersList;
