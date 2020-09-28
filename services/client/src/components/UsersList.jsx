@@ -8,12 +8,7 @@ function UsersList(props) {
   for(let idx in users){
     const item = users[idx];
     if(props.role === "admin"){
-      if(item.role === "sponsor_mgr"){
-        sortedUsers.push(item);
-      }
-      if(item.role === "driver"){
-        sortedUsers.push(item);
-      }
+      sortedUsers.push(item);
     }
     if(props.role === "sponsor_mgr"){
       if(item.role === "driver"){
