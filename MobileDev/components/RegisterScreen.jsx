@@ -6,8 +6,8 @@ function Register(props){
                 <View style={styles.background}>
                     <Text>Welcome to the registration screen</Text>
                 </View>
-            </TouchableWithoutFeedback>
-            );
+        </TouchableWithoutFeedback>
+    );
 }
 
 const styles = StyleSheet.create({

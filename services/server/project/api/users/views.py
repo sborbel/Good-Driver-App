@@ -23,6 +23,7 @@ user = users_namespace.model(
         "username": fields.String(required=True),
         "email": fields.String(required=True),
         "role": fields.String(required=True),
+        "sponsor_name": fields.String(required=True),
         "created_date": fields.DateTime,
     },
 )
@@ -34,6 +35,12 @@ user_post = users_namespace.inherit(
 
 class UsersList(Resource):
     @users_namespace.marshal_with(user, as_list=True)
+    @users_namespace.doc(params={
+        "username": "String",
+        "email": "String",
+        "role": "String",
+        "sponsor_name": "String"
+    })
     def get(self):
         """Returns all users."""
         return get_all_users(), 200
@@ -48,13 +55,14 @@ class UsersList(Resource):
         email = post_data.get("email")
         password = post_data.get("password")
         role = post_data.get("role")
+        sponsor_name = post_data.get("sponsor_name")
         response_object = {}
 
         user = get_user_by_email(email)
         if user:
             response_object["message"] = "Sorry. That email already exists."
             return response_object, 400
-        add_user(username, email, password)
+        add_user(username, email, password, role, sponsor_name)
         response_object["message"] = f"{email} was added!"
         return response_object, 201
 
@@ -70,25 +78,28 @@ class Users(Resource):
             users_namespace.abort(404, f"User {user_id} does not exist")
         return user, 200
 
-    @users_namespace.expect(user, validate=True)
+    @users_namespace.expect(user)
     @users_namespace.response(200, "<user_is> was updated!")
     @users_namespace.response(404, "User <user_id> does not exist")
     def put(self, user_id):
         """Updates a user."""
-        post_data = request.get_json()
-        username = post_data.get("username")
-        email = post_data.get("email")
-        role = post_data.get("role")
-        response_object = {}
 
         user = get_user_by_id(user_id)
         if not user:
             users_namespace.abort(404, f"User {user_id} does not exist")
-        update_user(user, username, email)
+
+        post_data = request.get_json()
+        username = post_data.get("username") or user.username
+        email = post_data.get("email") or user.email
+        role = post_data.get("role") or user.role
+        sponsor_name = post_data.get("sponsor_name") or user.sponsor_name
+        response_object = {}
+
+        update_user(user, username, email, role, sponsor_name)
         response_object["message"] = f"{user.id} was updated!"
         return response_object, 200
 
-    @users_namespace.response(200, "<user_is> was removed!")
+    @users_namespace.response(200, "<user_id> was removed!")
     @users_namespace.response(404, "User <user_id> does not exist")
     def delete(self, user_id):
         """Updates a user."""
