@@ -94,7 +94,7 @@ class Users(Resource):
         role = post_data.get("role") or user.role
         sponsor_name = post_data.get("sponsor_name") or user.sponsor_name
         response_object = {}
-
+        
         update_user(user, username, email, role, sponsor_name)
         response_object["message"] = f"{user.id} was updated!"
         return response_object, 200

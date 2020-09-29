@@ -14,6 +14,9 @@ import AddUser from "./components/AddUser";
 import DriverHome from "./components/DriverHome";
 import AdminHome from "./components/AdminHome";
 import SponsorHome from "./components/SponsorHome";
+import EditUser from "./components/EditUser";
+import Announcement from 'react-announcement' // npm install react-announcement
+import Logo from './components/truck.jpeg'
 
 const modalStyles = {
   content: {
@@ -40,7 +43,9 @@ class App extends Component {
       messageType: null,
       messageText: null,
       showModal: false,
-      role: ""
+      role: "",
+      my_user: [],
+      announcementTitle: ""
     };
   }
 
@@ -75,6 +80,8 @@ class App extends Component {
       });
   };
 
+
+
   handleRegisterFormSubmit = data => {
     const url = `${process.env.REACT_APP_USERS_SERVICE_URL}/auth/register`;
     axios
@@ -87,6 +94,68 @@ class App extends Component {
         console.log(err);
         this.createMessage("danger", "That user already exists.");
       });
+  };
+
+  setmyuser = () => {
+    for(let idx in this.state.users){
+      const item = this.state.users[idx];
+      if(item.email === this.state.email){
+        this.setState({my_user: item});
+        return;
+      }
+    }
+  }
+  setannouncement = () => {
+    let sponsor = 0;
+    if(this.state.my_user.sponsor_name === "Yellow Freight"){
+      sponsor = 1;
+    }
+    if(this.state.my_user.sponsor_name === "Great Big Freight"){
+      sponsor = 2;
+    }
+
+    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/announcements/by_sponsor/${sponsor}`;
+    
+    axios
+      .get(url)
+      .then(res => {
+        console.log(res.data[0].content);
+        this.setState({
+          announcementTitle: res.data[0].content
+        });
+      })
+      .catch(err => {
+        this.setState({
+          announcementTitle: "noSponsor"
+        });
+      });
+  };
+  componentDidMount() {
+    this.getUserStatus();
+
+
+
+
+    {/*const options = {
+      url: `${process.env.REACT_APP_USERS_SERVICE_URL}/announcements/by_sponsor/${sponsor}`,
+      method: "get",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    };
+    axios(options)
+      .then(res => {
+        this.setState({
+          announcement: res.data
+        });
+      })
+      .catch(error => {
+        console.log(`${error} : ${this.props.my_user.sponsor_name}`);
+        this.setState({
+          announcement: noSponsor
+        });
+      });*/}
+    
   };
 
   setrole = () => {
@@ -136,7 +205,8 @@ class App extends Component {
         this.setState({ accessToken: res.data.access_token });
         this.setState({ email: data.email });
         this.getUsers();
-        this.setrole();
+        this.setmyuser();
+        this.setannouncement();
         window.localStorage.setItem("refreshToken", res.data.refresh_token);
         this.createMessage("success", "You have logged in successfully.");
       })
@@ -151,7 +221,7 @@ class App extends Component {
   logoutUser = () => {
     window.localStorage.removeItem("refreshToken");
     this.setState({ accessToken: null });
-    this.setState({ role: "" });
+    this.setState({ my_user: [] });
     this.props.history.push('/login')
     
     this.createMessage("success", "You have logged out.");
@@ -177,6 +247,7 @@ class App extends Component {
           this.getUsers();
 
           this.setrole();
+          this.render();
           window.localStorage.setItem("refreshToken", res.data.refresh_token);
           return true;
         })
@@ -198,7 +269,10 @@ class App extends Component {
   };
 
   getRole = () => {
-    return this.state.role;
+    if(this.state.my_user !== []){
+      return this.state.my_user.role;
+    }
+    return "";
   }
 
   removeMessage = () => {
@@ -231,29 +305,38 @@ class App extends Component {
 
   render() {
     let homePage = <Route exact path="/about" component={About} />;
-    if(this.state.role === "driver"){
+    if(this.state.my_user.role === "driver"){
       homePage = <Route exact path="/"
       render={() => (
         <div>
           <h1 className="title is-1">Driver Home</h1>
           <hr />
-          
+          <Announcement
+            title={this.state.my_user.sponsor_name}
+            subtitle={this.state.announcementTitle}
+            imageSource={Logo}
+            daysToLive={0}
+            secondsBeforeBannerShows={2}
+            closeIconSize={30}
+      />
         </div>
       )}
     />;
     }
-    else if(this.state.role === "admin"){
+    else if(this.state.my_user.role === "admin"){
       homePage = <Route exact path="/"
       render={() => (
         <div>
           <h1 className="title is-1">Admin Home</h1>
           <hr />
           
+          
+          
         </div>
       )}
     />;
     }
-    else if(this.state.role === "sponsor_mgr"){
+    else if(this.state.my_user.role === "sponsor_mgr"){
       homePage = <Route exact path="/"
                     render={() => (
                       <div>
@@ -326,9 +409,14 @@ class App extends Component {
                           </div>
                         </Modal>
                         <UsersList
-                          users={this.state.users}
-                          removeUser={this.removeUser}
+                          accessToken={this.state.accessToken}
                           isAuthenticated={this.isAuthenticated}
+                          users={this.state.users}
+                          showModal={this.state.showModal}
+                          addUser={this.addUser}
+                          removeUser={this.removeUser}
+                          role={this.state.role}
+                          my_user={this.state.my_user}
                         />
                       </div>
                     )}
@@ -360,6 +448,7 @@ class App extends Component {
                       />
                     )}
                   />
+                  <Route exact path="/about" component={About} />
                   <Route
                     exact
                     path="/status"
@@ -372,7 +461,9 @@ class App extends Component {
                         addUser={this.addUser}
                         removeUser={this.removeUser}
                         role={this.state.role}
-                        myUser={this.state.email}
+                        my_user={this.state.my_user}
+                        createMessage={this.createMessage}
+                        getUsers={this.getUsers}
 
                       />
                     )}

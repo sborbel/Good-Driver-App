@@ -24,15 +24,44 @@ class UserStatus extends Component {
     this.state = {
       email: "",
       username: "",
-      role: ""
+      role: "",
+      showModal: false
     };
   }
-  componentDidMount() {
-    this.getUserStatus();
+  getIDfromemail = email => {
+    for(let idx in this.props.users){
+      const item = this.props.users[idx];
+      if(item.email === email){
+        return item.id;
+      }
+
+    }
+    return -1;
   }
   handleOpenModal = () => {
     this.setState({ showModal: true });
   };
+  handleCloseModal = () => {
+    this.setState({ showModal: false });
+  };
+  editUser = (data, id) => {
+    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/users/${id}`;
+    axios
+      .put(url, data)
+      .then(res => {
+        this.handleCloseModal();
+        this.props.createMessage("success", "User updated.");
+      })
+      .catch(err => {
+        console.log(err);
+        this.handleCloseModal();
+        this.props.createMessage("danger", `${id}`);
+      });
+  };
+  componentDidMount() {
+    this.getUserStatus();
+  }
+  
   getUserStatus(event) {
     const options = {
       url: `${process.env.REACT_APP_USERS_SERVICE_URL}/auth/status`,
@@ -69,15 +98,24 @@ class UserStatus extends Component {
         <Modal
           isOpen={this.props.showModal}
           style={modalStyles}
+          
         >
+          
           
         </Modal>
         <UsersList
           users={this.props.users}
           removeUser={this.props.removeUser}
           isAuthenticated={this.props.isAuthenticated}
-          myUser={this.props.myUser}
+          my_user={this.props.my_user}
           role={this.props.role}
+          handleOpenModal={this.handleOpenModal}
+          handleCloseModal={this.handleCloseModal}
+          modalStyles={modalStyles}
+          showModal={this.state.showModal}
+          editUser={this.editUser}
+          addUser={this.props.addUser}
+          getUsers={this.props.getUsers}
         />
       </div>
     );
@@ -89,7 +127,11 @@ UserStatus.propTypes = {
   isAuthenticated: PropTypes.func.isRequired,
   users: PropTypes.array,
   role: PropTypes.string,
-  myUser: PropTypes.string
+  my_user: PropTypes.array,
+  addUser: PropTypes.func.isRequired,
+  createMessage: PropTypes.func,
+  removeUser: PropTypes.func,
+  getUsers: PropTypes.func
 };
 
 export default UserStatus;
