@@ -4,7 +4,7 @@ import {Text, StyleSheet, View, TouchableWithoutFeedback, Keyboard} from 'react-
 function Register(props){
     return( <TouchableWithoutFeedback onPress={() => {Keyboard.dismiss(); console.log("keyboard dropped") }}>
                 <View style={styles.background}>
-                    <Text>Welcome to the registration screen</Text>
+                    <Text>There'll be more stuff here. I promise :(</Text>
                 </View>
         </TouchableWithoutFeedback>
     );
