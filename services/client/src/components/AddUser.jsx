@@ -28,6 +28,7 @@ const AddUser = props => (
       password: Yup.string()
         .required("Password is required.")
         .min(11, "Password must be greater than 10 characters.")
+      
     })}
   >
     {props => {
