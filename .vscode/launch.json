@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "type": "aws-sam",
+            "request": "direct-invoke",
+            "name": "F20-Team14-Borbely.Bailey.Shaw:components/LoginScreen.Login (nodejs10.x)",
+            "invokeTarget": {
+                "target": "code",
+                "projectRoot": "MobileDev",
+                "lambdaHandler": "components/LoginScreen.Login"
+            },
+            "lambda": {
+                "runtime": "nodejs10.x",
+                "payload": {},
+                "environmentVariables": {}
+            }
+        }
+    ]
+}

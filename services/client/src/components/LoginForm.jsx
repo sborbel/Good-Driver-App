@@ -98,7 +98,7 @@ const LoginForm = props => {
       </Formik>
     </div>
   );
-};
+}
 
 LoginForm.propTypes = {
   handleLoginFormSubmit: PropTypes.func.isRequired,
