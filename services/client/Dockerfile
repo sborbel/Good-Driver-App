@@ -12,7 +12,6 @@ COPY package.json /usr/src/app/package.json
 COPY package-lock.json /usr/src/app/package-lock.json
 RUN npm ci
 RUN npm install react-scripts@3.4.0 -g --silent
-RUN npm install --save react-announcement
 
 # start app
 CMD ["npm", "start"]
