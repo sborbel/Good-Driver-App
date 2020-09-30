@@ -45,6 +45,12 @@ class UsersList(Resource):
         """Returns all users."""
         return get_all_users(), 200
 
+    @users_namespace.doc(params={
+        "username": "String",
+        "email": "String",
+        "role": "String",
+        "sponsor_name": "String"
+    })
     @users_namespace.expect(user_post, validate=True)
     @users_namespace.response(201, "<user_email> was added!")
     @users_namespace.response(400, "Sorry. That email already exists.")
