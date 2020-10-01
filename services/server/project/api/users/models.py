@@ -23,7 +23,6 @@ class User(db.Model):
     created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
     role = db.Column(db.String(16), default="driver", nullable=False)
     sponsor_name = db.Column(db.String, nullable=True)
-    # events = db.relationship('Event', backref='user', lazy=True)
 
     def __init__(self, username="", email="", password="", role="", sponsor_name=""):
         self.username = username

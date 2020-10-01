@@ -26,7 +26,7 @@ login = auth_namespace.model(
 )
 
 refresh = auth_namespace.model(
-    "Refresh", {"refresh_token": fields.String(required=True)}
+    "Refresh", {"refresh_token": fields.String(required=True), "user_id": fields.String(required=False)}
 )
 
 tokens = auth_namespace.clone(
@@ -73,10 +73,12 @@ class Login(Resource):
             auth_namespace.abort(404, "User does not exist")
         access_token = user.encode_token(user.id, "access")
         refresh_token = user.encode_token(user.id, "refresh")
+        # print(f"User: {user.id}")
 
         response_object = {
             "access_token": access_token.decode(),
             "refresh_token": refresh_token.decode(),
+            "user_id": user.id,
         }
         return response_object, 200
 
@@ -102,6 +104,7 @@ class Refresh(Resource):
             response_object = {
                 "access_token": access_token.decode(),
                 "refresh_token": refresh_token.decode(),
+                "user_id": user.id,
             }
             return response_object, 200
         except jwt.ExpiredSignatureError:

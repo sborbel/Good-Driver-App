@@ -8,7 +8,7 @@ import "./form.css";
 
 const LoginForm = props => {
   if (props.isAuthenticated()) {
-    return <Redirect to="/" />;
+    return <Redirect to="/home" />;
   }
   return (
     <div>

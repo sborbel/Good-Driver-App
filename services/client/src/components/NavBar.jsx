@@ -23,11 +23,10 @@ const NavBar = props => {
         <Link to="/login" className="navbar-item" data-testid="nav-login">
           Log In
         </Link>
-        
       </div>
     </div>
   );
-  if (props.isAuthenticated() && props.getRole() === "Admin") {
+  if (props.isAuthenticated()) {
     menu = (
       <div className="navbar-menu">
         <div className="navbar-start">
@@ -37,36 +36,6 @@ const NavBar = props => {
           <Link to="/status" className="navbar-item" data-testid="nav-status">
             User Status
           </Link>
-          <Link to="/addUser" className="navbar-item" data-testid="nav-addUser">
-            Add User
-          </Link>)
-        </div>
-        <div className="navbar-end">
-          <span
-            // eslint-disable-next-line react/jsx-handler-names
-            onClick={props.logoutUser}
-            className="navbar-item link"
-            data-testid="nav-logout"
-          >
-            Log Out
-          </span>
-        </div>
-      </div>
-    );
-  }
-  else if (props.isAuthenticated()) {
-    menu = (
-      <div className="navbar-menu">
-        <div className="navbar-start">
-          <Link to="/about" className="navbar-item" data-testid="nav-about">
-            About
-          </Link>
-          <Link to="/status" className="navbar-item" data-testid="nav-status">
-            User Status
-          </Link>
-          <Link to="/addUser" className="navbar-item" data-testid="nav-addUser">
-            Add User
-          </Link>)
         </div>
         <div className="navbar-end">
           <span
@@ -115,8 +84,7 @@ const NavBar = props => {
 NavBar.propTypes = {
   title: PropTypes.string.isRequired,
   logoutUser: PropTypes.func.isRequired,
-  isAuthenticated: PropTypes.func.isRequired,
-  getRole: PropTypes.func.isRequired
+  isAuthenticated: PropTypes.func.isRequired
 };
 
 export default NavBar;

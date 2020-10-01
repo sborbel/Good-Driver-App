@@ -9,6 +9,10 @@ def get_all_users():
     return User.query.all()
 
 
+def get_users_by_sponsor_name(sponsor_name):
+    return User.query.filter_by(sponsor_name=sponsor_name).all()
+
+
 def get_user_by_id(user_id):
     return User.query.filter_by(id=user_id).first()
 
