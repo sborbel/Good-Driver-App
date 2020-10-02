@@ -26,7 +26,31 @@ const NavBar = props => {
       </div>
     </div>
   );
-  if (props.isAuthenticated()) {
+  if (props.isAuthenticated() && props.role != "driver") {
+    menu = (
+      <div className="navbar-menu">
+        <div className="navbar-start">
+          <Link to="/about" className="navbar-item" data-testid="nav-about">
+            About
+          </Link>
+          <Link to="/userlist" className="navbar-item" data-testid="nav-about">
+            Users
+          </Link>
+        </div>
+        <div className="navbar-end">
+          <span
+            // eslint-disable-next-line react/jsx-handler-names
+            onClick={props.logoutUser}
+            className="navbar-item link"
+            data-testid="nav-logout"
+          >
+            Log Out
+          </span>
+        </div>
+      </div>
+    );
+  }
+  if (props.isAuthenticated() && props.role === "driver") {
     menu = (
       <div className="navbar-menu">
         <div className="navbar-start">
@@ -47,6 +71,7 @@ const NavBar = props => {
       </div>
     );
   }
+
   return (
     <nav
       className="navbar is-dark"

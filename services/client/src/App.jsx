@@ -42,30 +42,58 @@ class App extends Component {
 
   componentDidMount = () => {
     let userstate = localStorage.getItem("userstate");
+    let userslist = localStorage.getItem("userslist");
     if (userstate) {
       userstate = JSON.parse(userstate);
-      console.log("We have data");
       this.setState({ currentUser: userstate });
-    }else{
-      console.log("NO data");
+      this.setState({ currentUserId: userstate.id})
     }
-    
-    
+    if (userslist) {
+      userslist = JSON.parse(userslist);
+      this.setState({ users: userslist });
+    }
+
   };
 
 
-  // getUsers = () => {
-  //   axios
-  //     .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`)
-  //     .then(res => {
-  //       console.log("Users: ", res.data);
-  //       this.setState({ users: res.data });
-  //       window.localStorage.setItem("userslist", JSON.stringify(res.data));
-  //     })
-  //     .catch(err => {
-  //       console.log(err);
-  //     });
-  // };
+  
+  getUsers = () => {
+    axios
+    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`)
+    .then(res => {
+      console.log("All Users: ", res.data);
+      this.setState({ users: res.data });
+      window.localStorage.setItem("userslist", JSON.stringify(res.data));
+    })
+    .catch(err => {
+      console.log(err);
+    });
+  };
+  
+  getUsersBySponsorName = (sponsor_name) => {
+
+    axios
+    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users/by_sponsor/${this.state.currentUser.sponsor_name}`)
+    .then(res => {
+      this.setState({ users: res.data });
+      console.log("Users by Sponsor Name: ", res.data);
+      window.localStorage.setItem("userslist", JSON.stringify(res.data));
+    })
+    .catch(err => {
+      console.log(err);
+    });
+  };
+  
+  getAuthorizedData = () => {
+    if (this.state.currentUser.role === "admin"){
+      this.getUsers();
+    }else if (this.state.currentUser.role === "sponsor_mgr"){
+      this.getUsersBySponsorName(this.state.currentUser.sponsor_name);
+    }else {
+      // Only get personal data - no other users
+      console.log("No additional users data available to driver.")
+    }
+  };
 
   getUserById = (id) => {
     axios
@@ -73,6 +101,7 @@ class App extends Component {
       .then(res => {
         console.log("This user: ", res.data);
         this.setState({ currentUser: res.data });
+        this.getAuthorizedData();
         window.localStorage.setItem("userstate", JSON.stringify(res.data));
       })
       .catch(err => {
@@ -80,16 +109,6 @@ class App extends Component {
       });
   };
 
-  // getUsersBySponsorName = (sponsor_name) => {
-  //   axios
-  //     .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users/by_sponsor/${this.state.currentUser}`)
-  //     .then(res => {
-  //       this.setState({ users: res.data });
-  //     })
-  //     .catch(err => {
-  //       console.log(err);
-  //     });
-  // };
 
 
   addUser = data => {
@@ -131,7 +150,6 @@ class App extends Component {
       this.getUserById(res.data.user_id);
       this.setState({ accessToken: res.data.access_token, 
                       currentUserId: res.data.user_id });
-
       window.localStorage.setItem("refreshToken", res.data.refresh_token);
       this.createMessage("success", "You have logged in successfully.");
     })
@@ -144,6 +162,7 @@ class App extends Component {
   logoutUser = () => {
     window.localStorage.removeItem("refreshToken");
     window.localStorage.removeItem("userstate");
+    window.localStorage.removeItem("userslist");
     this.setState({ accessToken: null, users: [], currentUser: {}, currentUserId: null});
     this.createMessage("success", "You have logged out.");
   };
@@ -218,6 +237,7 @@ class App extends Component {
       <div>
         <NavBar
           title={this.state.title}
+          role = {this.state.currentUser.role}
           logoutUser={this.logoutUser}
           isAuthenticated={this.isAuthenticated}
         />
@@ -256,7 +276,7 @@ class App extends Component {
                       />
                     )}
                   />
-                  
+
                   <Route exact path="/"
                       render = {() => (
                         this.isAuthenticated()  ? <h1><Redirect to="/home" /></h1> : <Redirect to="/login" />
@@ -271,6 +291,12 @@ class App extends Component {
                   <Route exact path="/about" 
                       render = {() => (
                         this.isAuthenticated()  ? <About/> : <Redirect to="/login" />
+                      )}
+                  />
+
+                  <Route exact path="/userlist" 
+                      render = {(props) => (
+                        this.isAuthenticated()  ? <UsersList {...props} state={this.state} isAuthenticated={this.isAuthenticated}/> : <Redirect to="/login" />
                       )}
                   />
                     
