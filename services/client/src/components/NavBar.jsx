@@ -33,9 +33,6 @@ const NavBar = props => {
           <Link to="/about" className="navbar-item" data-testid="nav-about">
             About
           </Link>
-          <Link to="/status" className="navbar-item" data-testid="nav-status">
-            User Status
-          </Link>
         </div>
         <div className="navbar-end">
           <span
