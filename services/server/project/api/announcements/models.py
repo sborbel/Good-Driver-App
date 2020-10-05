@@ -18,6 +18,7 @@ class Announcement(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
     content = db.Column(db.String(1024), nullable=False)
+    # This needs to be updated to sponsor name, also in init method
     sponsor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
 

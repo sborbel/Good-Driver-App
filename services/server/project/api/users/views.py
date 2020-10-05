@@ -1,8 +1,9 @@
 # services/server/project/api/users/views.py
 
-
+from flask import current_app
 from flask import request
 from flask_restx import Resource, fields, Namespace
+from project import bcrypt
 
 from project.api.users.crud import (
     get_all_users,
@@ -11,6 +12,7 @@ from project.api.users.crud import (
     get_user_by_id,
     get_users_by_sponsor_name,
     update_user,
+    update_user_password,
     delete_user,
 )
 
@@ -26,6 +28,9 @@ user = users_namespace.model(
         "role": fields.String(required=True),
         "sponsor_name": fields.String(required=True),
         "created_date": fields.DateTime,
+        "active": fields.Boolean(required=True),
+        "failed_attempts": fields.Integer,
+        "failed_attempt_timer": fields.DateTime,
     },
 )
 
@@ -98,7 +103,7 @@ class Users(Resource):
         return user, 200
 
     @users_namespace.expect(user)
-    @users_namespace.response(200, "<user_is> was updated!")
+    @users_namespace.response(200, "<user_id> was updated!")
     @users_namespace.response(404, "User <user_id> does not exist")
     def put(self, user_id):
         """Updates a user."""
@@ -130,7 +135,42 @@ class Users(Resource):
         response_object["message"] = f"{user.email} was removed!"
         return response_object, 200
 
+class UsersPass(Resource):
+    @users_namespace.expect(user)
+    @users_namespace.response(200, "<user_id> was updated!")
+    @users_namespace.response(401, "Incorrect email or password.")
+    @users_namespace.response(404, "User <user_id> does not exist")
+    def put(self, user_id):
+        """Updates a user's password."""
+
+        user = get_user_by_id(user_id)
+        if not user:
+            users_namespace.abort(404, f"User {user_id} does not exist")
+
+        post_data = request.get_json()
+        current_password = post_data.get("current_password")
+        new_password = post_data.get("new_password")
+        response_object = {}
+
+        new_pwhash = bcrypt.generate_password_hash(
+            new_password, current_app.config.get("BCRYPT_LOG_ROUNDS")
+        ).decode()
+
+        if bcrypt.check_password_hash(user.password, current_password):
+            update_user_password(user, new_pwhash)
+            response_object["message"] = f"Password for user {user.id} was updated!"
+            return response_object, 200
+        else:
+            users_namespace.abort(401, f"Incorrect email or password.")
+
+
+
+
+
+
+
 
 users_namespace.add_resource(UsersList, "")
 users_namespace.add_resource(Users, "/<int:user_id>")
 users_namespace.add_resource(UsersBySponsor, "/by_sponsor/<string:sponsor_name>")
+users_namespace.add_resource(UsersPass, "/change_password/<int:user_id>")

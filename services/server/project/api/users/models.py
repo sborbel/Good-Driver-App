@@ -23,15 +23,19 @@ class User(db.Model):
     created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
     role = db.Column(db.String(16), default="driver", nullable=False)
     sponsor_name = db.Column(db.String, nullable=True)
+    failed_attempts = db.Column(db.Integer, default = 0)
+    failed_attempt_timer = db.Column(db.DateTime)
 
     def __init__(self, username="", email="", password="", role="", sponsor_name=""):
         self.username = username
         self.email = email
         self.role = role
         self.sponsor_name = sponsor_name
+        self.active = True
         self.password = bcrypt.generate_password_hash(
             password, current_app.config.get("BCRYPT_LOG_ROUNDS")
         ).decode()
+        self.failed_attempts = 0
 
     def encode_token(self, user_id, token_type):
         if token_type == "access":

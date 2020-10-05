@@ -19,6 +19,7 @@ class Catalog(db.Model):
     name = db.Column(db.String(128), nullable=False)
     supplier = db.Column(db.String(128), nullable=False)
     created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
+    # This needs to be updated to sponsor name, also in init method
     sponsor_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     def __init__(self, name="", supplier="", sponsor_id=""):

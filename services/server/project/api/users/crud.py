@@ -37,6 +37,18 @@ def update_user(user, username, email, role, sponsor_name):
     return user
 
 
+def update_user_password(user, new_password):
+    user.password = new_password
+    db.session.commit()
+    return user
+
+def update_failed_access_attempt(user, count, time):
+    user.failed_attempts = count
+    user.failed_attempt_timer = time
+    db.session.commit()
+    return user
+
+
 def delete_user(user):
     db.session.delete(user)
     db.session.commit()
