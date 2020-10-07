@@ -8,20 +8,29 @@ import "./form.css";
 
 
 const EditUser = props => (
+  
   <Formik
     initialValues={{
       username: props.thisuser.username, //add thisuser in userlist and everything else
       role: props.thisuser.role,
-      sponsor_name: props.thisuser.sponsor_name
+      sponsor_name: props.thisuser.sponsor_name,
+      myRole: props.state.currentUser.role
     }}
-    onSubmit={(values, { setSubmitting, resetForm }) => {
+    onSubmit={
+      (values, { setSubmitting, resetForm }) => {
         let res = {role: values.role, sponsor_name: values.sponsor_name, username: values.username};
-      props.editUser(res, props.thisuser.id);//add in app.jsx
-      props.getUsers();
-      resetForm();
-      setSubmitting(false);
-    }}
+      
+        console.log(props.state.currentUser.role);
+        props.editUser(res, props.thisuser.id);//add in app.jsx
+      
+        resetForm();
+        setSubmitting(false);
+        props.closeModal();
+        //props.getAuthorizedData();
+      }
+    }
     // Edit this for production
+    
     validationSchema={Yup.object().shape({
       username: Yup.string()
         .required("Username is required.")
@@ -29,7 +38,9 @@ const EditUser = props => (
       
       
     })}
+    
   >
+    
     {props => {
       const {
         values,
@@ -40,6 +51,16 @@ const EditUser = props => (
         handleBlur,
         handleSubmit
       } = props;
+      
+      let changeSponsor = <div></div>;
+      if(values.myRole === "admin"){
+        changeSponsor = <div className="field">
+                          <Field as="select" name="sponsor_name">
+                            <option value="Great Big Freight">Great Big Freight</option>
+                            <option value="Yellow Freight">Yellow Freight</option>
+                          </Field>
+                        </div>
+      }
       return (
         <form onSubmit={handleSubmit}>
           <div className="field">
@@ -69,13 +90,7 @@ const EditUser = props => (
                 <option value="admin">Admin</option>
             </Field>
           </div>
-          <div className="field">
-            <Field as="select" name="sponsor_name">
-                <option value="Great Big Freight">Great Big Freight</option>
-                <option value="Yellow Freight">Yellow Freight</option>
-            </Field>
-          </div>
-          
+          {changeSponsor}
           
           <input
             type="submit"
@@ -90,8 +105,9 @@ const EditUser = props => (
 );
 
 EditUser.propTypes = {
-  thisuser: PropTypes.array,
+  thisuser: PropTypes.object,
   editUser: PropTypes.func.isRequired,
-  getUsers: PropTypes.func
+  closeModal:PropTypes.func.isRequired,
+  getAuthorizedData: PropTypes.func.isRequired
 }
 export default EditUser;

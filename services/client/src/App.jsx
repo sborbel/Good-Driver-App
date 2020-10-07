@@ -11,6 +11,9 @@ import RegisterForm from "./components/RegisterForm";
 import Message from "./components/Message";
 import AddUser from "./components/AddUser";
 import HomePage from "./components/HomePage";
+import UserStatus from "./components/UserStatus";
+import Messenger from "./components/Messenger";
+import MessageThreads from "./components/MessageThreads";
 
 const modalStyles = {
   content: {
@@ -31,16 +34,21 @@ class App extends Component {
     this.state = {
       users: [],
       currentUser: {},
+      points: 0,
       currentUserId: "",
       title: "Good Driver App",
       accessToken: null,
       messageType: null,
       messageText: null,
-      showModal: false
+      showModal: false,
+      announcementTitle: "",
+      messages: [],
+      threads: []
     };
   }
 
   componentDidMount = () => {
+
     let userstate = localStorage.getItem("userstate");
     let userslist = localStorage.getItem("userslist");
     if (userstate) {
@@ -52,10 +60,22 @@ class App extends Component {
       userslist = JSON.parse(userslist);
       this.setState({ users: userslist });
     }
-
   };
 
-
+  
+  editUser = (data, id) => {
+    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/users/${id}`;
+    axios
+      .put(url, data)
+      .then(res => {
+        this.createMessage("success", "User updated.");
+        this.getAuthorizedData();
+      })
+      .catch(err => {
+        console.log(err);
+        this.createMessage("danger", `${id}`);
+      });
+  };
   
   getUsers = () => {
     axios
@@ -64,11 +84,32 @@ class App extends Component {
       console.log("All Users: ", res.data);
       this.setState({ users: res.data });
       window.localStorage.setItem("userslist", JSON.stringify(res.data));
+      return res.data;
     })
     .catch(err => {
       console.log(err);
     });
   };
+
+  getPointsbyID = (id) => {
+    let events = [];
+    let eventPoints = 0;
+    axios
+    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/events/by_user/${this.state.currentUserId}`)
+    .then(res => {
+      events = res.data;
+      console.log("events by User ID: ", res.data);
+      //window.localStorage.setItem("eventlist", JSON.stringify(res.data));
+      for(let idx in events){
+        const item = events[idx];
+        eventPoints += item.points;
+      }
+      this.setState({points: eventPoints});
+    })
+    .catch(err => {
+      console.log(err);
+    });
+  }
   
   getUsersBySponsorName = (sponsor_name) => {
 
@@ -95,13 +136,15 @@ class App extends Component {
     }
   };
 
-  getUserById = (id) => {
+  getUserDataById = (id) => {
     axios
       .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users/${id}`)
       .then(res => {
         console.log("This user: ", res.data);
         this.setState({ currentUser: res.data });
         this.getAuthorizedData();
+
+        this.setannouncement();
         window.localStorage.setItem("userstate", JSON.stringify(res.data));
       })
       .catch(err => {
@@ -109,7 +152,7 @@ class App extends Component {
       });
   };
 
-
+  
 
   addUser = data => {
     axios
@@ -147,10 +190,13 @@ class App extends Component {
     .post(url, data)
     .then(res => {
       console.log("Login processing for: ", res.data);
-      this.getUserById(res.data.user_id);
+      this.getUserDataById(res.data.user_id);
       this.setState({ accessToken: res.data.access_token, 
                       currentUserId: res.data.user_id });
+
+      
       window.localStorage.setItem("refreshToken", res.data.refresh_token);
+      this.getPointsbyID(res.data.user_id);
       this.createMessage("success", "You have logged in successfully.");
     })
     .catch(err => {
@@ -159,6 +205,32 @@ class App extends Component {
     });
   };
 
+ 
+  setannouncement = () => {
+    let sponsor = 0;
+    if(this.state.currentUser.sponsor_name === "Yellow Freight"){
+      sponsor = 1;
+    }
+    if(this.state.currentUser.sponsor_name === "Great Big Freight"){
+      sponsor = 2;
+    }
+    console.log(this.state.currentUser);
+    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/announcements/by_sponsor/${sponsor}`;
+    
+    axios
+      .get(url)
+      .then(res => {
+        console.log(res.data[0].content);
+        this.setState({
+          announcementTitle: res.data[0].content
+        });
+      })
+      .catch(err => {
+        this.setState({
+          announcementTitle: "noSponsor"
+        });
+      });
+  };
   logoutUser = () => {
     window.localStorage.removeItem("refreshToken");
     window.localStorage.removeItem("userstate");
@@ -293,10 +365,20 @@ class App extends Component {
                         this.isAuthenticated()  ? <About/> : <Redirect to="/login" />
                       )}
                   />
-
+                  <Route exact path="/messenger" 
+                      render = {(props) => (
+                        this.isAuthenticated()  ? <Messenger {...props} state={this.state} isAuthenticated={this.isAuthenticated} currentUser={this.state.currentUser}/> : <Redirect to="/login" />
+                      )}
+                  />
                   <Route exact path="/userlist" 
                       render = {(props) => (
                         this.isAuthenticated()  ? <UsersList {...props} state={this.state} isAuthenticated={this.isAuthenticated}/> : <Redirect to="/login" />
+                      )}
+                  />
+
+                  <Route exact path="/userstatus" 
+                      render = {(props) => (
+                        this.isAuthenticated()  ? <UserStatus {...props} state={this.state} isAuthenticated={this.isAuthenticated} getUserDataById={this.getUserDataById} editUser={this.editUser} getAuthorizedData={this.getAuthorizedData}/> : <Redirect to="/login" />
                       )}
                   />
                     
