@@ -1,13 +1,11 @@
 import React, {Component, createContext} from 'react';
-import {Text, StyleSheet, TextInput, View, TouchableWithoutFeedback, Keyboard, Button, Image} from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import {Text, StyleSheet, TextInput, View, TouchableWithoutFeedback, Keyboard, Button, Modal} from 'react-native';
 import PropTypes from "prop-types";
 import {Formik} from 'formik';
 import * as yup from 'yup';
 import axios from 'axios';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import axiosRetry from 'axios-retry';
 import { UserContext } from '../contexts/UserContext';
-import { UserListContext } from '../contexts/UserListContext';
 
 const LoginSchema = yup.object({
     email: yup.string()
@@ -15,96 +13,104 @@ const LoginSchema = yup.object({
         .min(4),
     password: yup.string()
         .required("Password is Required")
-        .min(4)
+        .min(3)
 })
 
-
+axiosRetry(axios, { retries: 5 });
 
 export default class Login extends Component{  
-    //static contextType = UserContext;
-    
+    static contextType = UserContext;
     constructor(){
-        super()
-        access_token = '';
+        super();
+        this.state = {
+            access_token: '',
+            userID: '',
+        };       
     }
-    render(){
-        const {navigation} = this.props;
-        return( 
-            <UserListContext.Consumer>{(userlistContext) => (
-                <UserContext.Consumer>{(userContext) =>{
-                    const {getUserId} = userlistContext;
-                    const {setAuthUser} = userContext;
-                    return(
-                        <TouchableWithoutFeedback onPress={() => {Keyboard.dismiss(); console.log("keyboard dropped")}}>
-                            <View style={styles.background}>
-                                <Formik
-                                    initialValues={{ email: '', password: '' }}
-                                    validationSchema={LoginSchema}
-                                    onSubmit={(values) => {
-                                        console.log(values);
-                                        const url = `http://192.168.1.145:5001/auth/login`;
-                                        axios
-                                        .post(url, values)
-                                        .then(res => {
-                                            console.log(res.data.access_token);
-                                            access_token = res.data.access_token; 
-                                            console.log("It worked, this is token: " + access_token);
-                                        })
-                                        .catch(err => {
-                                            console.log(err);
-                                            //this.createMessage("danger", "Incorrect email and/or password.");
-                                        });
+    
+    validateUser = async (eml, pass) => {
+        console.log(eml + "\n" + pass);
+        var self = this
+        const {navigation} = this.props; 
+        const url = `http://192.168.1.145:5001/auth/`;
+        await axios
+            .post(url + 'login', {email: eml, password: pass})
+            .then(function(res){
+                self.setState({userID: res.data.user_id, access_token: res.data.access_token})
+            })
+            .catch(err => {
+                console.log(err);
+            });
+        await axios
+            .get(url +'status', {
+                headers: {
+                    Authorization: self.state.access_token
+                }
+            })
+            .then(function(res){
+                self.context.setAuthUser(eml, pass, res.data.username, res.data.role, self.state.access_token, self.state.userID);
+                switch(res.data.role){
+                    case 'driver':
+                        navigation.navigate('DriverApp');
+                        break;
+                    case 'sponsor':
+                        navigation.navigate('SponsorApp');
+                        break;
+                    case 'sponsor_mgr':
+                        navigation.navigate('SponsorApp');
+                        break;
+                    case 'admin':
+                        navigation.navigate('AdminApp');
+                        break;
+                    default:
+                        console.log("Something went wrong");
+                    }                                           
+            })
+            .catch(err => {
+                console.log(err);
+                console.log("couldn't retrieve user");
+            });
+    }
 
-                                        axios.get('http://192.168.1.145:5001/auth/status', {
-                                            headers: {
-                                                Authorization: access_token
-                                            }
-                                        })
-                                        .then(res =>{
-                                            console.log("info: ");
-                                            console.log(res.data);
-                                            setAuthUser(values.email, values.password, res.data.username, res.data.role, access_token, getUserId(values.email));
-                                            console.log("Logging in..." + this.context.username);
-                                            navigation.navigate('DriverApp');
-                                        })
-                                        .catch(err => {
-                                            console.log(err);
-                                            console.log("couldn't retrieve user");
-                                            //this.createMessage("danger", "Incorrect email and/or password.");
-                                        });
-                                    }}
-                                >
-                                    {(props) => (
-                                        <View>
-                                        <Text>Email</Text>
-                                            <TextInput
-                                                style={styles.InputBox}
-                                                placeholder="Enter your email"
-                                                onChangeText={props.handleChange('email')}
-                                                value={props.values.email}
-                                                onBlur={props.handleBlur('email')}
-                                            />
-                                            <Text style={{color: 'crimson'}}>{props.touched.email && props.errors.email}</Text>
-                                            <Text style={{paddingTop: 50}}>Password</Text>
-                                            <TextInput
-                                                style={styles.InputBox}
-                                                placeholder="Enter your password"
-                                                onChangeText={props.handleChange('password')}
-                                                secureTextEntry={true}
-                                                onBlur={props.handleBlur('password')}
-                                            />
-                                            
-                                            <Text style={{color: 'crimson'}}>{props.touched.password && props.errors.password}</Text>
-                                            <Text style={{paddingTop: 50}}></Text>
-                                            <Button title='Submit' onPress={props.handleSubmit}/>
-                                        </View>
-                                    )}
-                                </Formik>   
+    render(){
+
+        return(
+            <TouchableWithoutFeedback onPress={() => {Keyboard.dismiss(); console.log("keyboard dropped")}}>
+                <View style={styles.background}>
+                    <Formik
+                        initialValues={{ email: '', password: '' }}
+                        validationSchema={LoginSchema}
+                        onSubmit={(values) => {
+                            this.validateUser(values.email, values.password)  
+                        }}
+                    >
+                        {(props) => (                                        
+                            <View>
+                                <Text>Email</Text>
+                                <TextInput
+                                    style={styles.InputBox}
+                                    placeholder="Enter your email"
+                                    onChangeText={props.handleChange('email')}
+                                    value={props.values.email}
+                                    onBlur={props.handleBlur('email')}
+                                />
+                                <Text style={{color: 'crimson'}}>{props.touched.email && props.errors.email}</Text>
+                                <Text style={{paddingTop: 50}}>Password</Text>
+                                <TextInput
+                                    style={styles.InputBox}
+                                    placeholder="Enter your password"
+                                    onChangeText={props.handleChange('password')}
+                                    secureTextEntry={true}
+                                    onBlur={props.handleBlur('password')}
+                                />                                            
+                                <Text style={{color: 'crimson'}}>{props.touched.password && props.errors.password}</Text>
+                                <Text style={{paddingTop: 50}}></Text>
+                                <Button title='Submit' onPress={props.handleSubmit}/>
                             </View>
-                        </TouchableWithoutFeedback>
-                    );
-                }}</UserContext.Consumer>
-            )}</UserListContext.Consumer>
+                        )}
+                    </Formik>   
+                </View>
+            </TouchableWithoutFeedback>
         );
     }
 }
@@ -133,7 +139,12 @@ const styles = StyleSheet.create({
         left: 230,
         width: 30,
         height: 18
-    }
+    },
+    text:{
+        textAlign: "center",
+        fontSize: 20,
+        color: 'crimson',
+    },
 })
 
 /*Login.propTypes = {

@@ -1,14 +1,28 @@
 import React, {Component} from 'react';
 import {Text, StyleSheet, TextInput, View, TouchableWithoutFeedback, Keyboard, Button} from 'react-native';
 import { UserContext } from '../contexts/UserContext';
+import { ThemeContext } from '../contexts/ThemeContext';
+import { gStyles } from '../styles/global';
 
-export default class Home extends React.Component{
+export default class Home extends Component{
     static contextType = UserContext;
     render(){
         const {navigation} = this.props;
         return(
-        <Text>Hi, {this.context.username}. Welcome to an empty home page.</Text>
-    )}
+            <ThemeContext.Consumer>{(ThemeContext) => {
+                const {lightTheme} = ThemeContext;
+            return(
+                <TouchableWithoutFeedback onPress={() => {Keyboard.dismiss(); console.log("keyboard dropped")}}>
+                    <View style={lightTheme ? gStyles.lightBG : gStyles.darkBG}>
+                    {console.log(this.context.relevantUsers)}
+                        <Text style={lightTheme ? gStyles.lightText : gStyles.darkText}>Hi, {this.context.username}. Welcome to the driver home page.</Text>
+                        <Text style={lightTheme ? gStyles.lightSubText : gStyles.darkSubText}>
+                        This page is currently under construction. There will be more soon!
+                        </Text>
+                    </View>
+                </TouchableWithoutFeedback>
+            );
+            }}</ThemeContext.Consumer>
+        );
+    }
 }
-
-//export default Home;

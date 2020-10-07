@@ -6,7 +6,7 @@ function Register(props){
                 <View style={styles.background}>
                     <Text>There'll be more stuff here. I promise :(</Text>
                 </View>
-        </TouchableWithoutFeedback>
+            </TouchableWithoutFeedback>
     );
 }
 
