@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
-import {Text, View, TouchableWithoutFeedback, Keyboard, Button} from 'react-native';
+import {Text, StyleSheet, TextInput, TouchableOpacity, View, TouchableWithoutFeedback, Keyboard, Button} from 'react-native';
 import { UserContext } from '../contexts/UserContext';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { gStyles } from '../styles/global';
-export default class Prof extends Component{
+
+export default class Prof extends React.Component{
     static contextType = UserContext;
     
     render(){
@@ -24,8 +25,8 @@ export default class Prof extends Component{
                     <Text style={lightTheme ? gStyles.lightText : gStyles.darkText}>Email: {this.context.email}</Text>
                     <Text style={lightTheme ? gStyles.lightText : gStyles.darkText}>Role: {this.context.role}</Text>
                     <Text style={lightTheme ? gStyles.lightText : gStyles.darkText}>ID: {this.context.id}</Text>
-                    <Button title="Edit Info" onPress={onEditPress}/> 
-                    <Button color='purple' title="Toggle Theme" onPress={swapTheme}/>
+                    <Button style={{paddingTop: 50}} title="Edit Info" onPress={onEditPress}/>
+                    <Button style={{paddingTop: 50}} title="Toggle Theme" onPress={swapTheme}/>
                 </View>
             </TouchableWithoutFeedback> 
             )
@@ -33,4 +34,3 @@ export default class Prof extends Component{
         )
     }
 }
-

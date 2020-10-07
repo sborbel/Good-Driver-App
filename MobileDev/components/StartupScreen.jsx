@@ -2,32 +2,9 @@ import { setStatusBarNetworkActivityIndicatorVisible } from 'expo-status-bar';
 import React, {Component} from 'react';
 import axios from 'axios';
 import {ImageBackground, StyleSheet, View, TouchableOpacity, TouchableWithoutFeedback, Text} from 'react-native';
-import { UserListContext } from '../contexts/UserListContext';
-// CHANGE TO SWITCH NAVIGATOR
+
+
 export default class StartUp extends Component{
-
-    static contextType = UserListContext;
-    constructor(){
-        super();
-        users = [];
-    }
-    componentDidMount = () => {
-        this.getUsers();
-      };
-    
-    getUsers = () => {
-        const{setUsers} = this.context
-        axios
-            .get(`http://192.168.1.145:5001/users`)
-            .then(resp => {   
-                users = resp.data;
-                setUsers(users);
-            })
-            .catch(err => {
-                console.log(err);
-        });
-    };
-
     render(){
         const {navigation} = this.props;
         const onLoginPress = () => {

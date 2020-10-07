@@ -6,30 +6,16 @@ import { StyleSheet, Text, ImageBackground, TouchableWithoutFeedback, Keyboard }
 import Modal from "react-modal";
 import Navigator from './Routes/routingTime';
 import UserContextProvider from './contexts/UserContext'
-import UserListContextProvider from './contexts/UserListContext';
+import ThemeContextProvider from './contexts/ThemeContext';
 
 export default class App extends React.Component {
-  constructor() {
-    super();
-    this.state = {
-      users: [],
-      myID: "Init",
-      title: "Good Driver Rewards Program",
-      accessToken: null,
-      messageType: null,
-      messageText: null,
-      showModal: false,
-      role: ""
-    };
-  }
-
   render() {
     return (
-      <UserListContextProvider>
-        <UserContextProvider>
-          <Navigator/>       
-        </UserContextProvider>
-      </UserListContextProvider>
+      <ThemeContextProvider>
+          <UserContextProvider>
+            <Navigator/>      
+          </UserContextProvider>
+      </ThemeContextProvider>       
     );
   }
 }
