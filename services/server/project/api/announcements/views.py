@@ -6,7 +6,7 @@ from flask_restx import Resource, fields, Namespace
 
 from project.api.announcements.crud import (
     get_all_announcements,
-    get_all_announcements_by_sponsor_id,
+    get_all_announcements_by_sponsor_name,
     add_announcement,
     get_announcement_by_id,
     update_announcement,
@@ -22,7 +22,7 @@ announcement = announcements_namespace.model(
         "id": fields.Integer(readOnly=True),
         "content": fields.String(required=True),
         "created_date": fields.DateTime,
-        "sponsor_id": fields.Integer(required=True),
+        "sponsor_name": fields.String(required=True),
     },
 )
 
@@ -40,19 +40,19 @@ class AnnouncementsList(Resource):
         """Creates a new announcement."""
         post_data = request.get_json()
         content = post_data.get("content")
-        sponsor_id = post_data.get("sponsor_id")
+        sponsor_name = post_data.get("sponsor_name")
         response_object = {}
 
-        add_announcement(content, sponsor_id)
+        add_announcement(content, sponsor_name)
         response_object["message"] = f"Announcement was added!"
         return response_object, 201
 
 
 class AnnouncementsListbySponsor(Resource):
     @announcements_namespace.marshal_with(announcement, as_list=True)
-    def get(self, sponsor_id):
+    def get(self, sponsor_name):
         """Returns all announcements for a single sponsor."""
-        return get_all_announcements_by_sponsor_id(sponsor_id), 200
+        return get_all_announcements_by_sponsor_name(sponsor_name), 200
 
 
 
@@ -99,5 +99,5 @@ class Announcements(Resource):
 
 
 announcements_namespace.add_resource(AnnouncementsList, "/")
-announcements_namespace.add_resource(AnnouncementsListbySponsor, "/by_sponsor/<int:sponsor_id>")
+announcements_namespace.add_resource(AnnouncementsListbySponsor, "/by_sponsor/<string:sponsor_name>")
 announcements_namespace.add_resource(Announcements, "/<int:announcement_id>")

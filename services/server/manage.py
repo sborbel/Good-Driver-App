@@ -44,8 +44,8 @@ def seed_events():
     db.session.commit()
 
 def seed_annc(): 
-    db.session.add(Announcement(content="Try not to run over anything!", sponsor_id=1))
-    db.session.add(Announcement(content="Be careful out there.", sponsor_id=2))
+    db.session.add(Announcement(content="Try not to run over anything!", sponsor_name="Yellow Freight"))
+    db.session.add(Announcement(content="Be careful out there.", sponsor_name="Great Big Freight"))
     # db.session.add(Announcement(content="", sponsor_id=))
     db.session.commit()
 
@@ -93,10 +93,17 @@ def seed_orders():
 
 def seed_threads():
     db.session.add(Thread(status = "active", creator_id = 8))
+    db.session.add(Thread(status = "active", creator_id = 5))
+    db.session.add(Thread(status = "active", creator_id = 4))
     # db.session.add(Thread(status = "", creator_id =))
 
     db.session.add(Message(thread_id = 1, sender_id = 8 , recipient_id = 4, created_date = "2020-09-26T18:08:49", subject = "Time off request", content = "Can I have Friday off?"))
     db.session.add(Message(thread_id = 1, sender_id = 4, recipient_id = 8, created_date = "2020-09-26T18:09:05", subject = "RE:Time off request", content = "No. Get to work."))
+    db.session.add(Message(thread_id = 2, sender_id = 5, recipient_id = 6, created_date = "2020-09-26T18:09:05", subject = "Flat tire, need assistance", content = "I ran over a nail."))
+    db.session.add(Message(thread_id = 2, sender_id = 6, recipient_id = 5, created_date = "2020-09-26T18:09:05", subject = "RE:Flat tire", content = "OK, I'm sending a service truck."))
+    db.session.add(Message(thread_id = 2, sender_id = 5, recipient_id = 6, created_date = "2020-09-26T18:09:05", subject = "RE:Flat tire", content = "Standing by."))
+    db.session.add(Message(thread_id = 3, sender_id = 4, recipient_id = 8, created_date = "2020-09-26T18:09:05", subject = "Not happy about working on Friday", content = "I'm not happy."))
+    db.session.add(Message(thread_id = 3, sender_id = 8 , recipient_id = 4, created_date = "2020-09-26T18:08:49", subject = "RE: Not happy", content = "Better start looking for a new job then."))
     # db.session.add(Message(thread_id =, sender_id =, recipient_id =, created_date = "", subject = "", content = ""))
     # db.session.add(Message(thread_id =, sender_id =, recipient_id =, created_date = "", subject = "", content = ""))
     db.session.commit()

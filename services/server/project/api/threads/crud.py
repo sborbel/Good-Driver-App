@@ -1,6 +1,6 @@
 # services/server/project/api/threads/crud.py
 
-
+from sqlalchemy import or_, distinct
 from project import db
 from project.api.threads.models import Thread
 from project.api.threads.models import Message
@@ -10,8 +10,11 @@ def get_all_threads():
     return Thread.query.all()
 
 def get_all_threads_by_user_id(search_id):
-    return Thread.query.filter_by(creator_id=search_id).all()
-
+    # Search messages where either sender or recipient are the search_id
+    # and return all unique thread id's
+    msg_list = Message.query.filter(or_(Message.sender_id==search_id, Message.recipient_id==search_id)).distinct(Message.thread_id)
+    thread_ids = [k.thread_id for k in msg_list]
+    return Thread.query.filter(Thread.id.in_(thread_ids)).all()
 
 def get_thread_by_id(thread_id):
     return Thread.query.filter_by(id=thread_id).first()
