@@ -9,8 +9,8 @@ from project.api.catalogs.models import CatalogItem
 def get_all_catalogs():
     return Catalog.query.all()
 
-def get_all_catalogs_by_sponsor_id(search_id):
-    return Catalog.query.filter_by(sponsor_id=search_id).all()
+def get_all_catalogs_by_sponsor_name(search_name):
+    return Catalog.query.filter_by(sponsor_name=search_name).all()
 
 
 def get_catalog_by_id(catalog_id):

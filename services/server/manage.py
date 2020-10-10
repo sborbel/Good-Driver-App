@@ -50,9 +50,9 @@ def seed_annc():
     db.session.commit()
 
 def seed_catalogs():
-    db.session.add(Catalog(name = "Yellow Freight Awards", supplier = "Amazon", sponsor_id =1))
-    db.session.add(Catalog(name = "Great Big Awards Catalog", supplier = "Amazon", sponsor_id =2))
-    # db.session.add(Catalog(name = "", supplier = "", sponsor_id =))
+    db.session.add(Catalog(name = "Yellow Freight Awards", supplier = "Amazon", sponsor_name="Yellow Freight"))
+    db.session.add(Catalog(name = "Great Big Awards Catalog", supplier = "Amazon", sponsor_name="Great Big Freight"))
+    # db.session.add(Catalog(name = "", supplier = "", sponsor_name =))
 
     db.session.add(CatalogItem( name = "Carfka Train Horn for Trucks", 
                                 description = "Extremely Loud Train Horn. High Performance: 2020 upgraded air compressor with larger coil, premium material, stronger air pressure makes it better and more clear warning to other drivers over their actions", 

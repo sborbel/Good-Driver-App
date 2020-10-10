@@ -52,3 +52,4 @@ class Message(db.Model):
 
 #     admin.add_view(CatalogsAdminView(Catalog, db.session))
 
+ 

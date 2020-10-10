@@ -6,7 +6,7 @@ from flask_restx import Resource, fields, Namespace
 
 from project.api.catalogs.crud import (
     get_all_catalogs,
-    get_all_catalogs_by_sponsor_id,
+    get_all_catalogs_by_sponsor_name,
     add_catalog,
     get_catalog_by_id,
     update_catalog,
@@ -29,7 +29,7 @@ catalog = catalogs_namespace.model(
         "name": fields.String(required=True),
         "supplier": fields.String(required=True),
         "created_date": fields.DateTime,
-        "sponsor_id": fields.Integer(required=True),
+        "sponsor_name": fields.String(required=True),
     },
 )
 
@@ -48,19 +48,19 @@ class CatalogsList(Resource):
         post_data = request.get_json()
         name = post_data.get("name")
         supplier = post_data.get("supplier")
-        sponsor_id = post_data.get("sponsor_id")
+        sponsor_name = post_data.get("sponsor_name")
         response_object = {}
 
-        add_catalog(name, supplier, sponsor_id)
+        add_catalog(name, supplier, sponsor_name)
         response_object["message"] = f"Catalog was added!"
         return response_object, 201
 
 
 class CatalogsListbySponsor(Resource):
     @catalogs_namespace.marshal_with(catalog, as_list=True)
-    def get(self, sponsor_id):
+    def get(self, sponsor_name):
         """Returns all catalogs for a single sponsor."""
-        return get_all_catalogs_by_sponsor_id(sponsor_id), 200
+        return get_all_catalogs_by_sponsor_name(sponsor_name), 200
 
 
 
@@ -205,7 +205,7 @@ class CatalogItems(Resource):
 
 
 catalogs_namespace.add_resource(CatalogsList, "")
-catalogs_namespace.add_resource(CatalogsListbySponsor, "/by_sponsor/<int:sponsor_id>")
+catalogs_namespace.add_resource(CatalogsListbySponsor, "/by_sponsor/<string:sponsor_name>")
 catalogs_namespace.add_resource(Catalogs, "/<int:catalog_id>")
 
 catalog_items_namespace.add_resource(CatalogItemsList, "")
