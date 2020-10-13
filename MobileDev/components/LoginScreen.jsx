@@ -1,5 +1,5 @@
 import React, {Component, createContext} from 'react';
-import {Text, StyleSheet, TextInput, View, TouchableWithoutFeedback, Keyboard, Button, Modal} from 'react-native';
+import {Text, StyleSheet, TextInput, View, TouchableWithoutFeedback, Keyboard, Button, Modal, TouchableOpacity} from 'react-native';
 import PropTypes from "prop-types";
 import {Formik} from 'formik';
 import * as yup from 'yup';
@@ -24,22 +24,29 @@ export default class Login extends Component{
         super();
         this.state = {
             access_token: '',
+            refresh_token: '',
             userID: '',
+            dispModal: false,
+            msg: '',
         };       
     }
     
     validateUser = async (eml, pass) => {
-        console.log(eml + "\n" + pass);
         var self = this
         const {navigation} = this.props; 
         const url = `http://192.168.1.145:5001/auth/`;
         await axios
             .post(url + 'login', {email: eml, password: pass})
             .then(function(res){
-                self.setState({userID: res.data.user_id, access_token: res.data.access_token})
+                self.setState({
+                    userID: res.data.user_id, 
+                    access_token: res.data.access_token, 
+                    refresh_token: res.data.refresh_token})
             })
             .catch(err => {
                 console.log(err);
+                console.log("Incorrect Login");
+                return false;
             });
         await axios
             .get(url +'status', {
@@ -48,8 +55,18 @@ export default class Login extends Component{
                 }
             })
             .then(function(res){
-                self.context.setAuthUser(eml, pass, res.data.username, res.data.role, self.state.access_token, self.state.userID);
-                switch(res.data.role){
+                self.context.setAuthUser(eml, pass, res.data.username, res.data.role, self.state.refresh_token, self.state.userID);                                          
+            })
+            .catch(err => {
+                console.log(err);
+                console.log("Invalid Login");
+                return false;
+            });
+        await axios
+            .get('http://192.168.1.145:5001/users/' + self.context.id)
+            .then(function(res){
+                self.context.setSpons(res.data.sponsor_name);
+                switch(self.context.role){
                     case 'driver':
                         navigation.navigate('DriverApp');
                         break;
@@ -68,24 +85,50 @@ export default class Login extends Component{
             })
             .catch(err => {
                 console.log(err);
-                console.log("couldn't retrieve user");
+                return false;
             });
     }
 
     render(){
+        const Message = (msg) =>{
+            console.log("display error");
+            if(!this.state.dispModal){
+                return (null);
+            }
+            else{
+                return(
+                    <View style={styles.centeredView}>
+                        <Modal visible={this.state.dispModal}
+                        animationType="slide">
+                            <View>
+                                <View style={styles.modalView}>
+                                    <Text style={styles.errText}>{msg}</Text>
+                                    <TouchableOpacity onPress={() => this.setState({dispModal: false})}>
+                                        <Text>Close</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>   
+                        </Modal>
+                    </View> 
+                )
+            }
+        }
 
         return(
             <TouchableWithoutFeedback onPress={() => {Keyboard.dismiss(); console.log("keyboard dropped")}}>
                 <View style={styles.background}>
+                <Message msg={this.state.msg}/>
                     <Formik
                         initialValues={{ email: '', password: '' }}
                         validationSchema={LoginSchema}
                         onSubmit={(values) => {
-                            this.validateUser(values.email, values.password)  
+                            if(!this.validateUser(values.email, values.password)){
+                                this.setState({dispModal: true, msg: 'You have entered the incorrect email/password'});
+                            }
                         }}
                     >
                         {(props) => (                                        
-                            <View>
+                            <View>                              
                                 <Text>Email</Text>
                                 <TextInput
                                     style={styles.InputBox}
@@ -140,15 +183,28 @@ const styles = StyleSheet.create({
         width: 30,
         height: 18
     },
-    text:{
+    errtext:{
         textAlign: "center",
         fontSize: 20,
         color: 'crimson',
     },
+    centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+        width: 0,
+        height: 2
+        }
+    },
 })
 
-/*Login.propTypes = {
-    handleLoginScreenSubmit: PropTypes.func,
-    isAuthenticated: PropTypes.func
-};*/
 

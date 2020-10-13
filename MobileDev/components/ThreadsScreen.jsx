@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text, Button, TextInput, View, TouchableWithoutFeedback, TouchableOpacity, FlatList, SafeAreaView} from 'react-native';
+import {Text, Button, TextInput, View, StyleSheet, TouchableWithoutFeedback, TouchableOpacity, FlatList, SafeAreaView} from 'react-native';
 import { UserContext } from '../contexts/UserContext';
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
@@ -25,9 +25,9 @@ class Threads extends Component{
     fetchThreads = async () =>{
         const {navigation} = this.props;
         var self = this;    
-        console.log('http://192.168.1.145:5001/threads/by_user/' + navigation.getParam('userID'));
+        console.log('http://192.168.1.145:5001/threads/by_user/' + (self.context.role != "driver" ? navigation.getParam('userID') : self.context.id));
         await axios
-            .get('http://192.168.1.145:5001/threads/by_user/' + navigation.getParam('userID'))
+            .get('http://192.168.1.145:5001/threads/by_user/' + (self.context.role != "driver" ? navigation.getParam('userID') : self.context.id))
             .then(res =>{
                 self.setState({threads: res.data})
                 self.setState({isLoading: false})
@@ -38,17 +38,20 @@ class Threads extends Component{
             })
     }
 
-    componentDidMount(){
+    createThread = async () =>{
+        var slf = this;
+        const threadInfo = {
+            status: "Active",
+            creator_id: parseInt(slf.context.id),
+        }
+        await axios
+            .post('http://192.168.1.145:5001/threads', threadInfo)
         this.fetchThreads();
+
     }
 
-    useLayoutEffect = () => {
-        const {navigation} = this.props;
-        navigation.setOption({
-            headerRight: () => (
-                <Button onPress={console.log("right of header")}/>
-            )
-        })
+    componentDidMount(){
+        this.fetchThreads();
     }
     
     render(){        
@@ -68,13 +71,17 @@ class Threads extends Component{
 
         const {navigation} = this.props;
         if(this.state.isLoading){
-            return(<Text>Loading threads...</Text>)
+            return(               
+                <View styles={{flex: 1, alignSelf: "center"}}>
+                    <Text style={{alignSelf: "center", paddingTop: 5}}>Loading...</Text>
+                </View>
+                )
         }
         else{
             return(
+                
                 <SafeAreaView>
                     <FlatList
-                        refreshing={true}
                         data={this.state.threads}
                         renderItem={renderItem}
                         keyExtractor={item => item.id.toString()}
@@ -85,3 +92,18 @@ class Threads extends Component{
     }
 } 
 export default Threads;
+
+const styles = StyleSheet.create({
+    submitButton:{
+        alignSelf: "center",
+        alignItems: "center",
+        width: "50%",
+        height: 30,
+        backgroundColor: "#4ecdc4",
+        borderTopRightRadius: 100,
+        borderBottomLeftRadius: 100,
+        borderTopLeftRadius: 100,
+        borderBottomRightRadius: 100,
+        opacity: .8,
+    },
+})

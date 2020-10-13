@@ -49,11 +49,11 @@ class Register(Resource):
         email = post_data.get("email")
         password = post_data.get("password")
         role = post_data.get("role")
-
+        sponsor_name = post_data.get("sponsor_name")
         user = get_user_by_email(email)
         if user:
             auth_namespace.abort(400, "Sorry. That email already exists.")
-        user = add_user(username, email, password, role)
+        user = add_user(username, email, password, role, sponsor_name)
         return user, 201
 
 

@@ -6,6 +6,7 @@ import { UserContext } from '../contexts/UserContext';
 import {Formik} from 'formik';
 import * as yup from 'yup';
 
+
 const MsgSchema = yup.object({
     subject: yup.string()
         .required("Header is required")
@@ -53,28 +54,55 @@ class UserMsg extends Component{
             })
     }
     
+    createMessage = async (info) => {
+        const {navigation} = this.props;  
+        console.log("going here");
+        const newMsg = {
+            content: info.content,
+            recipient_id: this.state.messages[0].recipient_id,
+            sender_id: parseInt(this.context.id),
+            subject: info.subject,
+            thread_id: navigation.getParam('threadID'),
+        };
+        console.log(newMsg);
+        await axios
+            .post('http://192.168.1.145:5001/messages', newMsg)
+            .then(res => {
+                console.log(res);
+            })
+            .catch(err => {
+                console.log(err);
+            })
+        this.getMessages();
+    }
+
     componentDidMount(){
         console.log("hello");
         this.getMessages();
     }
 
     render(){
-        const RaiseModal = () =>{  
-            return(
-                <View style={styles.centeredView}>
-                    <Modal visible={this.state.displayModal}
-                        animationType="slide">
-                        <View style={styles.centeredView}>
-                            <View style={styles.modalView}>
-                                <Text style={styles.modalText}>Some info about message</Text>
-                                <TouchableOpacity onPress={() => this.setState({displayModal: false})}>
-                                    <Text>Cancels</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>   
-                    </Modal>
-                </View>
-            );   
+        const RaiseModal = () =>{ 
+            if(!this.state.displayModal){
+                return(null);
+            } 
+            else{
+                return(
+                    <View style={styles.centeredView}>
+                        <Modal visible={this.state.displayModal}
+                            animationType="slide">
+                            <View style={styles.centeredView}>
+                                <View style={styles.modalView}>
+                                    <Text style={styles.modalText}>Some info about message</Text>
+                                    <TouchableOpacity onPress={() => this.setState({displayModal: false})}>
+                                        <Text>Cancels</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>   
+                        </Modal>
+                    </View>
+                );   
+            }
         }
         
         const Item = ({ subject, content, sid, rid }) => (
@@ -91,27 +119,6 @@ class UserMsg extends Component{
             <Item subject={item.subject} content={item.content} sid={item.sender_id} rid={item.recipient_id}/>
         );
 
-        const createMessage = (info) => {
-            console.log("going here");
-            const newMsg = {
-                content: info.content,
-                recipient_id: this.state.messages[0].recipient_id,
-                sender_id: parseInt(this.context.id),
-                subject: info.subject,
-                thread_id: navigation.getParam('threadID'),
-            };
-            console.log(newMsg);
-            axios
-                .post('http://192.168.1.145:5001/messages', newMsg)
-                .then(res => {
-                    console.log(res);
-                })
-                .catch(err => {
-                    console.log(err);
-                })
-
-        }
-
         const MessagesBox = () => (
             <View style={styles.background}>
                 <Formik
@@ -119,13 +126,13 @@ class UserMsg extends Component{
                     validationSchema={MsgSchema}
                     onSubmit={(values) => {
                         console.log(values);
-                        createMessage(values);
+                        this.createMessage(values);
                     }}
                 >
                     {(props) => (                                        
                         <View style={styles.composeContainer}>
                             <TextInput
-                                style={{borderColor: 'black', borderBottomWidth: 1}}
+                                style={{borderColor: 'black', borderBottomWidth: 1, padding: 10}}
                                 placeholder = 'Subject...'
                                 placeHolderTextColor = '#404040'
                                 onChangeText={props.handleChange('subject')}
@@ -134,14 +141,20 @@ class UserMsg extends Component{
                             />
                             <Text style={{color: 'crimson'}}>{props.touched.email && props.errors.email}</Text>
                             <TextInput
+                                style={{borderColor: 'black', borderBottomWidth: 1, padding: 10}}
                                 placeholder = 'Content...'
+                                multiline = {true}
                                 placeHolderTextColor = '#404040'
                                 onChangeText={props.handleChange('content')}
                                 value={props.values.content}
                                 onBlur={props.handleBlur('content')}
-                            />                                                           
-                            <Text style={{color: 'crimson'}}>{props.touched.password && props.errors.password}</Text>
-                            <Button title='Submit' onPress={props.handleSubmit}/>
+                            />   
+                            <TouchableOpacity onPress={props.handleSubmit}>
+                                <View style={styles.submitButton}>  
+                                    <Text style={{alignSelf: "center", paddingTop: 5}}>Submit</Text>
+                                </View>
+                            </TouchableOpacity>                                                       
+                            <Text style={{color: 'crimson'}}>{props.touched.password && props.errors.password}</Text>                           
                         </View>
                     )}
                 </Formik>   
@@ -158,6 +171,7 @@ class UserMsg extends Component{
                 <KeyboardAvoidingView
                     behavior={Platform.OS == "ios" ? "padding" : "height"}
                     style={{flex: 1}}
+                    keyboardVerticalOffset={55}
                 >
                     <SafeAreaView style={{flex: 1, backgroundColor: 'gray'}}>
                         <RaiseModal/>
@@ -166,7 +180,6 @@ class UserMsg extends Component{
                                 data={this.state.messages}
                                 renderItem={renderItem}
                                 keyExtractor={item => item.id.toString()}
-                                //initialScrollIndex={this.state.messages.length-1}
                                 
                             />
                         <MessagesBox/>                   
@@ -245,10 +258,21 @@ const styles = StyleSheet.create({
         fontSize: 12
     },
     composeContainer: {
-        padding: 10,
         backgroundColor: 'lightgray'
     },
     composeText: {
         alignSelf: 'center'
-    }
+    },
+    submitButton:{  
+        top: 7, 
+        alignSelf: "center",
+        width: "20%",
+        height: 30,
+        backgroundColor: "#4ecdc4",
+        borderTopRightRadius: 100,
+        borderBottomLeftRadius: 100,
+        borderTopLeftRadius: 100,
+        borderBottomRightRadius: 100,
+        opacity: .8,
+    },
 })
