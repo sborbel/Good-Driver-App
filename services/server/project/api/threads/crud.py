@@ -5,6 +5,7 @@ from project import db
 from project.api.threads.models import Thread
 from project.api.threads.models import Message
 
+
 # Thread CRUD
 def get_all_threads():
     return Thread.query.all()
@@ -69,6 +70,7 @@ def delete_message(message):
     db.session.delete(message)
     db.session.commit()
     return message
+
 
 
 

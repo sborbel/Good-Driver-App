@@ -4,6 +4,7 @@ from flask import current_app
 from flask import request
 from flask_restx import Resource, fields, Namespace
 from project import bcrypt
+from project.helpers.mail_service import send_email
 
 from project.api.users.crud import (
     get_all_users,
@@ -75,7 +76,10 @@ class UsersList(Resource):
             response_object["message"] = "Sorry. That email already exists."
             return response_object, 400
         add_user(username, email, password, role, sponsor_name)
-        response_object["message"] = f"{email} was added!"
+        response_object["message"] = message = f"A new user with email {email} was added!"
+
+        send_email("jwb4@clemson.edu", "New user created.", message)
+
         return response_object, 201
 
 class UsersBySponsor(Resource):
@@ -162,13 +166,6 @@ class UsersPass(Resource):
             return response_object, 200
         else:
             users_namespace.abort(401, f"Incorrect email or password.")
-
-
-
-
-
-
-
 
 users_namespace.add_resource(UsersList, "")
 users_namespace.add_resource(Users, "/<int:user_id>")

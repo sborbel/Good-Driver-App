@@ -1,8 +1,6 @@
 # services/server/project/config.py
 
-
 import os
-
 
 class BaseConfig:
     TESTING = False
@@ -13,6 +11,12 @@ class BaseConfig:
     REFRESH_TOKEN_EXPIRATION = 2592000  # 30 days
     LOCKOUT_INTERVAL = 60 # 1 minute
 
+    # Mail Config:
+
+    MAIL_SERVER = os.environ.get("MAIL_SERVER")
+    MAIL_PORT = os.environ.get("MAIL_PORT")
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
 
 class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
