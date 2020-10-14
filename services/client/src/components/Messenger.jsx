@@ -7,31 +7,48 @@ import './App.css'
 import PropTypes, { number } from "prop-types";
 
 class Messenger extends Component {
-    constructor() {
+    constructor(props) {
         super();
         this.state = {
             messages: [],
-            threadID: 1,
-            myID: 0
+            thread: props.thisThread,
+            myID: props.currentUser.id
 
         };
     }
 
     componentDidMount = () => {
         this.addMessages();
-        this.setState({myID: this.props.state.currentUser.id});
+
     }
     handleNewMessage = (text) => {
-        this.setState({
-          messages: [...this.state.messages, { me: true, author: "Me", body: text }],
-        })
+        
+        let data = {
+            thread_id: this.state.thread.id,
+            sender_id: this.state.myID,
+            recipient_id: this.state.thread.recpID,
+            subject: "new message",
+            content: text
+        };
+        console.log(data);
+        axios
+            .post(`${process.env.REACT_APP_USERS_SERVICE_URL}/messages`, data)
+            .then(res => {
+                this.setState({
+                    messages: [...this.state.messages, { me: true, author: "Me", body: text }],
+                  });
+            })
+            .catch(err => {
+                console.log(err);
+            });
+
       }
     addMessages = () => {
         //let messageToAdd = [{me: true, author: "Me", body: "hello world"}];
         let oldMessages = [];
         let newMessages = [];
         axios
-            .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/messages/by_thread/${this.state.threadID}`)
+            .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/messages/by_thread/${this.state.thread.id}`)
             .then(res => {
                 oldMessages = res.data;
                 console.log("messages by thread: ", res.data);
@@ -67,7 +84,7 @@ Messenger.propTypes = {
   
   
     isAuthenticated: PropTypes.func.isRequired,
-    currentUser: PropTypes.array
+    currentUser: PropTypes.object
   
   };
 
