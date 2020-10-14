@@ -7,6 +7,7 @@ import PropTypes, { number } from "prop-types";
 import Modal from "react-modal";
 import Messenger from './Messenger'
 import { Redirect} from "react-router-dom";
+import NewThreadForm from './NewThreadForm';
 
 Modal.setAppElement(document.getElementById("root"));
 
@@ -22,75 +23,28 @@ const modalStyles = {
     }
   };
 
-function MessageThreads(props) {
-      const [modalIsOpen,setIsOpen] = React.useState(false);
-      const [userArr,setArr] = React.useState([]);
-      let threads = [];
-      let theRecpName = "";
+function getName(id){
+  axios
+    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users/${id}`)
+    .then(res => {
+      console.log("getName", res.data.username)
+        return res.data.username;
+    })
+    .catch(err => {
+        console.log(err);
+    });
+}
+  
 
-      let newThreads = []; //placeholder for threads
-      getThreads();
+function MessageThreads(props) {
       
-      function getThreads() {
-            axios
-                .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/threads`)
-                .then(res => {
-                    console.log(" res  : ", res);
-                    for(let idx in res.data){
-                        const item = res.data[idx];
-                        if(item.creator_id === props.state.currentUser.id){
-                            threads.push(res.data[idx]);
-                        }
-                    }
-                    
-                    for(let idx in threads){
-                        const item = threads[idx];
-                        getNameByID(item.id);
-                        console.log("therecpname: ", theRecpName);
-                        newThreads.push({id: threads[idx].id, status: threads[idx].status, creator_id: threads[idx].creator_id, created_date: threads[idx].created_date});
-                        
-                        
-                    }
-                    threads = newThreads;
-                    console.log("Threads by user: ", newThreads);
-                })
-                .catch(err => {
-                    console.log(err);
-                })
-        }
-        
-        function getNameByID(ID){
-            let recpID = 0;
-            let id1 = 0;
-            let id2 = 0;
-            axios
-                .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/messages/by_thread/${ID}`)
-                .then(res => {
-                    id1 = res.data[0].sender_id;
-                    
-                    id2 = res.data[0].recipient_id;
-                    if(id1 === props.state.currentUser.id){
-                        recpID = id2;
-                    }
-                    if(id2 === props.state.currentUser.i){
-                        recpID = id1;
-                    }
-                    axios
-                    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users/${recpID}`)
-                    .then(res => {
-                        theRecpName = res.data.username;
-                        console.log("Here: ", theRecpName)
-                    })
-                    .catch(err => {
-                        console.log(err);
-                })
-                    
-                })
-                .catch(err => {
-                    console.log(err);
-                })
-            
-        }
+      const [modalIsOpen,setIsOpen] = React.useState(false);
+      const [threadArr,setArr] = React.useState([]);
+
+      const [NewMessageModalIsOpen,NewMessageSetIsOpen] = React.useState(false);
+      const [userData,NewMessageSetArr] = React.useState([]);
+      
+
       
 
       function openModal(data) {
@@ -101,14 +55,21 @@ function MessageThreads(props) {
       function closeModal(){
           setIsOpen(false);
       }
+      function openNewMessageModal(data){
+        NewMessageSetIsOpen(true);
+        NewMessageSetArr(data);
+      }
+      function NewMessageCloseModal(){
+        NewMessageSetIsOpen(false);
+    }
 
     
     let modalOpen = false;
     
+    console.log(props.state.users);
+
     
     
-  
-  console.log(threads[0].id);
   return (
     <div>
       <h1 className="title is-1">User Created Threads</h1>
@@ -118,19 +79,59 @@ function MessageThreads(props) {
           <tr>
             <th>ID</th>
             <th>Status</th>
+            <th>Reciepient</th>
+            <th>
+              <button
+                onClick={() => openNewMessageModal([{currentUser: props.state.users}])}
+                className="button is-primary"
+              >
+                New Message
+              </button>
+              <Modal
+                    isOpen={NewMessageModalIsOpen} //
+                    style={modalStyles}
+                  >
+                    <div className="modal is-active">
+                      <div className="modal-background" />
+                      <div className="modal-card">
+                        <header className="modal-card-head">
+                          <p className="modal-card-title">Create New Thread</p>
+                          <button
+                            className="delete"
+                            aria-label="close"
+                            onClick={NewMessageCloseModal}
+                          />
+                        </header>
+                        <section className="modal-card-body">
+                        <NewThreadForm 
+                            {...props} 
+                            state={props.state} 
+                            users={props.state.users}
+                            isAuthenticated={props.isAuthenticated} 
+                            currentUser={props.state.currentUser}
+                            userData={userData}
+                            createNewThread={props.createNewThread}
+                        />
+                        </section>
+                      </div>
+                    </div>
+
+                  </Modal>
+            </th>
             {props.isAuthenticated() && <th />}
           </tr>
         </thead>
         <tbody>
-          {threads.map(thread => {
+          {props.state.threads.map(thread => {
             return (
               <tr key={thread.id}>
                 <td>{thread.id}</td>
                 <td>{thread.status}</td>
-                {/*
+                <td>{thread.recpID}</td>
+                
                 <td>
                   <button
-                    onClick={() => openModal([{id: thread.id, status: thread.status}])}
+                    onClick={() => openModal([{id: thread.id, recpID: thread.recpID, status: thread.status}])}
                     className="button is-primary"
                   >
                     Message User
@@ -155,14 +156,16 @@ function MessageThreads(props) {
                             {...props} 
                             state={props.state} 
                             isAuthenticated={props.isAuthenticated} 
-                            currentUser={props.state.currentUser}/> : <Redirect to="/login" 
+                            currentUser={props.state.currentUser}
+                            thisThread={threadArr[0]}
+                          
                         />
                         </section>
                       </div>
                     </div>
 
                   </Modal>
-                </td>*/}
+                </td>
                 
                 
               </tr>
@@ -178,7 +181,8 @@ function MessageThreads(props) {
 MessageThreads.propTypes = {
   
   
-  isAuthenticated: PropTypes.func.isRequired
+  isAuthenticated: PropTypes.func.isRequired,
+  createNewThread: PropTypes.func.isRequired
 
 };
 

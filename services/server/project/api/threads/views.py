@@ -49,8 +49,9 @@ class ThreadsList(Resource):
         creator_id = post_data.get("creator_id")
         response_object = {}
 
-        add_thread(status, creator_id)
+        newThread = add_thread(status, creator_id)
         response_object["message"] = f"Thread was added!"
+        response_object["id"] = newThread.id
         return response_object, 201
 
 
