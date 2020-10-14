@@ -14,8 +14,13 @@ def get_all_threads_by_user_id(search_id):
     # Search messages where either sender or recipient are the search_id
     # and return all unique thread id's
     msg_list = Message.query.filter(or_(Message.sender_id==search_id, Message.recipient_id==search_id)).distinct(Message.thread_id)
-    thread_ids = [k.thread_id for k in msg_list]
-    return Thread.query.filter(Thread.id.in_(thread_ids)).all()
+    thread_ids1 = [k.thread_id for k in msg_list]
+    # Search all threads where creator_id is search_id
+    thread_list = Thread.query.filter_by(creator_id=search_id).all()
+    thread_ids2 = [k.id for k in thread_list]
+    # Deduplicate and combine into a single list
+    all_thread_ids = thread_ids1 + list(set(thread_ids2) - set(thread_ids1))
+    return Thread.query.filter(Thread.id.in_(all_thread_ids)).all()
 
 def get_thread_by_id(thread_id):
     return Thread.query.filter_by(id=thread_id).first()
