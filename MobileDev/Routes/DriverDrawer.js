@@ -3,8 +3,11 @@ import {createStackNavigator} from 'react-navigation-stack';
 import DriverHome from '../components/DriverHomeScreen';
 import DriverProf from '../components/DriverProfileScreen';
 import DriverEditInfo from '../components/EditInfo';
+import DriverHistory from '../components/PointHistory';
 import DriverFaq from '../components/DriverFaqScreen';
+import DriverCatalog from '../components/CatalogScreen';
 import DriverLogout from '../components/LogoutUser';
+import ThreadStack from '../Routes/ThreadStack';
 
 const DriverHomeStack = createStackNavigator({
     homeScrn: {       
@@ -40,6 +43,16 @@ const DriverProfStack = createStackNavigator({
             }
         }
     },
+    pointHistory: {
+        screen: DriverHistory,
+        navigationOptions: {
+            title: 'Points History',
+            headerStyle: {
+                backgroundColor: 'gray',
+                height: 60,
+            }
+        }
+    },
 });
 
 const DriverFaqStack = createStackNavigator({
@@ -47,6 +60,19 @@ const DriverFaqStack = createStackNavigator({
         screen: DriverFaq,
         navigationOptions: {
             title: 'Frequently Asked Questions',
+            headerStyle: {
+                backgroundColor: 'gray',
+                height: 60,
+            }
+        }
+    },
+});
+
+const DriverCatalogStack = createStackNavigator({
+    faqScrn: {
+        screen: DriverCatalog,
+        navigationOptions: {
+            title: 'Catalog',
             headerStyle: {
                 backgroundColor: 'gray',
                 height: 60,
@@ -69,6 +95,24 @@ const DriverDrawer = createDrawerNavigator({
         screen: DriverProfStack,
         navigationOptions: {
             title: 'Profile',
+            headerStyle: {
+                backgroundColor: 'gray',
+            }
+        }
+    },
+    cat: {
+        screen: DriverCatalogStack,
+        navigationOptions: {
+            title: 'Catalog',
+            headerStyle: {
+                backgroundColor: 'gray',
+            }
+        }
+    },
+    thread: {
+        screen: ThreadStack,
+        navigationOptions: {
+            title: 'Messages',
             headerStyle: {
                 backgroundColor: 'gray',
             }

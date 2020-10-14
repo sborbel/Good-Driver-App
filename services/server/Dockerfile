@@ -1,5 +1,5 @@
 # pull official base image
-FROM python:3.8.1-alpine
+FROM python:3.6-alpine
 
 # install dependencies
 # updated
