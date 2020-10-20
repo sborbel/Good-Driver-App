@@ -95,6 +95,7 @@ def seed_threads():
     db.session.add(Thread(status = "active", creator_id = 8))
     db.session.add(Thread(status = "active", creator_id = 5))
     db.session.add(Thread(status = "active", creator_id = 4))
+    db.session.add(Thread(status = "active", creator_id = 4))
     # db.session.add(Thread(status = "", creator_id =))
 
     db.session.add(Message(thread_id = 1, sender_id = 8 , recipient_id = 4, created_date = "2020-09-26T18:08:49", subject = "Time off request", content = "Can I have Friday off?"))
