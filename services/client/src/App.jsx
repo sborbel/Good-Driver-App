@@ -16,6 +16,8 @@ import Messenger from "./components/Messenger";
 import MessageThreads from "./components/MessageThreads";
 import MessageList from "./components/MessageList";
 import { date, object } from "yup";
+import EventsTable from "./components/EventsTable";
+import AnnouncementForm from "./components/AnnouncementForm";
 
 const modalStyles = {
   content: {
@@ -44,9 +46,10 @@ class App extends Component {
       messageType: null,
       messageText: null,
       showModal: false,
-      announcementTitle: "",
+      announcement: {},
       messages: [],
-      threads: []
+      threads: [],
+      events: []
     };
   }
 
@@ -57,12 +60,14 @@ class App extends Component {
     if (userstate) {
       userstate = JSON.parse(userstate);
       this.setState({ currentUser: userstate });
-      this.setState({ currentUserId: userstate.id})
+      this.setState({ currentUserId: userstate.id});
     }
     if (userslist) {
       userslist = JSON.parse(userslist);
       this.setState({ users: userslist });
+      
     }
+    
     
   };
 
@@ -262,14 +267,15 @@ getName = (id) => {
     });
   }
   
-  getUsersBySponsorName = (sponsor_name) => {
+  getUsersBySponsorName = () => {
 
     axios
     .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users/by_sponsor/${this.state.currentUser.sponsor_name}`)
     .then(res => {
       this.setState({ users: res.data });
-      console.log("Users by Sponsor Name: ", res.data);
+      console.log("Users by Sponsor Name: ", this.state.users);
       window.localStorage.setItem("userslist", JSON.stringify(res.data));
+      this.getEventsBySponsor();
     })
     .catch(err => {
       console.log(err);
@@ -281,6 +287,7 @@ getName = (id) => {
       this.getUsers();
     }else if (this.state.currentUser.role === "sponsor_mgr"){
       this.getUsersBySponsorName(this.state.currentUser.sponsor_name);
+      this.getEventsBySponsor();
     }else {
       // Only get personal data - no other users
       this.getUsersBySponsorName(this.state.currentUser.sponsor_name);
@@ -303,6 +310,66 @@ getName = (id) => {
       });
   };
 
+  getEventsByUser = (uid) => {
+    axios
+    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/events/by_user/${uid}`)
+    .then(res => {
+      console.log("Events: ", res.data);
+      this.setState({events: res.data});
+    })
+    .catch(err => {
+      console.log(err);
+    });
+    
+  }
+
+  getEventsBySponsor = () => {
+    this.setState({events: []});
+    let url = ``;
+    let i = 0;
+    console.log(this.state.users);
+    for(i = 0; i < this.state.users.length; i++){
+      url = `${process.env.REACT_APP_USERS_SERVICE_URL}/events/by_user/${this.state.users[i].id}`
+      console.log(url);
+      axios
+      .get(url)
+      .then(res => {
+        let j = 0;
+        for(j = 0; j < res.data.length; j++){
+          this.setState({events: [...this.state.events, res.data[j]]})
+        }
+        
+        console.log(this.state.events);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+    }
+    console.log(this.state.events);
+  }
+  
+  returnEventsByUser = (uid) => {
+    axios
+    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/events/by_user/${uid}`)
+    .then(res => {
+      console.log("Events: ", res.data);
+      return res.data;
+    })
+    .catch(err => {
+      console.log(err);
+    });
+  }
+
+  createNewEvent = (data) => {
+    axios
+    .post(`${process.env.REACT_APP_USERS_SERVICE_URL}/events/`, data)
+    .then(res => {
+      console.log("Event created: ", res);
+    })
+    .catch(err => {
+      console.log(err);
+    });
+  }
   
 
   addUser = data => {
@@ -348,6 +415,9 @@ getName = (id) => {
       this.getThreads(res.data.user_id);
       window.localStorage.setItem("refreshToken", res.data.refresh_token);
       this.getPointsbyID(res.data.user_id);
+      console.log(this.state.users);
+      this.getEventsByUser(res.data.user_id);
+      console.log(this.getEventsByUser());
       this.createMessage("success", "You have logged in successfully.");
     })
     .catch(err => {
@@ -358,30 +428,39 @@ getName = (id) => {
 
  
   setannouncement = () => {
-    let sponsor = 0;
-    if(this.state.currentUser.sponsor_name === "Yellow Freight"){
-      sponsor = 1;
-    }
-    if(this.state.currentUser.sponsor_name === "Great Big Freight"){
-      sponsor = 2;
-    }
-    console.log(this.state.currentUser);
-    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/announcements/by_sponsor/${sponsor}`;
+    
+    
+    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/announcements/by_sponsor/${this.state.currentUser.sponsor_name}`;
     
     axios
       .get(url)
       .then(res => {
-        console.log(res.data[0].content);
         this.setState({
-          announcementTitle: res.data[0].content
+          announcement: res.data[0]
         });
       })
       .catch(err => {
+        console.log("Error: ", err);
         this.setState({
-          announcementTitle: "noSponsor"
+          announcement: "noSponsor"
         });
       });
   };
+
+  editAnnouncement = (data) => {
+    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/announcements/${this.state.announcement.id}`;
+    
+    axios
+      .put(url, data)
+      .then(res => {
+        this.setannouncement();
+      })
+      .catch(err => {
+        console.log("Error: ", err);
+        this.createMessage("error", "Announcement could not be edited. Please try again.");
+      });
+  }
+
   logoutUser = () => {
     window.localStorage.removeItem("refreshToken");
     window.localStorage.removeItem("userstate");
@@ -408,6 +487,7 @@ getName = (id) => {
           this.setState({ accessToken: res.data.access_token });
           // this.getUsers();
           window.localStorage.setItem("refreshToken", res.data.refresh_token);
+          this.setannouncement();
           return true;
         })
         .catch(err => {
@@ -507,7 +587,7 @@ getName = (id) => {
                   />
                   <Route exact path="/home" 
                       render = { (props) => (
-                        this.isAuthenticated()  ?  <HomePage {...props} state={this.state} /> : <Redirect to="/login" />
+                        this.isAuthenticated()  ?  <HomePage {...props} state={this.state} getEventsByUser={this.getEventsByUser}/> : <Redirect to="/login" />
                       )} 
                   />
 
@@ -530,6 +610,18 @@ getName = (id) => {
                   <Route exact path="/userstatus" 
                       render = {(props) => (
                         this.isAuthenticated()  ? <UserStatus {...props} state={this.state} isAuthenticated={this.isAuthenticated} getUserDataById={this.getUserDataById} editUser={this.editUser} getAuthorizedData={this.getAuthorizedData}/> : <Redirect to="/login" />
+                      )}
+                  />
+
+                  <Route exact path="/eventstable" 
+                      render = {(props) => (
+                        this.isAuthenticated()  ? <EventsTable {...props} state={this.state} isAuthenticated={this.isAuthenticated} createNewEvent={this.createNewEvent} getEventsByUser={this.getEventsByUser} getEventsBySponsor={this.getEventsBySponsor} /> : <Redirect to="/login" />
+                      )}
+                  />
+
+                  <Route exact path="/announcementform" 
+                      render = {(props) => (
+                        this.isAuthenticated() && (this.state.currentUser.role != "driver") ? <AnnouncementForm {...props} state={this.state} isAuthenticated={this.isAuthenticated} editAnnouncement={this.editAnnouncement} /> : <Redirect to="/login" />
                       )}
                   />
                     

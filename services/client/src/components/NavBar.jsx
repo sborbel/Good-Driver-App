@@ -42,6 +42,12 @@ const NavBar = props => {
           <Link to="/userstatus" className="navbar-item" data-testid="nav-about">
             User Status
           </Link>
+          <Link to="/eventstable" className="navbar-item" data-testid="nav-about">
+            Events
+          </Link>
+          <Link to="/announcementform" className="navbar-item" data-testid="nav-about">
+            Announcement
+          </Link>
         </div>
         <div className="navbar-end">
           <span
@@ -65,6 +71,9 @@ const NavBar = props => {
           </Link>
           <Link to="/messenger" className="navbar-item" data-testid="nav-about">
             Messenger
+          </Link>
+          <Link to="/eventstable" className="navbar-item" data-testid="nav-about">
+            Events
           </Link>
         </div>
         <div className="navbar-end">
