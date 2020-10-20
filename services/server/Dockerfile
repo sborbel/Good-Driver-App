@@ -6,7 +6,8 @@ FROM python:3.6-alpine
 RUN apk update && \
     apk add --no-cache --virtual build-deps \
     openssl-dev libffi-dev gcc python3-dev musl-dev \
-    postgresql-dev netcat-openbsd
+    postgresql-dev netcat-openbsd libxml2-dev \
+    libxslt-dev python3-dev
 
 # set environment varibles
 ENV PYTHONDONTWRITEBYTECODE 1

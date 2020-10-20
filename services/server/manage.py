@@ -10,6 +10,7 @@ from project.api.users.models import User
 from project.api.announcements.models import Announcement
 from project.api.catalogs.models import Catalog
 from project.api.catalogs.models import CatalogItem
+from project.api.catalogs.models import Source
 from project.api.orders.models import Order
 from project.api.orders.models import OrderItem
 from project.api.threads.models import Thread
@@ -109,6 +110,9 @@ def seed_threads():
     # db.session.add(Message(thread_id =, sender_id =, recipient_id =, created_date = "", subject = "", content = ""))
     db.session.commit()
 
+def seed_source():
+    db.session.add(Source(supplier = "ebay"))
+    db.session.commit()
 
 
 @cli.command("reset_db")
@@ -120,6 +124,7 @@ def seed_all():
     seed_catalogs()
     seed_orders()
     seed_threads()
+    seed_source()
 
 
 

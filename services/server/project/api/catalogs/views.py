@@ -1,8 +1,10 @@
 # services/server/project/api/catalogs/views.py
 
 
-from flask import request
+from flask import request, jsonify
 from flask_restx import Resource, fields, Namespace
+import json
+
 
 from project.api.catalogs.crud import (
     get_all_catalogs,
@@ -16,7 +18,9 @@ from project.api.catalogs.crud import (
     get_catalog_item_by_id,
     add_catalog_item,
     update_catalog_item,
-    delete_catalog_item
+    delete_catalog_item,
+    get_all_sources,
+    find_items_by_source
 )
 
 
@@ -203,6 +207,49 @@ class CatalogItems(Resource):
         response_object["message"] = f"Catalog item {catalog_item.id} was removed!"
         return response_object, 200
 
+
+
+sources_namespace = Namespace("sources")
+
+source = sources_namespace.model(
+    "Source",
+    {
+        "id": fields.Integer(readOnly=True),
+        "supplier": fields.String(required=True),
+        "created_date": fields.DateTime
+    },
+)
+
+class SourcesList(Resource):
+    @sources_namespace.marshal_with(source, as_list=True)
+    def get(self):
+        """Returns all source vendors."""        
+        return get_all_sources(), 200        
+        
+itemreqs_namespace = Namespace("itemreqs")
+
+itemreq = itemreqs_namespace.model(
+    "Itemreq",
+    {
+        "source":    fields.String(required=True),
+        "keywords": fields.List(fields.String, required=True),
+    },
+)
+
+class ItemsBySource(Resource):
+    @itemreqs_namespace.expect(itemreq, validate=True)
+ 
+    def post(self):
+        post_data = request.get_json()
+        source = post_data.get("source")
+        keywords = post_data.get("keywords") 
+        items = find_items_by_source(source, keywords)
+
+        return (items, 200)
+
+
+sources_namespace.add_resource(SourcesList, "")
+itemreqs_namespace.add_resource(ItemsBySource, "")
 
 catalogs_namespace.add_resource(CatalogsList, "")
 catalogs_namespace.add_resource(CatalogsListbySponsor, "/by_sponsor/<string:sponsor_name>")

@@ -4,6 +4,8 @@
 from project import db
 from project.api.catalogs.models import Catalog
 from project.api.catalogs.models import CatalogItem
+from project.api.catalogs.models import Source
+from project.helpers.ebay_handlers import find_items_by_keyword
 
 # Catalog CRUD
 def get_all_catalogs():
@@ -70,5 +72,9 @@ def delete_catalog_item(catalog_item):
     db.session.commit()
     return catalog_item
 
+def get_all_sources():
+    return Source.query.all()
 
+def find_items_by_source(source, keywords):
+    return find_items_by_keyword(keywords)
 

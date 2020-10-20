@@ -48,6 +48,19 @@ class CatalogItem(db.Model):
         self.actual_cost = actual_cost
         self.catalog_id = catalog_id
 
+
+class Source(db.Model):
+
+    __tablename__ = "sources"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    supplier = db.Column(db.String(128), nullable=False)
+    created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
+
+    def __init__(self, supplier=""):
+        self.supplier = supplier
+
+
 # if os.getenv("FLASK_ENV") == "development":
 #     from project import admin
 #     from project.api.catalogs.admin import CatalogsAdminView
