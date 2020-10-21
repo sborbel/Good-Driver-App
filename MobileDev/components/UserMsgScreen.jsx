@@ -59,7 +59,7 @@ class UserMsg extends Component{
         console.log("going here");
         const newMsg = {
             content: info.content,
-            recipient_id: this.state.messages[0].recipient_id,
+            recipient_id: parseInt(this.context.sponsor_id),
             sender_id: parseInt(this.context.id),
             subject: info.subject,
             thread_id: navigation.getParam('threadID'),
@@ -77,7 +77,9 @@ class UserMsg extends Component{
     }
 
     componentDidMount(){
-        console.log("hello");
+        const {navigation} = this.props; 
+        console.log(navigation.getParam('threadID'));
+
         this.getMessages();
     }
 
@@ -105,18 +107,19 @@ class UserMsg extends Component{
             }
         }
         
-        const Item = ({ subject, content, sid, rid }) => (
+        const Item = ({ subject, content, sid, rid, date }) => (
             <TouchableOpacity onPress={ () => this.setState({displayModal: true})}>
                 <View style={(this.context.id == sid) ? styles.container : styles.replyContainer}>
-                    <Text style={{color: 'white',  fontSize: 8}}>From: {sid}, To: {rid}</Text>
                     <Text style={(this.context.id == sid) ? styles.title : styles.replyTitle}>{subject}</Text>
                     <Text style={(this.context.id == sid) ? styles.text : styles.replyText}>{content}</Text>
+                    <Text style={(this.context.id == sid) ? styles.ident : styles.replyIdent}>{date}</Text>
+                    <Text style={(this.context.id == sid) ? styles.ident : styles.replyIdent}>From: {sid}, To: {rid}</Text>
                 </View>
             </TouchableOpacity>
           );
           
         const renderItem = ({ item }) => (
-            <Item subject={item.subject} content={item.content} sid={item.sender_id} rid={item.recipient_id}/>
+            <Item subject={item.subject} content={item.content} sid={item.sender_id} rid={item.recipient_id} date={item.created_date}/>
         );
 
         const MessagesBox = () => (
@@ -240,10 +243,10 @@ const styles = StyleSheet.create({
         marginBottom: 10   
     },
     title: {
-        color: 'white', padding: 5, fontWeight: "bold", fontSize: 16, alignSelf: 'flex-end'
+        color: 'white', padding: 4, fontWeight: "bold", fontSize: 16, alignSelf: 'flex-start'
     },
     replyTitle: {
-        color: 'white', padding: 5, fontWeight: "bold", fontSize: 16, alignSelf: 'flex-start'
+        color: 'white', padding: 4, fontWeight: "bold", fontSize: 16, alignSelf: 'flex-start'
     },
     text: {
         color: 'white', 
@@ -256,6 +259,18 @@ const styles = StyleSheet.create({
         padding: 5, 
         paddingRight: 10,
         fontSize: 12
+    },
+    ident: {
+        color: 'white',  
+        fontSize: 8,
+        alignSelf: 'flex-end',
+        paddingTop: 5
+    },
+    replyIdent: {
+        color: 'white',  
+        fontSize: 8,
+        alignSelf: 'flex-start',
+        paddingTop: 5
     },
     composeContainer: {
         backgroundColor: 'lightgray'

@@ -13,11 +13,13 @@ class UserContextProvider extends Component{
             password: '',
             username: '',
             role: '',
-            sponsor_name: '',
+            sponsor_name: '',   // with requirements change 2, these will be selected upon login IF a driver has multiple sponsors
+            sponsor_id: '',     //^^
             access_token: '',
             refresh_token: '',
             id: -1,
             order: [],
+            events: [],
         };
     }
     setAuthUser = (eml, pass, user, rol, refTok, uid) => {
@@ -31,11 +33,27 @@ class UserContextProvider extends Component{
         })
     }
 
-    setSpons = (spon) => {
+    setSpons = async (spon) => {
+        // set sponsor manager name
         this.setState({
             sponsor_name: spon,
         })
-        console.log(this.state.sponsor_name);
+        var self = this;
+        var temp = [];
+        await axios
+        .get(self.state.baseUrl + 'users/by_sponsor/' + self.state.sponsor_name)
+        .then(res =>{
+            console.log(res.data);
+            temp = res.data
+        })
+        // set sponsor manager id
+        for(var i=0; i<temp.length; i++){
+            if(temp[i].role == "sponsor_mgr"){
+                self.setState({sponsor_id: temp[i].id})
+                console.log(self.state.sponsor_id);
+            }
+        }
+        console.log(this.state.id);
     }
 
     getOrderDetails = async () =>{
@@ -97,17 +115,17 @@ class UserContextProvider extends Component{
         if(this.state.role == 'admin'){
             ext = 'users';
         }
-        else if(this.state.role == 'sponsor'){
-            ext = 'users/by_sponsor/' + this.state.username;
+        else if(this.state.role == 'sponsor_mgr' || this.state.role == 'sponsor'){
+            ext = 'users/by_sponsor/' + this.state.sponsor_name;
         }
-        ext.replace('\s', '%20');
+        //ext.replace('\s', '%20');
         console.log(this.state.baseUrl + ext);
         var self = this;
         await axios
-            .get(this.state.baseUrl + ext)
+            .get(self.state.baseUrl + ext)
             .then(res =>{
                 console.log(res.data);
-                self.setState({relevantUsers: res.data});
+                self.setState({relevantUsers: res.data})
             })
             .catch(err => {
                 console.log(err);
@@ -147,26 +165,28 @@ class UserContextProvider extends Component{
             order: []
         })
     }
-
-    getOrders = async () => {
-        this.getOrderDetails();
-    }
     
-    getEvents = async () => {
+    getEvents = () => {
         var self = this
-        var events = [];
-        await axios
+        axios
             .get(self.state.baseUrl + 'events/by_user/' + self.state.id)
             .then(res =>{
-                events = res.data;
+                self.setState({events: res.data});
+                console.log(events)
             })
             .catch(err =>{
                 console.log(err)
                 console.log("Couldn't fetch events");
             })
-        return events;
+        var sortedItems = this.state.events;   
+        sortedItems.sort(function(a, b){return parseFloat(b.created_date)-parseFloat(a.created_date)});
+        console.log(sortedItems);    
+        self.setState({events: sortedItems})
     }
+    
+    parseDateData = (date) => {
 
+    }
     render(){
         return(
             <UserContext.Provider value={{...this.state, 
@@ -178,7 +198,6 @@ class UserContextProvider extends Component{
                 setPoints: this.setPoints,
                 getOrderDetails: this.getOrderDetails,
                 isAuthenticated: this.isAuthenticated,
-                getOrders: this.getOrders,
                 getEvents: this.getEvents,
                 }}
             >

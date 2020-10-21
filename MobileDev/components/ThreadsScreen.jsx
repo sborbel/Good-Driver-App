@@ -22,6 +22,11 @@ class Threads extends Component{
         }
     };
     
+    /* Fetch threads on a need to know basis
+        drivers fetch threads they're on
+        sponsors fetch threds they are on and their drivers
+        admins fetch all threads
+    */
     fetchThreads = async () =>{
         const {navigation} = this.props;
         var self = this;    
@@ -31,6 +36,7 @@ class Threads extends Component{
             .then(res =>{
                 self.setState({threads: res.data})
                 self.setState({isLoading: false})
+                console.log(res.data);
             })
             .catch(err =>{
                 console.log(err);
@@ -39,13 +45,17 @@ class Threads extends Component{
     }
 
     createThread = async () =>{
-        var slf = this;
+        console.log("Thread creation function");
+        var self = this;
         const threadInfo = {
             status: "Active",
-            creator_id: parseInt(slf.context.id),
+            creator_id: parseInt(self.context.id),
         }
         await axios
-            .post('http://192.168.1.145:5001/threads', threadInfo)
+            .post('http://192.168.1.145:5001/threads', threadInfo) // set thread to be owned by the sponsor manager
+            .then(res=>{
+                console.log("Thread should be created")
+            })
         this.fetchThreads();
 
     }
@@ -69,6 +79,15 @@ class Threads extends Component{
             <Item creator={item.creator_id} status={item.status} date={item.created_date} id={item.id} />
         );
 
+        const NewThreadBanner = () =>{
+            return(
+                <TouchableOpacity onPress={() => this.createThread()}>
+                    <View style={{padding: 10, alignItems: 'center', backgroundColor: 'lightblue'}}>
+                        <Text>Create New Thread?</Text>
+                    </View>
+                </TouchableOpacity>
+            )
+        }
         const {navigation} = this.props;
         if(this.state.isLoading){
             return(               
@@ -79,14 +98,16 @@ class Threads extends Component{
         }
         else{
             return(
-                
-                <SafeAreaView>
-                    <FlatList
-                        data={this.state.threads}
-                        renderItem={renderItem}
-                        keyExtractor={item => item.id.toString()}
-                    />
-                </SafeAreaView>
+                <View style={{flex: 1}}>
+                    <NewThreadBanner/>
+                    <SafeAreaView style={{flex: 1}}>                  
+                        <FlatList
+                            data={this.state.threads}
+                            renderItem={renderItem}
+                            keyExtractor={item => item.id.toString()}
+                        />
+                    </SafeAreaView>
+                </View>
             );
         }
     }

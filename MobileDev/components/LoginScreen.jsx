@@ -1,6 +1,5 @@
 import React, {Component, createContext} from 'react';
 import {Text, StyleSheet, TextInput, View, TouchableWithoutFeedback, Keyboard, Button, Modal, TouchableOpacity} from 'react-native';
-import PropTypes from "prop-types";
 import {Formik} from 'formik';
 import * as yup from 'yup';
 import axios from 'axios';
@@ -46,7 +45,7 @@ export default class Login extends Component{
             .catch(err => {
                 console.log(err);
                 console.log("Incorrect Login");
-                return false;
+                self.setState({dispModal: true, msg: 'Incorrect Email or password'});
             });
         await axios
             .get(url +'status', {
@@ -60,7 +59,7 @@ export default class Login extends Component{
             .catch(err => {
                 console.log(err);
                 console.log("Invalid Login");
-                return false;
+                self.setState({dispModal: true, msg: 'Incorrect Email or password'});
             });
         await axios
             .get('http://192.168.1.145:5001/users/' + self.context.id)
@@ -90,7 +89,7 @@ export default class Login extends Component{
     }
 
     render(){
-        const Message = (msg) =>{
+        const Message = () =>{
             console.log("display error");
             if(!this.state.dispModal){
                 return (null);
@@ -102,7 +101,7 @@ export default class Login extends Component{
                         animationType="slide">
                             <View>
                                 <View style={styles.modalView}>
-                                    <Text style={styles.errText}>{msg}</Text>
+                                    <Text style={styles.errText}>{this.state.msg}</Text>
                                     <TouchableOpacity onPress={() => this.setState({dispModal: false})}>
                                         <Text>Close</Text>
                                     </TouchableOpacity>
@@ -117,14 +116,12 @@ export default class Login extends Component{
         return(
             <TouchableWithoutFeedback onPress={() => {Keyboard.dismiss(); console.log("keyboard dropped")}}>
                 <View style={styles.background}>
-                <Message msg={this.state.msg}/>
+                <Message/>
                     <Formik
                         initialValues={{ email: '', password: '' }}
                         validationSchema={LoginSchema}
                         onSubmit={(values) => {
-                            if(!this.validateUser(values.email, values.password)){
-                                this.setState({dispModal: true, msg: 'You have entered the incorrect email/password'});
-                            }
+                            this.validateUser(values.email, values.password)                            
                         }}
                     >
                         {(props) => (                                        
