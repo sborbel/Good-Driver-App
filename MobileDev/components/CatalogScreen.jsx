@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, {Component} from 'react';
-import {Text, StyleSheet, TouchableOpacity, View, TouchableWithoutFeedback, Image, Modal, SafeAreaView, FlatList} from 'react-native';
+import {Text, StyleSheet, TouchableOpacity, View, TouchableWithoutFeedback, Image, Modal, SafeAreaView, FlatList, ScrollView} from 'react-native';
+import { withNavigationFocus } from 'react-navigation';
 import {Picker} from '@react-native-community/picker';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { UserContext } from '../contexts/UserContext';
@@ -35,7 +36,9 @@ export default class CatalogView extends Component{
                 image_url: "string",
                 cost: 0,
             },
+            order: [{}],
             displayModal: false,
+            pointsToBe: 0,
             displaySortModal: false,
             isLoading: true,
         };
@@ -86,8 +89,35 @@ export default class CatalogView extends Component{
         self.setState({isLoading: false});
     }
     
+    createOrder = () => {
+        var self = this;
+        axios
+            .post(self.context.baseUrl + 'orders', {status: "active", user_id: parseInt(self.id)})
+            // doesn't return an id. can just retroactively collect based on status (must assume that all other orders
+            // for this user are closed, thus must PUT that), add an array of orderItems to order AFTER checkout complete
+    }
+    
+    addOrderItem = () => {
+        if(this.state.order.length == 0){
+            this.createOrder();
+        }
+
+    }
+    
+    componentDidUpdate(prevProps){
+        if (prevProps.isFocused !== this.props.isFocused) {
+            this.getCatolog()
+            this.setState({pointsToBe: this.context.points})
+        }
+    }
+    
     componentDidMount(){
+        console.log("Hello")
         this.getCatolog()
+        this.setState({pointsToBe: this.context.points})
+    }
+    componentWillUnmount(){
+        console.log("Goodbye")
     }
 
     render(){
@@ -128,23 +158,31 @@ export default class CatalogView extends Component{
                 return(null)
             }
             else{
-                return(
-                    <View style={styles.centeredView}>
-                        <Modal visible={this.state.displayModal}
-                            animationType="slide">
-                            <View style={styles.centeredView}>
-                                <View style={styles.modalView}>
-                                    <Image source={{uri: this.state.currDisplayItem.image_url}} style={{ width: 100, height: 100 }}/>
-                                    <Text style={styles.modalText}>Some info about item</Text>
-                                    <TouchableOpacity onPress={() => this.setState({displayModal: false})}>
-                                        <View style={{backgroundColor: 'lightblue'}}>
-                                            <Text>Return To Catalog</Text>
-                                        </View>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>   
-                        </Modal>
-                    </View>
+                return(                   
+                    <Modal visible={this.state.displayModal}
+                        animationType="slide">
+                            <View style={styles.modalView}>
+                                <Image source={{uri: this.state.currDisplayItem.image_url}} style={{ width: 300, height: 300, borderWidth: 2 }}/>
+                                <ScrollView>
+                                <Text style={{padding: 10, fontWeight: 'bold', fontSize: 22, alignSelf: 'flex-start'}}>{this.state.currDisplayItem.name}</Text>
+                                <Text style={{padding: 10, fontSize: 16, alignSelf: 'flex-start'}}>{this.state.currDisplayItem.description}</Text>
+                                <Text style={{padding: 8, fontWeight: 'bold', fontSize: 20, alignSelf: 'flex-start'}}>Point Cost: {this.state.currDisplayItem.points_cost}</Text>
+                                <Text style={{padding: 10, fontWeight: 'bold', fontSize: 16, alignSelf: 'flex-start'}}>Updated Points Available: {this.state.pointsToBe}</Text>
+                                </ScrollView>
+                                <View style={{flexDirection: 'row'}}>
+                                <TouchableOpacity onPress={() => this.setState({displayModal: false})}>
+                                    <View style={{backgroundColor: 'white', marginRight: 25, marginTop: 20, padding: 10}}>
+                                        <Text>Return To Catalog</Text>
+                                    </View>
+                                </TouchableOpacity>  
+                                <TouchableOpacity onPress={() => this.addOrderItem()}>
+                                    <View style={{backgroundColor: 'lightblue', marginLeft: 25, marginTop: 20, padding: 10}}>
+                                        <Text>Add to Order</Text>
+                                    </View>
+                                </TouchableOpacity> 
+                                </View>  
+                        </View>   
+                    </Modal>                   
                 );   
             }
         }
@@ -154,8 +192,8 @@ export default class CatalogView extends Component{
             <TouchableOpacity onPress={ () => this.setState({displayModal: true, currDisplayItem: item})}>
                 <View style={styles.container}>
                     <View>
-                        <Text style={{flexWrap: 'wrap', maxWidth: 260, fontSize: 17, margin: 5, fontWeight: 'bold'}}>{item.name}</Text>
-                        <Text style={{flexWrap: 'wrap', maxWidth: 260, fontSize: 15, margin: 5, marginLeft: 10}}>{item.points_cost} points</Text>
+                        <Text style={{flexWrap: 'wrap', maxWidth: 240, fontSize: 17, margin: 5, fontWeight: 'bold'}}>{item.name}</Text>
+                        <Text style={(this.context.points >= parseInt(item.points_cost)) ? styles.inPriceText : styles.outPriceText}>{item.points_cost} points</Text>
                     </View>
                     <Image source={{uri: item.image_url}} style={{width: 80, height: 80}}/>
                 </View>
@@ -171,7 +209,6 @@ export default class CatalogView extends Component{
             return (<Text>No Items to display</Text>)
         }
         else{
-            //console.log(this.state.catalog);
             return (
                 <SafeAreaView style={{flex: 1, backgroundColor: 'gray', height: 200}}>
                         <InfoModal/>
@@ -181,7 +218,6 @@ export default class CatalogView extends Component{
                             </TouchableOpacity>
                         </View>
                         <FlatList
-                            onRefresh={console.log("hiya papaya")}
                             data={this.state.catalogItem}
                             renderItem={renderItem}
                             keyExtractor={item => item.id.toString()}                                
@@ -199,16 +235,10 @@ const styles = StyleSheet.create({
       alignItems: "center",
     },
     modalView: {
-        margin: 20,
-        backgroundColor: "white",
-        borderRadius: 20,
+        flex: 1,
+        backgroundColor: "gray",
         padding: 35,
         alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: {
-          width: 0,
-          height: 2
-        }
     },
     modalText: {
         marginBottom: 15,
@@ -225,12 +255,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         margin: 10    
     },
-    title: {
-        color: 'white', padding: 5, fontWeight: "bold", fontSize: 16, alignSelf: 'flex-end'
-    },
-    replyTitle: {
-        color: 'white', padding: 5, fontWeight: "bold", fontSize: 16, alignSelf: 'flex-start'
-    },
+
     text: {
         color: 'white', 
         padding: 5, 
@@ -249,4 +274,19 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 100,
         opacity: .8,
     },
+    inPriceText:{
+        flexWrap: 'wrap', 
+        maxWidth: 240, fontSize: 15, 
+        margin: 5, 
+        marginLeft: 10,
+        color: 'lightgreen'
+    },
+    outPriceText:{
+        flexWrap: 'wrap', 
+        maxWidth: 240, 
+        fontSize: 15, 
+        margin: 5, 
+        marginLeft: 10,
+        color: 'crimson'
+    }
 })

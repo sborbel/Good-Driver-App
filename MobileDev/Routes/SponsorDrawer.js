@@ -3,6 +3,7 @@ import SponsorHomeStack from '../Routes/SponsorHomeStack'
 import SponsorProfStack from '../Routes/SponsorProfStack'
 import SponsorLogout from '../components/LogoutUser';
 import MessagesStack from '../Routes/MessagesStack';
+import SponsorEventStack from '../Routes/SponsorEventStack';
 const SponsorDrawer = createDrawerNavigator({
     home: {
         screen: SponsorHomeStack,
@@ -17,6 +18,15 @@ const SponsorDrawer = createDrawerNavigator({
         screen: SponsorProfStack,
         navigationOptions: {
             title: 'Profile',
+            headerStyle: {
+                backgroundColor: 'gray',
+            }
+        }
+    },
+    events: {
+        screen: SponsorEventStack,
+        navigationOptions: {
+            title: 'Log Driver Events',
             headerStyle: {
                 backgroundColor: 'gray',
             }
