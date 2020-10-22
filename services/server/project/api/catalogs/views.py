@@ -244,8 +244,18 @@ class ItemsBySource(Resource):
         source = post_data.get("source")
         keywords = post_data.get("keywords") 
         items = find_items_by_source(source, keywords)
-
-        return (items, 200)
+        return_ary = []
+        for item in items['searchResult']['item']:
+            unit = {}
+            unit["name"] = item["title"],
+            unit["description"] = item["viewItemURL"],
+            unit["image_url"] = item["galleryURL"],
+            unit["points_cost"] = int((float(item["sellingStatus"]["currentPrice"]["value"]))/2),
+            unit["actual_cost"] = item["sellingStatus"]["currentPrice"]["value"],
+            unit["catalog_id"] = int(item['itemId'])
+            return_ary.append(unit)
+            # print(f"items: {item}")
+        return (return_ary, 200)
 
 
 sources_namespace.add_resource(SourcesList, "")
