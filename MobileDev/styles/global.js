@@ -42,7 +42,7 @@ export const gStyles = StyleSheet.create({
         padding: 5, 
         borderColor: 'gray', 
         borderWidth: 1,
-        backgroundColor: '#ffff00',
+        backgroundColor: '#ffffff',
     },
     darkContain: {
         padding: 5, 
