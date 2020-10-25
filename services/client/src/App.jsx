@@ -9,13 +9,13 @@ import NavBar from "./components/NavBar";
 import LoginForm from "./components/LoginForm";
 import RegisterForm from "./components/RegisterForm";
 import Message from "./components/Message";
-import AddUser from "./components/AddUser";
+// import AddUser from "./components/AddUser";
 import HomePage from "./components/HomePage";
 import UserStatus from "./components/UserStatus";
-import Messenger from "./components/Messenger";
+// import Messenger from "./components/Messenger";
 import MessageThreads from "./components/MessageThreads";
-import MessageList from "./components/MessageList";
-import { date, object } from "yup";
+// import MessageList from "./components/MessageList";
+// import { date, object } from "yup";
 import EventsTable from "./components/EventsTable";
 import AnnouncementForm from "./components/AnnouncementForm";
 
@@ -305,7 +305,7 @@ getName = (id) => {
         this.setState({ currentUser: res.data });
         window.localStorage.setItem("userstate", JSON.stringify(res.data));
         this.getAuthorizedData();
-        this.setannouncement();
+        // this.setannouncement();
       })
       .catch(err => {
         console.log(err);
@@ -479,7 +479,9 @@ getName = (id) => {
   };
 
   isAuthenticated = () => {
-    if (this.state.accessToken || this.validRefresh()) {
+    if (this.state.accessToken) {
+      return true;
+    } else if(this.validRefresh()){
       return true;
     }
     return false;
@@ -496,7 +498,7 @@ getName = (id) => {
           this.setState({ accessToken: res.data.access_token });
           // this.getUsers();
           window.localStorage.setItem("refreshToken", res.data.refresh_token);
-          this.setannouncement();
+          // this.setannouncement();
           return true;
         })
         .catch(err => {

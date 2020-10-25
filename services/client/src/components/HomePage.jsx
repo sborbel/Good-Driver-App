@@ -13,14 +13,14 @@ const HomePage = (props) => (
       <h5 className="title is-5">{"Points: " + props.state.points}</h5>
     </div>
     )}
-    <Announcement
+    {/* <Announcement
             title={props.state.currentUser.sponsor_name}
             subtitle={props.state.announcement.content}
             imageSource={Logo}
             daysToLive={0}
             secondsBeforeBannerShows={2}
             closeIconSize={30}
-      />
+      /> */}
     </div>
 
 );

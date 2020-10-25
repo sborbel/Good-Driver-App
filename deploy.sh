@@ -18,6 +18,14 @@ register_definition() {
   fi
 }
 
+update_service() {
+  if [[ $(aws ecs update-service --cluster $cluster --service $service --task-definition $revision | $JQ '.service.taskDefinition') != $revision ]]; then
+    echo "Error updating service."
+    return 1
+  fi
+}
+
+
 deploy_cluster() {
 
   # server
@@ -26,6 +34,7 @@ deploy_cluster() {
   task_def=$(printf "$task_template" $AWS_ACCOUNT_ID $AWS_RDS_URI $PRODUCTION_SECRET_KEY)
   echo "$task_def"
   register_definition
+  update_service
 
   # client
   template="ecs_client_taskdefinition.json"
@@ -33,7 +42,7 @@ deploy_cluster() {
   task_def=$(printf "$task_template" $AWS_ACCOUNT_ID)
   echo "$task_def"
   register_definition
-
+  update_service
 }
 
 configure_aws_cli
