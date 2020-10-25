@@ -15,9 +15,9 @@ services:
       - dev_env.env
 
     depends_on:
-      - good-drivers-db
+      - good-driver-db
 
-  good-drivers-db:
+  good-driver-db:
     build:
       context: ./services/server/project/db
       dockerfile: Dockerfile
