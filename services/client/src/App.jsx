@@ -103,10 +103,12 @@ class App extends Component {
             //this.setState({threads: res.data});
                 
             
-            //console.log(this.state.threads);
+            console.log("this.state.threads: ", this.state.threads);
+            console.log("getThreads.res: ", res);
+
             let a = res.data;
             this.setState({threads: this.finishThreads(a)});
-            console.log(this.state.threads);
+            // console.log(this.state.threads);
           })
           
           .catch(err => {
@@ -118,7 +120,7 @@ class App extends Component {
   finishThreads = (myThreads) => {
     
 
-    console.log(myThreads);
+    // console.log(myThreads);
 
     
     let newThreads = [];
@@ -126,6 +128,7 @@ class App extends Component {
 
     for (let i = 0; i < myThreads.length; i++) {
 
+      console.log("myThreads.length: ", myThreads.length);
       console.log("this index: ", myThreads);
 
       
@@ -254,7 +257,7 @@ getName = (id) => {
     .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/events/by_user/${this.state.currentUserId}`)
     .then(res => {
       events = res.data;
-      console.log("events by User ID: ", res.data);
+      // console.log("events by User ID: ", res.data);
       //window.localStorage.setItem("eventlist", JSON.stringify(res.data));
       for(let idx in events){
         const item = events[idx];
@@ -300,10 +303,9 @@ getName = (id) => {
       .then(res => {
         console.log("This user: ", res.data);
         this.setState({ currentUser: res.data });
-        this.getAuthorizedData();
-
-        this.setannouncement();
         window.localStorage.setItem("userstate", JSON.stringify(res.data));
+        this.getAuthorizedData();
+        this.setannouncement();
       })
       .catch(err => {
         console.log(err);
@@ -314,7 +316,7 @@ getName = (id) => {
     axios
     .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/events/by_user/${uid}`)
     .then(res => {
-      console.log("Events: ", res.data);
+      // console.log("Events: ", res.data);
       this.setState({events: res.data});
     })
     .catch(err => {
@@ -407,19 +409,26 @@ getName = (id) => {
     axios
     .post(url, data)
     .then(res => {
+
       console.log("Login processing for: ", res.data);
       this.getUserDataById(res.data.user_id);
       this.setState({ accessToken: res.data.access_token, 
                       currentUserId: res.data.user_id });
-
-      this.getThreads(res.data.user_id);
       window.localStorage.setItem("refreshToken", res.data.refresh_token);
+      return res;
+    })
+    .then(res => {
+      console.log("RES: ", res);
+                      
+      this.getThreads(res.data.user_id);
       this.getPointsbyID(res.data.user_id);
-      console.log(this.state.users);
+      // console.log(this.state.users);
       this.getEventsByUser(res.data.user_id);
-      console.log(this.getEventsByUser());
+      // console.log(this.getEventsByUser());
       this.createMessage("success", "You have logged in successfully.");
     })
+
+
     .catch(err => {
       console.log(err);
       this.createMessage("danger", "Incorrect email and/or password.");
@@ -436,7 +445,7 @@ getName = (id) => {
       .get(url)
       .then(res => {
         this.setState({
-          announcement: res.data[0]
+          announcement: res.data[0] || ""
         });
       })
       .catch(err => {
