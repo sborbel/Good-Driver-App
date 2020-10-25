@@ -32,7 +32,7 @@ class Messenger extends Component {
         };
         console.log(data);
         axios
-            .post(`${process.env.REACT_APP_USERS_SERVICE_URL}/messages`, data)
+            .post(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/messages`, data)
             .then(res => {
                 this.setState({
                     messages: [...this.state.messages, { me: true, author: "Me", body: text }],
@@ -48,7 +48,7 @@ class Messenger extends Component {
         let oldMessages = [];
         let newMessages = [];
         axios
-            .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/messages/by_thread/${this.state.thread.id}`)
+            .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/messages/by_thread/${this.state.thread.id}`)
             .then(res => {
                 oldMessages = res.data;
                 console.log("messages by thread: ", res.data);
