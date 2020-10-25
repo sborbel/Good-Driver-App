@@ -28,7 +28,11 @@ update_service() {
 
 deploy_cluster() {
 
+  cluster="good-driver-cluster2"
+
+
   # server
+  service="good-driver-server-service"
   template="ecs_server_taskdefinition.json"
   task_template=$(cat "ecs/$template")
   task_def=$(printf "$task_template" $AWS_ACCOUNT_ID $AWS_RDS_URI $PRODUCTION_SECRET_KEY)
@@ -37,6 +41,7 @@ deploy_cluster() {
   update_service
 
   # client
+  service="good-driver-client-service"
   template="ecs_client_taskdefinition.json"
   task_template=$(cat "ecs/$template")
   task_def=$(printf "$task_template" $AWS_ACCOUNT_ID)
