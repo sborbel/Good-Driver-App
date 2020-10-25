@@ -11,7 +11,14 @@
             "protocol": "tcp",
             "containerPort": 80
           }
-        ]
+        ],
+        "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "good-driver-client-log",
+            "awslogs-region": "us-east-1"
+          }
+        }
       }
     ],
     "family": "good-driver-client-td"
