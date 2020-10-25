@@ -32,7 +32,7 @@ phases:
     commands:
     - echo pushing prod images to ecr...
     - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/good-driver-server:prod
+    - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/good-driver-client:builder
     - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/good-driver-client:prod
-
-
-
+    - chmod +x ./deploy.sh
+    - bash deploy.sh
