@@ -23,6 +23,15 @@ phases:
           ./services/server
       - >
         docker build \
+          --target builder \
+          --cache-from $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/good-driver-client:builder \
+          -f services/client/Dockerfile.prod \
+          -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/good-driver-client:builder \
+          --build-arg NODE_ENV=production \
+          --build-arg REACT_APP_USERS_SERVICE_URL=$REACT_APP_USERS_SERVICE_URL \
+          ./services/client
+      - >
+        docker build \
           -f services/client/Dockerfile.prod \
           -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/good-driver-client:prod \
           --build-arg NODE_ENV=production \
