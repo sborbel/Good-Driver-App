@@ -16,59 +16,32 @@ export default class PointHistory extends Component{
         super();
         this.state = {
             mode: 0, // 0 = orders, 1 = events
-            orders: [{}],
             ordersItems: [[{}]],
             displayModal: false,
             isLoading: true,
         };
     }
 
-
-    getOrderItemsDetails = async () => {
-        var self = this;
-        var currTemp = [[{}]];
-        for(var i=0; i<self.state.orders.length; i++){
-            await axios
-                .get(self.context.baseUrl + 'order_items/by_order/' + self.context.orders[i].id)
-                .then(res =>{
-                    currTemp.push(res.data);
-                    console.log('Orders: ' + currTemp);
-                })
-                .catch(err =>{
-                    console.log(err);
-                    console.log("Well there's been a problem now, hasn't there part 1?")
-                })
-        }
-        var itemInfo = [{
-
-        }];
-        // fetch info from catalog for each order item (in a 2D array of size [n][m], pushed for each m items from an order, for n orders)
-        for(var i=0; i<currTemp.length; i++){
-            for(var j=0; j<currTemp[i].length; j++){
-                await axios
-                .get(self.context.baseUrl + 'catalog_items/' + currTemp[i][j].id)
-                .then(res =>{
-                    itemInfo.push(res.data);
-                })
-                .catch(err =>{
-                    console.log("Well, we're back in error town aren't we.");
-                })
+    // put orderItems into flat array
+    flattenItems = () =>{
+        var tempEvents = [];
+        for(var i=0; i<this.context.orderItems.length; i++){
+            for(var j=0; j<this.context.orderItems[i].length; j++){
+                tempEvents.push(this.context.orderItems[i][j]);
             }
         }
-        self.setState({orderItems: itemInfo});
+        this.setState({orderItems: tempEvents});
     }
-
+    
     componentDidMount(){
         this.context.getEvents();
         this.context.getOrderDetails();
-        this.getOrderItemsDetails();
-        console.log("Orders from history: " + this.state.orders);
-        console.log("Events from history: " + this.context.events);
+        this.context.getOrderItemDetails();
+        this.flattenItems();
         this.setState({isLoading: false});
     }
     
     render(){
-        var op; // 0 = orders, 1 = events
         // conditionally render based on opening orderitems or events
         const raiseModal = (set) => {
             this.setState({displayModal: true, mode: set})
@@ -83,14 +56,24 @@ export default class PointHistory extends Component{
                 </View>
             </View>
             
-          );
-          
+        );
+
+        const Order = ({ord}) => (   
+            <View style={styles.container}>
+                <View>
+                    <Text style={{flexWrap: 'wrap', maxWidth: 260, fontSize: 17, margin: 5, fontWeight: 'bold'}}>Point Value: {ord.points_cost}</Text>
+                    <Text style={{flexWrap: 'wrap', maxWidth: 260, fontSize: 15, margin: 5, marginLeft: 10}}> ID: {ord.id} </Text>
+                    <Text style={{flexWrap: 'wrap', maxWidth: 260, fontSize: 15, margin: 5, marginLeft: 10}}> Date: {ord.created_date} </Text>
+                </View>
+            </View>
+            
+          ); 
         const renderEvent = ({ item }) => (
             <Item events={item}/> // set option to toggle cost from points to dollar
         );
 
         const renderOrder = ({ item }) => (
-            <Item events={item}/> // set option to toggle cost from points to dollar
+            <Order ord={item}/> // set option to toggle cost from points to dollar
         );
         
         const HistModal = () =>{ 
@@ -110,9 +93,10 @@ export default class PointHistory extends Component{
                                 />  
                             </SafeAreaView>   
                             <TouchableOpacity onPress={() => this.setState({displayModal: false})}>
-                                <Text style={{alignSelf: 'center'}}>Exit</Text>
-                            </TouchableOpacity>           
-     
+                                <View style={{padding: 15, backgroundColor: "gray"}}>
+                                    <Text style={{alignSelf: 'center'}}>Exit</Text>
+                                </View>
+                            </TouchableOpacity>               
                     </Modal>
                    
                 );   

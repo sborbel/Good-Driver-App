@@ -105,6 +105,7 @@ export default class CatalogView extends Component{
     }
     
     componentDidUpdate(prevProps){
+        console.log("Updated catalog")
         if (prevProps.isFocused !== this.props.isFocused) {
             this.getCatolog()
             this.setState({pointsToBe: this.context.points})

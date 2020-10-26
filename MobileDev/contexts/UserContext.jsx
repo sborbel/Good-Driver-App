@@ -13,12 +13,13 @@ class UserContextProvider extends Component{
             password: '',
             username: '',
             role: '',
-            sponsor_name: '',   // with requirements change 2, these will be selected upon login IF a driver has multiple sponsors
-            sponsor_id: '',     //^^
+            sponsor_name: '',
+            sponsor_id: '',
             access_token: '',
             refresh_token: '',
             id: -1,
             order: [],
+            orderItems: [],
             events: [],
         };
     }
@@ -56,15 +57,32 @@ class UserContextProvider extends Component{
         console.log(this.state.id);
     }
 
-    getOrderDetails = async () =>{
+    getOrderDetails = () =>{
         var self = this;
         console.log(self.state.baseUrl + 'orders/by_user/' + self.state.id)
-        await axios
+        axios
             .get(self.state.baseUrl + 'orders/by_user/' + self.state.id)
             .then(res =>{
                 console.log(res.data);
                 self.setState({order: res.data})
             })
+    }
+    
+    // has order items in 2D array [n][m], where n is order number, and m is item in that order
+    getOrderItemDetails = async () =>{
+        var self = this;
+        var tempEvents = [];
+        self.getOrderDetails();
+        for(var i=0; i<this.state.order.length; i++){
+            tempEvents.push([]);
+            await axios
+                .get(self.state.baseUrl + 'order_items/by_order/' + self.state.order[i].id)
+                .then(res =>{
+                    console.log(res.data);
+                    tempEvents[i].push(res.data);
+                })
+        }
+        self.setState({orderItems: tempEvents});
     }
     
     // tally points from events, tally points from orders. save net total.
@@ -197,6 +215,7 @@ class UserContextProvider extends Component{
                 setSpons: this.setSpons,
                 setPoints: this.setPoints,
                 getOrderDetails: this.getOrderDetails,
+                getOrderItemDetails: this.getOrderItemDetails,
                 isAuthenticated: this.isAuthenticated,
                 getEvents: this.getEvents,
                 }}
