@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes, { number } from "prop-types";
-import { Formik } from "formik";
+import { Field, Formik } from "formik";
 import * as Yup from "yup";
 import Modal from "react-modal";
 
@@ -29,8 +29,12 @@ const EventsTable = props => {
     const [threadArr,setArr] = React.useState([]);
 
   const {events} = props.state;
+  const {users} = props.state;
+  const {currentUser} = props.state;
+  console.log(users);
+  console.log(events);
   let sortedEvents = [];
-  const [correctID, setCorrectID] = React.useState(0);
+  const [correctID, setCorrectID] = React.useState(props.state.currentUser.id);
   const [sortedField, setSortedField] = React.useState(null);
   for(let idx in events){
     const item = events[idx];
@@ -38,9 +42,9 @@ const EventsTable = props => {
     console.log(parseInt(correctID));
     if(item.user_id === parseInt(correctID)){
       sortedEvents.push(item);
-      console.log(sortedEvents);
     }
   }
+  
   if(sortedField !== null) {
     sortedEvents.sort((a, b) => {
       if (a[sortedField] < b[sortedField]){
@@ -52,6 +56,7 @@ const EventsTable = props => {
       return 0;
     });
   }
+  console.log(sortedEvents);
   function openModal() {
     setIsOpen(true);
 
@@ -69,15 +74,17 @@ const EventsTable = props => {
       {props.state.currentUser.role != "driver" && 
         <Formik
         initialValues={{
-          userName: ""
+          user: users[0].id
         }}
         onSubmit={(values, { setSubmitting, resetForm }) => {
-          setCorrectID(values.userName);
+          setCorrectID(values.user);
+          //props.getUserDataByID(props.state.currentUser.id);
           setSubmitting(false);
         }}
         validationSchema={Yup.object().shape({
           
         })}
+        
       >
         {props => {
           const {
@@ -90,21 +97,18 @@ const EventsTable = props => {
             handleSubmit
           } = props;
           return (
+            <div>
             <form onSubmit={handleSubmit}>
-            <div className="field">
-                <label className="label" htmlFor="input-username">
-                    User
-                    </label>
-                    <input
-                    name="userName"
-                    id="input-username"
-                    type="text"
-                    placeholder="Enter a username"
-                    value={values.userName}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    />
-            </div>
+            <Field as="select" name="user">
+            <option value={0}> </option>
+              {users.map(user => {
+                
+                if(currentUser.id != user.id){
+                  return <option key={user.id} value={user.id}>{user.id}: {user.username}</option>
+                }
+              })}
+            </Field>
+             
               <input
                 type="submit"
                 className="button is-primary"
@@ -112,6 +116,7 @@ const EventsTable = props => {
                 disabled={isSubmitting}
               />
             </form>
+            </div>
           );
         }}
       </Formik>
@@ -159,7 +164,7 @@ const EventsTable = props => {
                                 onSubmit={(values, { setSubmitting, resetForm }) => {
                                     console.log("Submitted: ", values);
                                 props.createNewEvent(values);//Make this
-                                props.getEventsBySponsor();
+                                props.getUserDataByID(props.state.currentUser.id);
                                 closeModal();
                                 resetForm();
                                 setSubmitting(false);
@@ -249,7 +254,8 @@ EventsTable.propTypes = {
   isAuthenticated: PropTypes.func.isRequired,
   getEventsByUser: PropTypes.func,
   getEventsBySponsor: PropTypes.func,
-  createNewEvent: PropTypes.func
+  createNewEvent: PropTypes.func,
+  getUserDataByID: PropTypes.func
 };
 
 export default EventsTable;
