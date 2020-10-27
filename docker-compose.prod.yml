@@ -11,13 +11,13 @@ services:
     environment:
       - FLASK_ENV=production
       - APP_SETTINGS=project.config.ProductionConfig
-      - DATABASE_URL=postgres://postgres:postgres@good-drivers-db:5432/good_drivers_prod
-      - DATABASE_TEST_URL=postgres://postgres:postgres@good-drivers-db:5432/good_drivers_test
+      - DATABASE_URL=postgres://postgres:postgres@good-driver-db:5432/good_drivers_prod
+      - DATABASE_TEST_URL=postgres://postgres:postgres@good-driver-db:5432/good_drivers_test
       - SECRET_KEY=my_precious
     depends_on:
-      - good-drivers-db
+      - good-driver-db
 
-  good-drivers-db:
+  good-driver-db:
     build:
       context: ./services/server/project/db
       dockerfile: Dockerfile

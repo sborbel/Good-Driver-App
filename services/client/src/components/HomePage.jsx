@@ -13,6 +13,7 @@ const HomePage = (props) => (
       <h5 className="title is-5">{"Points: " + props.state.points}</h5>
     </div>
     )}
+    {props.state.currentUser.role != "admin" &&
     <Announcement
             title={props.state.currentUser.sponsor_name}
             subtitle={props.state.announcement.content}
@@ -20,7 +21,7 @@ const HomePage = (props) => (
             daysToLive={0}
             secondsBeforeBannerShows={2}
             closeIconSize={30}
-      />
+      />}
     </div>
 
 );
