@@ -25,7 +25,7 @@ const modalStyles = {
 
 function getName(id){
   axios
-    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users/${id}`)
+    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/users/${id}`)
     .then(res => {
       console.log("getName", res.data.username)
         return res.data.username;

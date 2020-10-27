@@ -9,13 +9,13 @@ import NavBar from "./components/NavBar";
 import LoginForm from "./components/LoginForm";
 import RegisterForm from "./components/RegisterForm";
 import Message from "./components/Message";
-import AddUser from "./components/AddUser";
+// import AddUser from "./components/AddUser";
 import HomePage from "./components/HomePage";
 import UserStatus from "./components/UserStatus";
-import Messenger from "./components/Messenger";
+// import Messenger from "./components/Messenger";
 import MessageThreads from "./components/MessageThreads";
-import MessageList from "./components/MessageList";
-import { date, object } from "yup";
+// import MessageList from "./components/MessageList";
+// import { date, object } from "yup";
 import EventsTable from "./components/EventsTable";
 import AnnouncementForm from "./components/AnnouncementForm";
 import DriverStore from "./components/DriverStore";
@@ -118,7 +118,7 @@ class App extends Component {
 
   
   editUser = (data, id) => {
-    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/users/${id}`;
+    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/users/${id}`;
     axios
       .put(url, data)
       .then(res => {
@@ -138,20 +138,22 @@ class App extends Component {
     let theRecpName = "";
     let newThreads = [];
     //console.log(this.props.state.users);
-    console.log(`${process.env.REACT_APP_USERS_SERVICE_URL}/threads/by_user/${id}`);
+    console.log(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/threads/by_user/${id}`);
     
     axios
-        .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/threads/by_user/${id}`)
+        .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/threads/by_user/${id}`)
         .then(res => {
             //console.log(" res  : ", res.data[0].status);
             
             //this.setState({threads: res.data});
                 
             
-            //console.log(this.state.threads);
+            console.log("this.state.threads: ", this.state.threads);
+            console.log("getThreads.res: ", res);
+
             let a = res.data;
             this.setState({threads: this.finishThreads(a)});
-            console.log(this.state.threads);
+            // console.log(this.state.threads);
           })
           
           .catch(err => {
@@ -163,7 +165,7 @@ class App extends Component {
   finishThreads = (myThreads) => {
     
 
-    console.log(myThreads);
+    // console.log(myThreads);
 
     
     let newThreads = [];
@@ -171,11 +173,12 @@ class App extends Component {
 
     for (let i = 0; i < myThreads.length; i++) {
 
+      console.log("myThreads.length: ", myThreads.length);
       console.log("this index: ", myThreads);
 
       
       axios
-        .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/messages/by_thread/${myThreads[i].id}`)
+        .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/messages/by_thread/${myThreads[i].id}`)
         .then(res1 => {
           let recpID = "";
           let senderID = 0;
@@ -212,7 +215,7 @@ class App extends Component {
 
         })
         .catch(err => {
-          console.log("Error in /messages/by", err);
+          console.log("Error in /api/messages/by", err);
         })
 
       
@@ -233,7 +236,7 @@ class App extends Component {
     console.log(recpID);
     
     axios
-        .post(`${process.env.REACT_APP_USERS_SERVICE_URL}/threads`, data)
+        .post(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/threads`, data)
         .then(res => {
             console.log(" res  : ", res);
             this.sendFirstMessage(res.data.id, recpID);
@@ -255,7 +258,7 @@ class App extends Component {
     console.log(data);
     
     axios
-        .post(`${process.env.REACT_APP_USERS_SERVICE_URL}/messages`, data)
+        .post(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/messages`, data)
         .then(res => {
             
           })
@@ -267,7 +270,7 @@ class App extends Component {
 
 getName = (id) => {
   axios
-    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users/${id}`)
+    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/users/${id}`)
     .then(res => {
         
         
@@ -280,7 +283,7 @@ getName = (id) => {
   
   getUsers = () => {
     axios
-    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`)
+    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/users`)
     .then(res => {
       console.log("All Users: ", res.data);
       this.setState({ users: res.data });
@@ -296,10 +299,10 @@ getName = (id) => {
     let events = [];
     let eventPoints = 0;
     axios
-    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/events/by_user/${this.state.currentUserId}`)
+    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/events/by_user/${this.state.currentUserId}`)
     .then(res => {
       events = res.data;
-      console.log("events by User ID: ", res.data);
+      // console.log("events by User ID: ", res.data);
       //window.localStorage.setItem("eventlist", JSON.stringify(res.data));
       for(let idx in events){
         const item = events[idx];
@@ -316,7 +319,7 @@ getName = (id) => {
   getUsersBySponsorName = () => {
 
     axios
-    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users/by_sponsor/${this.state.currentUser.sponsor_name}`)
+    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/users/by_sponsor/${this.state.currentUser.sponsor_name}`)
     .then(res => {
       this.setState({ users: res.data });
       console.log("Users by Sponsor Name: ", this.state.users);
@@ -358,7 +361,7 @@ getName = (id) => {
   getUserDataById = (id) => {
     this.setState({events: []});
     axios
-      .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users/${id}`)
+      .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/users/${id}`)
       .then(res => {
         console.log("This user: ", res.data);
         this.setState({ currentUser: res.data });
@@ -373,6 +376,8 @@ getName = (id) => {
         }
         this.getAuthorizedData();
         window.localStorage.setItem("userstate", JSON.stringify(res.data));
+        this.getAuthorizedData();
+        // this.setannouncement();
       })
       .catch(err => {
         console.log(err);
@@ -382,9 +387,9 @@ getName = (id) => {
   getEventsByUser = (uid) => {
     this.setState({events: []});
     axios
-    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/events/by_user/${uid}`)
+    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/events/by_user/${uid}`)
     .then(res => {
-      console.log("Events: ", res.data);
+      // console.log("Events: ", res.data);
       this.setState({events: res.data});
     })
     .catch(err => {
@@ -399,7 +404,7 @@ getName = (id) => {
     let i = 0;
     console.log(this.state.users);
     for(i = 0; i < this.state.users.length; i++){
-      url = `${process.env.REACT_APP_USERS_SERVICE_URL}/events/by_user/${this.state.users[i].id}`
+      url = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/events/by_user/${this.state.users[i].id}`
       console.log(url);
       axios
       .get(url)
@@ -420,7 +425,7 @@ getName = (id) => {
   
   returnEventsByUser = (uid) => {
     axios
-    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/events/by_user/${uid}`)
+    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/events/by_user/${uid}`)
     .then(res => {
       console.log("Events: ", res.data);
       return res.data;
@@ -432,7 +437,7 @@ getName = (id) => {
 
   createNewEvent = (data) => {
     axios
-    .post(`${process.env.REACT_APP_USERS_SERVICE_URL}/events/`, data)
+    .post(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/events/`, data)
     .then(res => {
       console.log("Event created: ", res);
     })
@@ -444,7 +449,7 @@ getName = (id) => {
 
   addUser = data => {
     axios
-      .post(`${process.env.REACT_APP_USERS_SERVICE_URL}/users`, data)
+      .post(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/users`, data)
       .then(res => {
         this.setState({ username: "", email: "" });
         this.handleCloseModal();
@@ -477,6 +482,7 @@ getName = (id) => {
     axios
     .post(url, data)
     .then(res => {
+
       console.log("Login processing for: ", res.data);
       this.getUserDataById(res.data.user_id); //Current User, all users, events for sponsor and admin, and announcement for driver and sponsor
       this.setState({ accessToken: res.data.access_token, 
@@ -486,6 +492,8 @@ getName = (id) => {
       window.localStorage.setItem("refreshToken", res.data.refresh_token);
       this.createMessage("success", "You have logged in successfully.");
     })
+
+
     .catch(err => {
       console.log(err);
       this.createMessage("danger", "Incorrect email and/or password.");
@@ -496,13 +504,13 @@ getName = (id) => {
   setannouncement = () => {
     
     
-    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/announcements/by_sponsor/${this.state.currentUser.sponsor_name}`;
+    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/announcements/by_sponsor/${this.state.currentUser.sponsor_name}`;
     
     axios
       .get(url)
       .then(res => {
         this.setState({
-          announcement: res.data[0]
+          announcement: res.data[0] || ""
         });
       })
       .catch(err => {
@@ -514,7 +522,7 @@ getName = (id) => {
   };
 
   editAnnouncement = (data) => {
-    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/announcements/${this.state.announcement.id}`;
+    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/announcements/${this.state.announcement.id}`;
     
     axios
       .put(url, data)
@@ -536,7 +544,9 @@ getName = (id) => {
   };
 
   isAuthenticated = () => {
-    if (this.state.accessToken || this.validRefresh()) {
+    if (this.state.accessToken) {
+      return true;
+    } else if(this.validRefresh()){
       return true;
     }
     return false;
@@ -593,7 +603,7 @@ getName = (id) => {
 
   removeUser = user_id => {
     axios
-      .delete(`${process.env.REACT_APP_USERS_SERVICE_URL}/users/${user_id}`)
+      .delete(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/users/${user_id}`)
       .then(res => {
         // this.getUsers();
         this.createMessage("success", "User removed.");

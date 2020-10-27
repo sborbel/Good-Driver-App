@@ -41,7 +41,7 @@ import './Message.css';
 class Message extends Component {
   static propTypes = {
     author: PropTypes.string,
-    body: PropTypes.string.isRequired,
+    body: PropTypes.string,
     me: PropTypes.bool,
   }
 
