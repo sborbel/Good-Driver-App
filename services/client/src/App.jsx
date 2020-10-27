@@ -18,6 +18,9 @@ import MessageList from "./components/MessageList";
 import { date, object } from "yup";
 import EventsTable from "./components/EventsTable";
 import AnnouncementForm from "./components/AnnouncementForm";
+import DriverStore from "./components/DriverStore";
+import TestPage from "./components/DriverStore";
+import Card from 'react-bootstrap/Card';
 
 const modalStyles = {
   content: {
@@ -49,18 +52,23 @@ class App extends Component {
       announcement: {},
       messages: [],
       threads: [],
-      events: []
+      events: [],
+      catalog_items: [],
+      catalogues: []
     };
   }
 
   componentDidMount = () => {
+    
 
     let userstate = localStorage.getItem("userstate");
     let userslist = localStorage.getItem("userslist");
     if (userstate) {
+      
       userstate = JSON.parse(userstate);
       this.setState({ currentUser: userstate });
       this.setState({ currentUserId: userstate.id});
+      //this.getUserDataById(userstate.id);
     }
     if (userslist) {
       userslist = JSON.parse(userslist);
@@ -70,6 +78,43 @@ class App extends Component {
     
     
   };
+
+
+  getCatalogueItems = (id) => {
+    console.log("Here");
+    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/catalog_items/by_catalog/${id}`;
+    axios
+      .get(url)
+      .then(res => {
+        this.setState({catalog_items: res.data});
+        console.log("Items: ", this.state.catalog_items);
+      })
+      .catch(err => {
+        console.log(err);
+        this.createMessage("danger", `Cannot get items for catalog ${id}`);
+      });
+  };
+  
+
+  getCatalogues = () => {
+    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/catalogs/by_sponsor/${this.state.currentUser.sponsor_name}`;
+    axios
+      .get(url)
+      .then(res => {
+        this.setState({catalogs: res.data});
+        console.log("Catalogues:", res.data)
+        return res;
+      })
+      .then(res => {
+        
+        this.getCatalogueItems(res.data[0].id);
+      })
+      .catch(err => {
+        console.log(err);
+        this.createMessage("danger", `Cannot get catalogues for sponsor ${this.state.currentUser.sponsor_name}`);
+      });
+  };
+  
 
   
   editUser = (data, id) => {
@@ -311,15 +356,22 @@ getName = (id) => {
   };
 
   getUserDataById = (id) => {
+    this.setState({events: []});
     axios
       .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/users/${id}`)
       .then(res => {
         console.log("This user: ", res.data);
         this.setState({ currentUser: res.data });
-        this.getAuthorizedData();
+        
+        return res;
+      })
+      .then(res => {
+        
         if(this.state.currentUser.role === "driver" || this.state.currentUser.role === "sponsor_mgr"){
           this.setannouncement();
+          this.getCatalogues();
         }
+        this.getAuthorizedData();
         window.localStorage.setItem("userstate", JSON.stringify(res.data));
       })
       .catch(err => {
@@ -328,7 +380,7 @@ getName = (id) => {
   };
 
   getEventsByUser = (uid) => {
-    
+    this.setState({events: []});
     axios
     .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/events/by_user/${uid}`)
     .then(res => {
@@ -499,17 +551,15 @@ getName = (id) => {
         })
         .then(res => {
           this.setState({ accessToken: res.data.access_token });
-          // this.getUsers();
-          console.log(this.state);
           this.getUserDataByID(this.state.currentUser.id);
           window.localStorage.setItem("refreshToken", res.data.refresh_token);
           if(this.state.currentUser === "driver" || this.state.currentUser === "sponsor_mgr"){
             this.setannouncement();
-            console.log(this.state);
           }
           return true;
         })
         .catch(err => {
+          console.log("Refresh error", err)
           return false;
         });
     }
@@ -572,8 +622,8 @@ getName = (id) => {
                 removeMessage={this.removeMessage}
               />
             )}
-            <div className="columns">
-              <div className="column is-half">
+            <div > {/* <div className="columns">*/}
+              <div > {/* <div className="column is-half">*/}
                 <br />
                 <Switch>
                   <Route
@@ -635,6 +685,11 @@ getName = (id) => {
                   <Route exact path="/eventstable" 
                       render = {(props) => (
                         this.isAuthenticated()  ? <EventsTable {...props} state={this.state} isAuthenticated={this.isAuthenticated} createNewEvent={this.createNewEvent} getEventsByUser={this.getEventsByUser} getUserDataByID={this.getUserDataById} getEventsBySponsor={this.getEventsBySponsor} /> : <Redirect to="/login" />
+                      )}
+                  />
+                  <Route exact path="/driverstore" 
+                      render = {(props) => (
+                        this.isAuthenticated()  ? <DriverStore {...props} state={this.state} isAuthenticated={this.isAuthenticated} createNewEvent={this.createNewEvent} getEventsByUser={this.getEventsByUser} getUserDataByID={this.getUserDataById} getEventsBySponsor={this.getEventsBySponsor} /> : <Redirect to="/login" />
                       )}
                   />
 
