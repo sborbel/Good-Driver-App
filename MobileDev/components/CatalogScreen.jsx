@@ -47,7 +47,7 @@ export default class CatalogView extends Component{
     hasEnoughPoints = () => {
         return true;
     }
-
+    
     sortItems = () => {
         var sortedItems = this.state.catalogItem;
         switch(this.state.sortOrder){
@@ -66,6 +66,7 @@ export default class CatalogView extends Component{
 
     getCatolog = async () => {
         var self = this;
+        console.log(self.context.baseUrl + 'catalogs/by_sponsor/' + self.context.sponsor_name)
         await axios
             .get(self.context.baseUrl + 'catalogs/by_sponsor/' + self.context.sponsor_name)
             .then(res =>{
@@ -74,7 +75,7 @@ export default class CatalogView extends Component{
             .catch(err =>{
                 console.log("There was a conundrum");
             })
-        for(let itr=0; itr<self.state.catalog.length; itr++){  // in the event that we have multiple catalogs for one sponsor (find alternative to setState)
+        for(let itr=0; itr<self.state.catalog.length; itr++){ 
             console.log(self.context.baseUrl + 'catalog_items/by_catalog/' + self.state.catalog[itr].id);
         await axios
             .get(self.context.baseUrl + 'catalog_items/by_catalog/' + self.state.catalog[itr].id)
