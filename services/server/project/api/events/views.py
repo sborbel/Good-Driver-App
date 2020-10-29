@@ -3,6 +3,11 @@
 
 from flask import request
 from flask_restx import Resource, fields, Namespace
+from project.helpers.mail_service import send_email
+from project.api.users.crud import (
+    get_user_by_id,
+    update_user,
+)
 
 from project.api.events.crud import (
     get_all_events,
@@ -44,8 +49,28 @@ class EventsList(Resource):
         points = post_data.get("points")
         user_id = post_data.get("user_id")
         response_object = {}
-
         add_event(description, points, user_id)
+
+        # Update points on user record
+        user_record = get_user_by_id(user_id) 
+        updated_points = user_record.current_points + points
+
+        username = user_record.username
+        email = user_record.email
+        role = user_record.role
+        sponsor_name = user_record.sponsor_name
+        current_points = updated_points
+        get_points_alert = user_record.get_points_alert
+        get_order_alert = user_record.get_order_alert
+        get_problem_alert = user_record.get_problem_alert
+
+        update_user(user_record, username, email, role, sponsor_name, current_points, get_points_alert, get_order_alert, get_problem_alert)
+
+        try:
+            send_email(email, "Points updated in GoodDriver App", "You now have "+ updated_points +" points in the GoodDriver App.")
+        except:
+            pass
+
         response_object["message"] = f"Event was added!"
         return response_object, 201
 

@@ -32,6 +32,10 @@ user = users_namespace.model(
         "active": fields.Boolean(required=True),
         "failed_attempts": fields.Integer,
         "failed_attempt_timer": fields.DateTime,
+        "current_points": fields.Integer,
+        "get_points_alert": fields.Boolean,
+        "get_order_alert": fields.Boolean,
+        "get_problem_alert": fields.Boolean,
     },
 )
 
@@ -81,8 +85,9 @@ class UsersList(Resource):
 
         try:
             send_email("jwb4@clemson.edu", "New user created.", message)
+            send_email(email, "New user account created in GoodDriver App", "Welcome to the GoodDriver App!")
         except:
-            print("Email not sent.")
+            pass
 
         return response_object, 201
 
@@ -125,9 +130,14 @@ class Users(Resource):
         email = post_data.get("email") or user.email
         role = post_data.get("role") or user.role
         sponsor_name = post_data.get("sponsor_name") or user.sponsor_name
+        current_points = post_data.get("current_points") or user.current_points
+        get_points_alert = post_data.get("get_points_alert") or user.get_points_alert 
+        get_order_alert = post_data.get("get_order_alert") or user.get_order_alert
+        get_problem_alert = post_data.get("get_problem_alert") or user.get_problem_alert
+
         response_object = {}
         
-        update_user(user, username, email, role, sponsor_name)
+        update_user(user, username, email, role, sponsor_name, current_points, get_points_alert, get_order_alert, get_problem_alert)
         response_object["message"] = f"{user.id} was updated!"
         return response_object, 200
 
@@ -141,6 +151,13 @@ class Users(Resource):
             users_namespace.abort(404, f"User {user_id} does not exist")
         delete_user(user)
         response_object["message"] = f"{user.email} was removed!"
+
+        try:
+            send_email("jwb4@clemson.edu", "User account deleted.", message)
+            send_email(email, "User account removed from GoodDriver App", "Your account has been deleted from the GoodDriver App.")
+        except:
+            pass
+        
         return response_object, 200
 
 class UsersPass(Resource):

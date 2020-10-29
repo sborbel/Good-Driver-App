@@ -25,6 +25,10 @@ class User(db.Model):
     sponsor_name = db.Column(db.String, nullable=True)
     failed_attempts = db.Column(db.Integer, default = 0)
     failed_attempt_timer = db.Column(db.DateTime)
+    current_points = db.Column(db.Integer, default = 0, nullable=True)
+    get_points_alert = db.Column(db.Boolean(), default=True, nullable=True)
+    get_order_alert = db.Column(db.Boolean(), default=True, nullable=True)
+    get_problem_alert = db.Column(db.Boolean(), default=True, nullable=True)
 
     def __init__(self, username="", email="", password="", role="", sponsor_name=""):
         self.username = username
@@ -36,6 +40,7 @@ class User(db.Model):
             password, current_app.config.get("BCRYPT_LOG_ROUNDS")
         ).decode()
         self.failed_attempts = 0
+
 
     def encode_token(self, user_id, token_type):
         if token_type == "access":

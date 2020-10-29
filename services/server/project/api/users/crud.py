@@ -28,11 +28,15 @@ def add_user(username, email, password, role, sponsor_name):
     return user
 
 
-def update_user(user, username, email, role, sponsor_name):
+def update_user(user, username, email, role, sponsor_name, current_points, get_points_alert, get_order_alert, get_problem_alert):
     user.username = username
     user.email = email
     user.role = role
     user.sponsor_name = sponsor_name
+    user.current_points = current_points
+    user.get_points_alert = get_points_alert
+    user.get_order_alert = get_order_alert
+    user.get_problem_alert = get_problem_alert
     db.session.commit()
     return user
 
