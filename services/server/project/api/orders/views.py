@@ -48,8 +48,8 @@ class OrdersList(Resource):
         status = post_data.get("status")
         user_id = post_data.get("user_id")
         response_object = {}
-
-        add_order(status, user_id)
+        new_order = add_order(status, user_id)
+        response_object["id"] = new_order.id
         response_object["message"] = f"Order was added!"
         return response_object, 201
 
@@ -141,7 +141,8 @@ class OrderItemsList(Resource):
         actual_cost = post_data.get("actual_cost")
         points_cost = post_data.get("points_cost")
         response_object = {}
-        add_order_item(order_id, catalog_id, catalog_item_id, quantity, actual_cost, points_cost)
+        new_order_item = add_order_item(order_id, catalog_id, catalog_item_id, quantity, actual_cost, points_cost)
+        response_object["id"] = new_order_item.id
         response_object["message"] = f"Order item was added!"
         return response_object, 201
 
