@@ -75,10 +75,14 @@ class UsersList(Resource):
         if user:
             response_object["message"] = "Sorry. That email already exists."
             return response_object, 400
-        add_user(username, email, password, role, sponsor_name)
+        new_user = add_user(username, email, password, role, sponsor_name)
+        response_object["user_id"] = new_user.id
         response_object["message"] = message = f"A new user with email {email} was added!"
 
-        send_email("jwb4@clemson.edu", "New user created.", message)
+        try:
+            send_email("jwb4@clemson.edu", "New user created.", message)
+        except:
+            print("Email not sent.")
 
         return response_object, 201
 
