@@ -1,11 +1,7 @@
 import React from "react";
-import Announcement from 'react-announcement'
-import App from "../App";
-import Logo from './truck.jpeg'
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button'
 //import 'bootstrap/dist/css/bootstrap.min.css';
-import { MDBContainer, MDBRow, MDBCol } from "mdbreact";
 import Modal from "react-modal";
 
 import PropTypes from "prop-types";

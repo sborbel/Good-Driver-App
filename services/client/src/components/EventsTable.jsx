@@ -1,5 +1,5 @@
 import React from "react";
-import PropTypes, { number } from "prop-types";
+import PropTypes from "prop-types";
 import { Field, Formik } from "formik";
 import * as Yup from "yup";
 import Modal from "react-modal";
@@ -17,7 +17,8 @@ const modalStyles = {
     }
   };
 
-let name = "a";
+  
+
 const EventsTable = props => {
     //let events = props.getEventsByUser()
     //console.log(props.getEventsByUser());
@@ -26,7 +27,6 @@ const EventsTable = props => {
     console.log(props.state.events);
 
     const [modalIsOpen,setIsOpen] = React.useState(false);
-    const [threadArr,setArr] = React.useState([]);
 
   const {events} = props.state;
   const {users} = props.state;
@@ -35,7 +35,6 @@ const EventsTable = props => {
   console.log(events);
   let sortedEvents = [];
   const [correctID, setCorrectID] = React.useState(props.state.currentUser.id);
-  const [sortedField, setSortedField] = React.useState(null);
   for(let idx in events){
     const item = events[idx];
     console.log(item.user_id);
@@ -45,17 +44,16 @@ const EventsTable = props => {
     }
   }
   
-  if(sortedField !== null) {
-    sortedEvents.sort((a, b) => {
-      if (a[sortedField] < b[sortedField]){
-        return -1;
+  function getOptions(){
+    let ret = [];
+    for(let i = 0; i < props.state.users.length; i++){
+      if(currentUser.id !== props.state.users[i].id){
+        ret.push(<option key={props.state.users[i].id} value={props.state.users[i].id}>{props.state.users[i].id}: {props.state.users[i].username}</option>);
       }
-      if (a[sortedField] > b[sortedField]){
-        return 1;
-      }
-      return 0;
-    });
+    }
+    return ret;
   }
+  
   console.log(sortedEvents);
   function openModal() {
     setIsOpen(true);
@@ -71,12 +69,12 @@ const EventsTable = props => {
     <h3 className="title is-3">{props.state.currentUser.sponsor_name}: {props.state.currentUser.role} view</h3>
     <hr />
     <br />
-      {props.state.currentUser.role != "driver" && 
+      {props.state.currentUser.role !== "driver" && 
         <Formik
         initialValues={{
           user: users[0].id
         }}
-        onSubmit={(values, { setSubmitting, resetForm }) => {
+        onSubmit={(values, { setSubmitting }) => {
           setCorrectID(values.user);
           //props.getUserDataByID(props.state.currentUser.id);
           setSubmitting(false);
@@ -88,12 +86,7 @@ const EventsTable = props => {
       >
         {props => {
           const {
-            values,
-            touched,
-            errors,
             isSubmitting,
-            handleChange,
-            handleBlur,
             handleSubmit
           } = props;
           return (
@@ -101,12 +94,7 @@ const EventsTable = props => {
             <form onSubmit={handleSubmit}>
             <Field as="select" name="user">
             <option value={0}> </option>
-              {users.map(user => {
-                
-                if(currentUser.id != user.id){
-                  return <option key={user.id} value={user.id}>{user.id}: {user.username}</option>
-                }
-              })}
+              {getOptions()}
             </Field>
              
               <input
@@ -176,8 +164,6 @@ const EventsTable = props => {
                                 {props => {
                                 const {
                                     values,
-                                    touched,
-                                    errors,
                                     isSubmitting,
                                     handleChange,
                                     handleBlur,

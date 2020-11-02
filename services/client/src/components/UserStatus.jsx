@@ -1,5 +1,5 @@
 import React from "react";
-import PropTypes, { number } from "prop-types";
+import PropTypes from "prop-types";
 import Modal from "react-modal";
 import EditUser from "./EditUser";
 
@@ -30,8 +30,6 @@ function UserStatus(props) {
           setIsOpen(false);
       }
 
-    
-    let modalOpen = false;
     let sortedUsers = [];
     const [sortedField, setSortedField] = React.useState(null);
     console.log(props.state.users);

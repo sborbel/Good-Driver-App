@@ -1,14 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
-import {Navbar, Nav, NavDropdown, Button} from 'react-bootstrap'
+import {Navbar, Nav, Button} from 'react-bootstrap'
 
 //import "./NavBar.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
-
-const titleStyle = {
-  fontWeight: "bold"
-};
 
 const NavBar = props => {
   let menu = (
@@ -28,7 +24,7 @@ const NavBar = props => {
       </Nav>
       </>
   );
-  if (props.isAuthenticated() && props.role == "admin") {
+  if (props.isAuthenticated() && props.role === "admin") {
     menu = (
       <>
         <Nav className="mr-auto">
@@ -58,7 +54,7 @@ const NavBar = props => {
       
     );
   }
-  if (props.isAuthenticated() && props.role == "sponsor_mgr") {
+  if (props.isAuthenticated() && props.role === "sponsor_mgr") {
     menu = (
       <>
         <Nav className="mr-auto">
@@ -109,6 +105,9 @@ const NavBar = props => {
           <Nav.Item as={Link} to="/driverstore" bsPrefix='nav-link'>
           Store
           </Nav.Item>
+          <Nav.Item as={Link} to="/messenger" bsPrefix='nav-link'>
+          Help Desk
+          </Nav.Item>
           
         </Nav>
         <Nav>
@@ -120,7 +119,9 @@ const NavBar = props => {
 
   return (
     <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
-  <Navbar.Brand href="/">{props.title}</Navbar.Brand>
+  <Navbar.Brand as={Link} to="/">
+    {props.title}
+    </Navbar.Brand>
   <Navbar.Toggle aria-controls="responsive-navbar-nav" />
   <Navbar.Collapse id="responsive-navbar-nav">
     

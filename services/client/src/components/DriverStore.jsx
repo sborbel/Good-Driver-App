@@ -1,21 +1,13 @@
 import React from "react";
-import Announcement from 'react-announcement'
-import App from "../App";
-import Logo from './truck.jpeg'
-import { Field, Formik } from "formik";
-import {CardColumns, Card, CardGroup} from 'react-bootstrap';
-import Button from 'react-bootstrap/Button'
+import { Formik } from "formik";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CatalogueItem from "./CatalogueItem";
-import { MDBContainer, MDBRow, MDBCol } from "mdbreact";
+import { MDBContainer, MDBRow } from "mdbreact";
 //import "./TestPage.css";
 import "./TestPage.scss";
-let arr = [{ti: "Hello1", te: "This is a test"}, {ti: "Goodbye1", te: "This is not a test"}, {ti: "Hello2", te: "This is a test"}, {ti: "Goodbye2", te: "This is not a test"}, {ti: "Hello3", te: "This is a test"}, {ti: "Goodbye3", te: "This is not a test"}, {ti: "Hello4", te: "This is a test"}, {ti: "Goodbye4", te: "This is not a test"}, {ti: "Hello5", te: "This is a test"}, {ti: "Goodbye5", te: "This is not a test"}, {ti: "Hello6", te: "This is a test"}, {ti: "Goodbye6", te: "This is not a test"}];
-
 
 
 const DriverStore = props => {
-    const {catalog_items} = props.state;
     let searchedItems = [];
     const [criteria,setCriteria] = React.useState(" ");
     let re = new RegExp('^(.*?(' + criteria + ')[^$]*)$');
@@ -45,8 +37,6 @@ return(
     {props => {
     const {
         values,
-        touched,
-        errors,
         isSubmitting,
         handleChange,
         handleBlur,
@@ -94,7 +84,9 @@ return(
   <MDBRow>
       
   {searchedItems.map(item => {
-            return(
+      return(
+      <li key={item.id}>
+            
                 <CatalogueItem
                     title={item.name}
                     text={item.description}
@@ -103,7 +95,9 @@ return(
                     cst={item.actual_cost}
                     state={props.state}
                 />
-            );
+            
+            </li>
+      )
         })}
 
 
