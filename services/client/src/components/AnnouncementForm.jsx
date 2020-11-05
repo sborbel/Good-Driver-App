@@ -33,8 +33,6 @@ const AnnouncementForm = props => {
         {props => {
           const {
             values,
-            touched,
-            errors,
             isSubmitting,
             handleChange,
             handleBlur,

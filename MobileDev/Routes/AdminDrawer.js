@@ -1,6 +1,7 @@
 import {createDrawerNavigator} from 'react-navigation-drawer';
 import AdminProfStack from '../Routes/AdminProfStack'
 import AdminHomeStack from '../Routes/AdminHomeStack'
+import AdminToolStack from '../Routes/AdminToolsStack'
 import AdminLogout from '../components/LogoutUser';
 const AdminDrawer = createDrawerNavigator({
     Home: {
@@ -16,6 +17,15 @@ const AdminDrawer = createDrawerNavigator({
         screen: AdminProfStack,
         navigationOptions: {
             title: 'Profile',
+            headerStyle: {
+                backgroundColor: 'gray',
+            }
+        }
+    },
+    Tools: {
+        screen: AdminToolStack,
+        navigationOptions: {
+            title: 'Tools',
             headerStyle: {
                 backgroundColor: 'gray',
             }

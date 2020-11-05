@@ -13,7 +13,7 @@ const HomePage = (props) => (
       <h5 className="title is-5">{"Points: " + props.state.points}</h5>
     </div>
     )}
-    {props.state.currentUser.role != "admin" &&
+    {props.state.currentUser.role !== "admin" &&
     <Announcement
             title={props.state.currentUser.sponsor_name}
             subtitle={props.state.announcement.content}

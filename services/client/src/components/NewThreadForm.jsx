@@ -15,7 +15,8 @@ const NewThreadForm = props => {
         console.log(users);
         let items = [];         
         for (let i = 0; i < users.length; i++) {             
-             items.push(<option value={users[i].id}>{`${users[i].username}, ${users[i].role}`}</option>);   
+             items.push(<option value={users[i].id}>{`${users[i].username}, ${users[i].role}`}</option>);  
+             console.log(users[i]); 
              
         }
         return items;
@@ -30,10 +31,12 @@ const NewThreadForm = props => {
       <br />
       <Formik
         initialValues={{
-          recpID: 0
+          recpID: props.users[0].id
         }}
         onSubmit={(values, { setSubmitting, resetForm }) => {
           props.createNewThread(values);
+          props.getUserDataByID(props.state.currentUser.id);
+          props.NewMessageCloseModal();
           resetForm();
           setSubmitting(false);
         }}
@@ -43,12 +46,7 @@ const NewThreadForm = props => {
       >
         {props => {
           const {
-            values,
-            touched,
-            errors,
             isSubmitting,
-            handleChange,
-            handleBlur,
             handleSubmit
           } = props;
           return (
@@ -75,7 +73,9 @@ const NewThreadForm = props => {
 NewThreadForm.propTypes = {
   user: PropTypes.object,
   createNewThread: PropTypes.func,
-  users: PropTypes.array
+  users: PropTypes.array,
+  NewMessageCloseModal: PropTypes.func,
+  getUserDataByID: PropTypes.func
 };
 
 export default NewThreadForm;

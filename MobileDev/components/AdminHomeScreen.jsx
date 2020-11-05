@@ -4,10 +4,15 @@ import { UserContext } from '../contexts/UserContext';
 
 class AdminHome extends React.Component{
     static contextType = UserContext;
+
+    componentDidMount(){
+        this.context.setRelUsers();
+    }
     render(){
         const {navigation} = this.props;
         return(
-        <Text>Hi, {this.context.username}. Welcome to the admin home page.</Text>
-    )}
+            <Text>This is the ADMIN home screen, home slice</Text>
+        );
+    }
 }
 export default AdminHome;

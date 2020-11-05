@@ -1,123 +1,135 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
+import {Navbar, Nav, Button} from 'react-bootstrap'
 
-import "./NavBar.css";
-
-const titleStyle = {
-  fontWeight: "bold"
-};
+//import "./NavBar.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const NavBar = props => {
   let menu = (
-    <div className="navbar-menu">
-      <div className="navbar-start">
-        <Link to="/about" className="navbar-item" data-testid="nav-about">
+    <>
+    <Nav className="mr-auto">
+    
+      <Nav.Item as={Link} to="/about" bsPrefix='nav-link'>
           About
-        </Link>
-      </div>
-      <div className="navbar-end">
-        <Link to="/register" className="navbar-item" data-testid="nav-register">
-          Register
-        </Link>
-        <Link to="/login" className="navbar-item" data-testid="nav-login">
-          Log In
-        </Link>
-      </div>
-    </div>
+          </Nav.Item>
+      <Nav.Item as={Link} to="/register" bsPrefix='nav-link'>
+      Register
+          </Nav.Item>
+      <Nav.Item as={Link} to="/login" bsPrefix='nav-link'>
+      Login
+          </Nav.Item>
+      
+      </Nav>
+      </>
   );
-  if (props.isAuthenticated() && props.role != "driver") {
+  if (props.isAuthenticated() && props.role === "admin") {
     menu = (
-      <div className="navbar-menu">
-        <div className="navbar-start">
-          <Link to="/about" className="navbar-item" data-testid="nav-about">
-            About
-          </Link>
-          <Link to="/messenger" className="navbar-item" data-testid="nav-about">
-            Messenger
-          </Link>
-          <Link to="/userlist" className="navbar-item" data-testid="nav-about">
-            Users
-          </Link>
-          <Link to="/userstatus" className="navbar-item" data-testid="nav-about">
-            User Status
-          </Link>
-          <Link to="/eventstable" className="navbar-item" data-testid="nav-about">
-            Events
-          </Link>
-          <Link to="/announcementform" className="navbar-item" data-testid="nav-about">
-            Announcement
-          </Link>
-        </div>
-        <div className="navbar-end">
-          <span
-            // eslint-disable-next-line react/jsx-handler-names
-            onClick={props.logoutUser}
-            className="navbar-item link"
-            data-testid="nav-logout"
-          >
-            Log Out
-          </span>
-        </div>
-      </div>
+      <>
+        <Nav className="mr-auto">
+        <Nav.Item as={Link} to="/about" bsPrefix='nav-link'>
+          About
+          </Nav.Item>
+          <Nav.Item as={Link} to="/messenger" bsPrefix='nav-link'>
+          Messenger
+          </Nav.Item>
+          <Nav.Item as={Link} to="/userlist" bsPrefix='nav-link'>
+          Users
+          </Nav.Item>
+          <Nav.Item as={Link} to="/userstatus" bsPrefix='nav-link'>
+          User Status
+          </Nav.Item>
+          <Nav.Item as={Link} to="/eventstable" bsPrefix='nav-link'>
+          Events
+          </Nav.Item>
+        </Nav>
+
+        <Nav>
+        
+        <Button variant="danger" size='sm' onClick={props.logoutUser}>Logout</Button> 
+   
+        </Nav>
+      </>
+      
+    );
+  }
+  if (props.isAuthenticated() && props.role === "sponsor_mgr") {
+    menu = (
+      <>
+        <Nav className="mr-auto">
+        <Nav.Item as={Link} to="/about" bsPrefix='nav-link'>
+          About
+          </Nav.Item>
+          <Nav.Item as={Link} to="/messenger" bsPrefix='nav-link'>
+          Messenger
+          </Nav.Item>
+          <Nav.Item as={Link} to="/userlist" bsPrefix='nav-link'>
+          Users
+          </Nav.Item>
+          <Nav.Item as={Link} to="/userstatus" bsPrefix='nav-link'>
+          User Status
+          </Nav.Item>
+          <Nav.Item as={Link} to="/eventstable" bsPrefix='nav-link'>
+          Events
+          </Nav.Item>
+          <Nav.Item as={Link} to="/announcementform" bsPrefix='nav-link'>
+          Announcement
+          </Nav.Item>
+          <Nav.Item as={Link} to="/driverstore" bsPrefix='nav-link'>
+          Store
+          </Nav.Item>
+        </Nav>
+
+        <Nav>
+        
+        <Button variant="danger" size='sm' onClick={props.logoutUser}>Logout</Button> 
+   
+        </Nav>
+      </>
+      
     );
   }
   if (props.isAuthenticated() && props.role === "driver") {
     menu = (
-      <div className="navbar-menu">
-        <div className="navbar-start">
-          <Link to="/about" className="navbar-item" data-testid="nav-about">
-            About
-          </Link>
-          <Link to="/messenger" className="navbar-item" data-testid="nav-about">
-            Messenger
-          </Link>
-          <Link to="/eventstable" className="navbar-item" data-testid="nav-about">
-            Events
-          </Link>
-        </div>
-        <div className="navbar-end">
-          <span
-            // eslint-disable-next-line react/jsx-handler-names
-            onClick={props.logoutUser}
-            className="navbar-item link"
-            data-testid="nav-logout"
-          >
-            Log Out
-          </span>
-        </div>
-      </div>
+
+      <>
+        <Nav className="mr-auto">
+        <Nav.Item as={Link} to="/about" bsPrefix='nav-link'>
+          About
+          </Nav.Item>
+          
+          <Nav.Item as={Link} to="/eventstable" bsPrefix='nav-link'>
+          Events
+          </Nav.Item>
+          <Nav.Item as={Link} to="/driverstore" bsPrefix='nav-link'>
+          Store
+          </Nav.Item>
+          <Nav.Item as={Link} to="/messenger" bsPrefix='nav-link'>
+          Help Desk
+          </Nav.Item>
+          
+        </Nav>
+        <Nav>
+        <Button variant="danger" size='sm' onClick={props.logoutUser}>Logout</Button> 
+      </Nav>
+      </>
     );
   }
 
   return (
-    <nav
-      className="navbar is-dark"
-      role="navigation"
-      aria-label="main navigation"
-    >
-      <section className="container">
-        <div className="navbar-brand">
-          <Link to="/" className="navbar-item nav-title" style={titleStyle}>
-            {props.title}
-          </Link>
-          <span
-            className="nav-toggle navbar-burger"
-            onClick={() => {
-              let toggle = document.querySelector(".nav-toggle");
-              let menu = document.querySelector(".navbar-menu");
-              toggle.classList.toggle("is-active");
-              menu.classList.toggle("is-active");
-            }}
-          >
-            <span />
-            <span />
-            <span />
-          </span>
-        </div>
-        {menu}
-      </section>
-    </nav>
+    <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+  <Navbar.Brand as={Link} to="/">
+    {props.title}
+    </Navbar.Brand>
+  <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+  <Navbar.Collapse id="responsive-navbar-nav">
+    
+      {menu}
+    
+    
+  </Navbar.Collapse>
+</Navbar>
   );
 };
 
@@ -128,3 +140,4 @@ NavBar.propTypes = {
 };
 
 export default NavBar;
+

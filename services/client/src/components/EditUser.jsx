@@ -1,8 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Field, Form, Formik, FormikProps } from "formik";
+import { Field, Formik } from "formik";
 import * as Yup from "yup";
-import axios from "axios";
 
 import "./form.css";
 

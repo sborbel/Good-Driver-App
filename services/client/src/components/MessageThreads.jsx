@@ -1,12 +1,8 @@
 
-import React, {Component, ReactDOM} from 'react';
-import axios from "axios";
-import MessageList from "./MessageList";
-import MessageForm from './MessageForm'
-import PropTypes, { number } from "prop-types";
+import React from 'react';
+import PropTypes from "prop-types";
 import Modal from "react-modal";
 import Messenger from './Messenger'
-import { Redirect} from "react-router-dom";
 import NewThreadForm from './NewThreadForm';
 
 Modal.setAppElement(document.getElementById("root"));
@@ -22,18 +18,6 @@ const modalStyles = {
       background: "transparent"
     }
   };
-
-function getName(id){
-  axios
-    .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/users/${id}`)
-    .then(res => {
-      console.log("getName", res.data.username)
-        return res.data.username;
-    })
-    .catch(err => {
-        console.log(err);
-    });
-}
   
 
 function MessageThreads(props) {
@@ -64,15 +48,27 @@ function MessageThreads(props) {
     }
 
     
-    let modalOpen = false;
     
-    console.log(props.state.users);
+    console.log(props.state.threads);
 
-    
+    let title = "";
+    if(props.state.currentUser.role === "driver"){
+      title = "Help Desk";
+    }
+    else{
+      title = "Messenger";
+    }
+
+    let usersNotincludingme = [];
+    for(let i = 0; i < props.state.users.length; i++){
+      if(props.state.users[i].id !== props.state.currentUser.id){
+        usersNotincludingme.push(props.state.users[i]);
+      }
+    }
     
   return (
     <div>
-      <h1 className="title is-1">User Created Threads</h1>
+      <h1 className="title is-1">{title}</h1>
       <h3 className="title is-3">{props.state.currentUser.sponsor_name}: {props.state.currentUser.role} view</h3>
       <table className="table is-hoverable is-fullwidth">
         <thead>
@@ -106,11 +102,13 @@ function MessageThreads(props) {
                         <NewThreadForm 
                             {...props} 
                             state={props.state} 
-                            users={props.state.users}
+                            users={usersNotincludingme}
                             isAuthenticated={props.isAuthenticated} 
                             currentUser={props.state.currentUser}
                             userData={userData}
                             createNewThread={props.createNewThread}
+                            NewMessageCloseModal={NewMessageCloseModal}
+                            getUserDataByID={props.getUserDataByID}
                         />
                         </section>
                       </div>
@@ -127,11 +125,11 @@ function MessageThreads(props) {
               <tr key={thread.id}>
                 <td>{thread.id}</td>
                 <td>{thread.status}</td>
-                <td>{thread.recpID}</td>
+                <td>{thread.recpName}</td>
                 
                 <td>
                   <button
-                    onClick={() => openModal([{id: thread.id, recpID: thread.recpID, status: thread.status}])}
+                    onClick={() => openModal([{id: thread.id, recpID: thread.recpID, status: thread.status, recpName: thread.recpName}])}
                     className="button is-primary"
                   >
                     Message User
@@ -158,6 +156,7 @@ function MessageThreads(props) {
                             isAuthenticated={props.isAuthenticated} 
                             currentUser={props.state.currentUser}
                             thisThread={threadArr[0]}
+                            currentThread={threadArr[0]}
                           
                         />
                         </section>
@@ -182,7 +181,8 @@ MessageThreads.propTypes = {
   
   
   isAuthenticated: PropTypes.func.isRequired,
-  createNewThread: PropTypes.func.isRequired
+  createNewThread: PropTypes.func.isRequired,
+  getUserDataByID: PropTypes.func
 
 };
 

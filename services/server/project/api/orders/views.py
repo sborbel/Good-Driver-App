@@ -57,8 +57,14 @@ class OrdersList(Resource):
         status = post_data.get("status") or "active"
         user_id = post_data.get("user_id")
         response_object = {}
+<<<<<<< HEAD
         new_order = add_order(status, user_id)
         response_object["id"] = new_order.id
+=======
+
+        new_order = add_order(status, user_id)
+        response_object["id"] = new_order.id #Added ID return
+>>>>>>> f9a071b0f64d4cb99d0069023cde112fe8c5b0b5
         response_object["message"] = f"Order was added!"
         return response_object, 201
 
