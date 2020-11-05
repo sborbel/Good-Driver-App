@@ -66,10 +66,13 @@ class EventsList(Resource):
 
         update_user(user_record, username, email, role, sponsor_name, current_points, get_points_alert, get_order_alert, get_problem_alert)
 
-        try:
-            send_email(email, "Points updated in GoodDriver App", "You now have "+ updated_points +" points in the GoodDriver App.")
-        except:
-            pass
+        if user_record.get_points_alert:
+            try:
+                # Req Change 3:
+                msg = "You now have "+ updated_points +" points in the GoodDriver App."
+                send_email(email, "Points updated in GoodDriver App", msg)
+            except:
+                pass
 
         response_object["message"] = f"Event was added!"
         return response_object, 201
@@ -111,6 +114,16 @@ class Events(Resource):
         response_object = {}
 
         update_event(event, description, points)
+
+        user_record = get_user_by_id(user_id)
+        if user_record.get_points_alert and points != event.points:
+            try:
+                # Req Change 3:
+                msg = "You now have "+ points +" points in the GoodDriver App."
+                send_email(email, "Points updated in GoodDriver App", msg)
+            except:
+                pass
+
         response_object["message"] = f"{event.id} was updated!"
         return response_object, 200
 

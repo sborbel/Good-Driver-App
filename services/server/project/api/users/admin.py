@@ -25,7 +25,6 @@ class UsersAdminView(ModelView):
     column_sortable_list = (
         "username",
         "email",
-        "active",
         "created_date",
     )
     column_default_sort = ("created_date", True)

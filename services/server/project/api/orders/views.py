@@ -3,6 +3,7 @@
 
 from flask import request
 from flask_restx import Resource, fields, Namespace
+from project.helpers.mail_service import send_email
 
 from project.api.orders.crud import (
     get_all_orders,
@@ -19,6 +20,14 @@ from project.api.orders.crud import (
     delete_order_item
 )
 
+from project.api.users.crud import (
+    get_user_by_id,
+    update_user,
+)
+
+from project.api.catalogs.crud import (
+    get_catalog_item_by_id
+)
 
 orders_namespace = Namespace("orders")
 
@@ -26,7 +35,7 @@ order = orders_namespace.model(
     "Order",
     {
         "id": fields.Integer(readOnly=True),
-        "status": fields.String(required=True),
+        "status": fields.String(required=False),
         "user_id": fields.Integer(required=True),
         "created_date": fields.DateTime,
     },
@@ -45,7 +54,7 @@ class OrdersList(Resource):
     def post(self):
         """Creates a new order."""
         post_data = request.get_json()
-        status = post_data.get("status")
+        status = post_data.get("status") or "active"
         user_id = post_data.get("user_id")
         response_object = {}
         new_order = add_order(status, user_id)
@@ -87,8 +96,75 @@ class Orders(Resource):
         status = post_data.get("status") or order.status
         user_id = post_data.get("user_id") or order.user_id
         response_object = {}
+        # print(f"status: {status}")
+        if status == "submitted":
+            # Process the order
+            # Get the user record and order items
+            user_record = get_user_by_id(user_id) 
 
-        update_order(order, status, user_id)
+            # Req Change 1
+            # Reject any order from admin or sponsor_mgr
+            if user_record.role != "driver":
+                response_object["message"] = f"{order.id} is a dummy order and will not process."
+                return response_object, 412
+
+
+            order_items = get_all_order_items_by_order_id(order_id)
+            # Verify sufficient points to satisfy order
+            # 1. Get points in order and summary of items
+            tot_points_in_order = 0
+            order_summary = ""
+            for item in order_items:
+                details = get_catalog_item_by_id(item.catalog_item_id)
+                tot_points_in_order += item.points_cost
+                order_summary += f"Qty: { str(item.quantity) } - { details.name }, \tPoints cost: { str(item.points_cost * item.quantity) }\n"
+            
+            driver_points_after_order = user_record.current_points - tot_points_in_order
+
+            order_summary += "--------------------------------------------------------------------------\n"
+            order_summary += f"Total points cost: \t\t\t\t{ str(tot_points_in_order) }\n\n"
+            order_summary += "Your order has been placed. After your order, you have "+ str(driver_points_after_order) +" points remaining in the GoodDriver App.\n"
+            # print(f"Order summary: {order_summary}")
+            # print(f"Driver points after order: {driver_points_after_order}")
+            # print(f"user_record.get_points_alert: {user_record.get_points_alert}")
+
+            if driver_points_after_order >= 0:
+                # Process order
+                update_order(order, status, user_id)
+                # Update points on user record
+                username = user_record.username
+                email = user_record.email
+                role = user_record.role
+                sponsor_name = user_record.sponsor_name
+                current_points = driver_points_after_order
+                get_points_alert = user_record.get_points_alert 
+                get_order_alert = user_record.get_order_alert
+                get_problem_alert = user_record.get_problem_alert
+                update_user(user_record, username, email, role, sponsor_name, current_points, get_points_alert, get_order_alert, get_problem_alert)
+            
+                if user_record.get_points_alert:
+                    # try:
+                        # Req Change 3:
+                    send_email(user_record.email, "Order placed in GoodDriver App", order_summary)
+                    # except:
+                    #     pass
+            
+            else:
+                # Driver has insufficient points for order
+                if user_record.get_points_alert:
+                    try:
+                        # Req Change 3:
+                        send_email(user_record.email, "Order was not placed in GoodDriver App", "We're sorry, but you have insufficient points to place your order in the GoodDriver App.")
+                    except:
+                        pass
+
+                response_object["message"] = f"{order.id} did not update due to insufficient points."
+                return response_object, 412
+
+        else:
+            # Not an order submission, simply update
+            update_order(order, status, user_id)
+
         response_object["message"] = f"{order.id} was updated!"
         return response_object, 200
 
@@ -103,6 +179,7 @@ class Orders(Resource):
         delete_order(order)
         response_object["message"] = f"Order {order.id} was removed!"
         return response_object, 200
+
 
 # OrderItems
 

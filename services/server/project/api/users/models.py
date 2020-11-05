@@ -19,23 +19,18 @@ class User(db.Model):
     username = db.Column(db.String(128), nullable=False)
     email = db.Column(db.String(128), nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    active = db.Column(db.Boolean(), default=True, nullable=False)
     created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
     role = db.Column(db.String(16), default="driver", nullable=False)
-    sponsor_name = db.Column(db.String, nullable=True)
     failed_attempts = db.Column(db.Integer, default = 0)
     failed_attempt_timer = db.Column(db.DateTime)
-    current_points = db.Column(db.Integer, default = 0, nullable=True)
     get_points_alert = db.Column(db.Boolean(), default=True, nullable=True)
     get_order_alert = db.Column(db.Boolean(), default=True, nullable=True)
     get_problem_alert = db.Column(db.Boolean(), default=True, nullable=True)
 
-    def __init__(self, username="", email="", password="", role="", sponsor_name=""):
+    def __init__(self, username="", email="", password="", role=""):
         self.username = username
         self.email = email
         self.role = role
-        self.sponsor_name = sponsor_name
-        self.active = True
         self.password = bcrypt.generate_password_hash(
             password, current_app.config.get("BCRYPT_LOG_ROUNDS")
         ).decode()
@@ -62,9 +57,28 @@ class User(db.Model):
         payload = jwt.decode(token, current_app.config.get("SECRET_KEY"))
         return payload["sub"]
 
-if os.getenv("FLASK_ENV") == "development":
-    from project import admin
-    from project.api.users.admin import UsersAdminView
 
-    admin.add_view(UsersAdminView(User, db.session))
+class Affiliation(db.Model):
+
+    __tablename__ = "affiliation"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    sponsor_name = db.Column(db.String, nullable=False)
+    current_points = db.Column(db.Integer, default = 0, nullable=True)
+    status = db.Column(db.String, nullable=False)
+    created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
+
+    def __init__(self, user_id="", sponsor_name="", current_points="", status=""):
+        self.user_id = user_id
+        self.sponsor_name = sponsor_name
+        self.current_points = current_points
+        self.status = status
+
+
+# if os.getenv("FLASK_ENV") == "development":
+#     from project import admin
+#     from project.api.users.admin import UsersAdminView
+
+#     admin.add_view(UsersAdminView(User, db.session))
 

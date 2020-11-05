@@ -7,6 +7,7 @@ from flask.cli import FlaskGroup
 from project import create_app, db
 from project.api.events.models import Event
 from project.api.users.models import User
+from project.api.users.models import Affiliation
 from project.api.announcements.models import Announcement
 from project.api.catalogs.models import Catalog
 from project.api.catalogs.models import CatalogItem
@@ -26,16 +27,27 @@ def recreate_db():
     db.session.commit()
 
 def seed_users():
-    db.session.add(User(username="Yellow Freight", email="info@yf.com", password="yellow", role="sponsor", sponsor_name=""))
-    db.session.add(User(username="Great Big Freight", email="big@freight.com", password="big", role="sponsor", sponsor_name=""))
-    db.session.add(User(username="Wes Bailey", email="jwb4@clemson.edu", password="jwb4", role="admin", sponsor_name=""))
-    db.session.add(User(username="Shelton Shaw", email="sshaw5@clemson.edu", password="sshaw", role="sponsor_mgr", sponsor_name="Great Big Freight"))
-    db.session.add(User(username="Sean Borbely", email="sborbel@clemson.edu", password="sborbel", role="sponsor_mgr", sponsor_name="Yellow Freight"))
-    db.session.add(User(username="Fred Flintstone", email="fred@bedrock.com", password="fred", role="driver", sponsor_name="Yellow Freight"))
-    db.session.add(User(username="Barney Rubble", email="barney@bedrock.com", password="barney", role="driver", sponsor_name="Yellow Freight"))
-    db.session.add(User(username="George Jetson", email="g.jet@spacelysprockets.com", password="george", role="driver", sponsor_name="Great Big Freight"))
-    db.session.add(User(username="Boris Badenov", email="boris@bad.com", password="killmooseandsquirrel", role="driver", sponsor_name="Great Big Freight"))
+    db.session.add(User(username="Yellow Freight", email="info@yf.com", password="yellow", role="sponsor"))
+    db.session.add(User(username="Great Big Freight", email="big@freight.com", password="big", role="sponsor"))
+    db.session.add(User(username="Wes Bailey", email="jwb4@clemson.edu", password="jwb4", role="admin"))
+    db.session.add(User(username="Shelton Shaw", email="sshaw5@clemson.edu", password="sshaw", role="sponsor_mgr"))
+    db.session.add(User(username="Sean Borbely", email="sborbel@clemson.edu", password="sborbel", role="sponsor_mgr"))
+    db.session.add(User(username="Fred Flintstone", email="fred@bedrock.com", password="fred", role="driver"))
+    db.session.add(User(username="Barney Rubble", email="barney@bedrock.com", password="barney", role="driver"))
+    db.session.add(User(username="George Jetson", email="g.jet@spacelysprockets.com", password="george", role="driver"))
+    db.session.add(User(username="Boris Badenov", email="boris@bad.com", password="killmooseandsquirrel", role="driver"))
     # db.session.add(User(username="", email="", password="", role="", sponsor_name=""))
+    db.session.commit()
+
+def seed_affiliations():
+    db.session.add(Affiliation(user_id=3, sponsor_name="", current_points=0, status="active"))
+    db.session.add(Affiliation(user_id=4, sponsor_name="", current_points=0, status="active"))
+    db.session.add(Affiliation(user_id=5, sponsor_name="", current_points=0, status="active"))
+    db.session.add(Affiliation(user_id=6, sponsor_name="Yellow Freight", current_points="500", status="active"))
+    db.session.add(Affiliation(user_id=7, sponsor_name="Yellow Freight", current_points="850", status="active"))
+    db.session.add(Affiliation(user_id=8, sponsor_name="Great Big Freight", current_points="25", status="active"))
+    db.session.add(Affiliation(user_id=9, sponsor_name="Great Big Freight", current_points="1500", status="active"))
+    # db.session.add(Affiliation(user_id="", sponsor_name="", current_points="", status=""))
     db.session.commit()
 
 def seed_events(): 
@@ -98,7 +110,9 @@ def seed_threads():
     db.session.add(Thread(status = "active", creator_id = 4))
     db.session.add(Thread(status = "active", creator_id = 4))
     # db.session.add(Thread(status = "", creator_id =))
+    db.session.commit()
 
+def seed_messages():
     db.session.add(Message(thread_id = 1, sender_id = 8 , recipient_id = 4, created_date = "2020-09-26T18:08:49", subject = "Time off request", content = "Can I have Friday off?"))
     db.session.add(Message(thread_id = 1, sender_id = 4, recipient_id = 8, created_date = "2020-09-26T18:09:05", subject = "RE:Time off request", content = "No. Get to work."))
     db.session.add(Message(thread_id = 2, sender_id = 5, recipient_id = 6, created_date = "2020-09-26T18:09:05", subject = "Flat tire, need assistance", content = "I ran over a nail."))
@@ -119,14 +133,18 @@ def seed_source():
 def seed_all():
     recreate_db()
     seed_users()
+    seed_affiliations()
     seed_events()
     seed_annc()
     seed_catalogs()
     seed_orders()
     seed_threads()
+    seed_messages()
     seed_source()
 
 
 
 if __name__ == "__main__":
     cli()
+
+

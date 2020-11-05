@@ -18,7 +18,7 @@ class Order(db.Model):
     __tablename__ = "orders"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    status = db.Column(db.String(32), nullable=False)
+    status = db.Column(db.String(32), default="active", nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_date = db.Column(db.DateTime, default=func.now())
 

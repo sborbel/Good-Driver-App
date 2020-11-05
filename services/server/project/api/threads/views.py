@@ -3,6 +3,11 @@
 import datetime
 from flask import request
 from flask_restx import Resource, fields, Namespace
+from project.helpers.mail_service import send_email
+
+from project.api.users.crud import (
+    get_user_by_id
+)
 
 from project.api.threads.crud import (
     get_all_threads,
@@ -200,10 +205,41 @@ class Messages(Resource):
         response_object["message"] = f"Message {message.id} was removed!"
         return response_object, 200
 
+order_issue = messages_namespace.inherit(
+    "Message post", message, {"order_id": fields.Integer(required=True)} 
+)
 
 
+class MessagesOrderIssues(Resource):
+    @messages_namespace.expect(order_issue, validate=True)
+    @messages_namespace.response(201, "<message> was added!")
+    @messages_namespace.response(400, "Sorry. A message with that id already exists.")
+    def post(self):
 
+        """Creates a new message."""
+        post_data = request.get_json()
+        thread_id = post_data.get("thread_id")
+        sender_id = post_data.get("sender_id")
+        recipient_id = post_data.get("recipient_id")
+        created_date = datetime.datetime.now()
+        subject = post_data.get("subject")
+        content = post_data.get("content")
+        order_id = post_data.get("order_id")
 
+        response_object = {}
+        add_message(thread_id, sender_id, recipient_id, subject, content, created_date)
+        user_record = get_user_by_id(recipient_id)
+        if user_record.get_problem_alert:
+
+            try:
+                # Req Change 3:
+                msg = f"There was a problem with your order, number {str(order_id)}. Please contact your manager."
+                send_email(user_record.email, "Problem with order in GoodDriver App", msg)
+            except:
+                pass
+
+        response_object["message"] = f"Message was added!"
+        return response_object, 201
 
 
 threads_namespace.add_resource(ThreadsList, "")
@@ -213,3 +249,4 @@ threads_namespace.add_resource(Threads, "/<int:thread_id>")
 messages_namespace.add_resource(MessagesList, "")
 messages_namespace.add_resource(MessagesListbyThread, "/by_thread/<int:thread_id>")
 messages_namespace.add_resource(Messages, "/<int:message_id>")
+messages_namespace.add_resource(MessagesOrderIssues, "/order_issues")
