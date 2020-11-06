@@ -23,7 +23,9 @@ from project.api.orders.crud import (
 from project.api.users.crud import (
     get_user_by_id,
     update_user,
-    get_all_affiliations_by_user
+    get_all_affiliations_by_user,
+    check_dupe_affiliation,
+    update_affiliation
 )
 
 from project.api.catalogs.crud import (
@@ -69,7 +71,7 @@ class OrdersList(Resource):
 class OrdersListbyUser(Resource):
     @orders_namespace.marshal_with(order, as_list=True)
     def get(self, user_id, caller_id):
-        """Returns all orders for a single user."""
+        """Returns all orders for a single user that are authorized for the caller."""
 
         authorized_list = get_all_orders_by_user_id(user_id)
 
@@ -115,12 +117,13 @@ class Orders(Resource):
         post_data = request.get_json()
         status = post_data.get("status") or order.status
         user_id = post_data.get("user_id") or order.user_id
+        sponsor_name = post_data.get("sponsor_name") or order.sponsor_name
         response_object = {}
         # print(f"status: {status}")
         if status == "submitted":
             # Process the order
             # Get the user record and order items
-            user_record = get_user_by_id(user_id) 
+            user_record = get_user_by_id(user_id)
 
             # Req Change 1
             # Reject any order from admin or sponsor_mgr
@@ -128,7 +131,7 @@ class Orders(Resource):
                 response_object["message"] = f"{order.id} is a dummy order and will not process."
                 return response_object, 412
 
-
+            user_affiliation = check_dupe_affiliation(user_id, sponsor_name)
             order_items = get_all_order_items_by_order_id(order_id)
             # Verify sufficient points to satisfy order
             # 1. Get points in order and summary of items
@@ -139,7 +142,7 @@ class Orders(Resource):
                 tot_points_in_order += item.points_cost
                 order_summary += f"Qty: { str(item.quantity) } - { details.name }, \tPoints cost: { str(item.points_cost * item.quantity) }\n"
             
-            driver_points_after_order = user_record.current_points - tot_points_in_order
+            driver_points_after_order = user_affiliation.current_points - tot_points_in_order
 
             order_summary += "--------------------------------------------------------------------------\n"
             order_summary += f"Total points cost: \t\t\t\t{ str(tot_points_in_order) }\n\n"
@@ -150,17 +153,13 @@ class Orders(Resource):
 
             if driver_points_after_order >= 0:
                 # Process order
-                update_order(order, status, user_id)
-                # Update points on user record
-                username = user_record.username
-                email = user_record.email
-                role = user_record.role
-                sponsor_name = user_record.sponsor_name
+                update_order(order, status, user_id, sponsor_name)
+                # Update points on user affiliation
+                sponsor_name = user_affiliation.sponsor_name
+                status = user_affiliation.status
                 current_points = driver_points_after_order
-                get_points_alert = user_record.get_points_alert 
-                get_order_alert = user_record.get_order_alert
-                get_problem_alert = user_record.get_problem_alert
-                update_user(user_record, username, email, role, sponsor_name, current_points, get_points_alert, get_order_alert, get_problem_alert)
+
+                update_affiliation(user_affiliation, user_id, sponsor_name, current_points, status)
             
                 if user_record.get_points_alert:
                     # try:
@@ -183,7 +182,7 @@ class Orders(Resource):
 
         else:
             # Not an order submission, simply update
-            update_order(order, status, user_id)
+            update_order(order, status, user_id, sponsor_name)
 
         response_object["message"] = f"{order.id} was updated!"
         return response_object, 200

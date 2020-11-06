@@ -4,9 +4,12 @@
 from flask import request
 from flask_restx import Resource, fields, Namespace
 from project.helpers.mail_service import send_email
+
 from project.api.users.crud import (
     get_user_by_id,
     update_user,
+    get_all_affiliations_by_user,
+    update_affiliation,
 )
 
 from project.api.events.crud import (
@@ -18,7 +21,6 @@ from project.api.events.crud import (
     delete_event,
 )
 
-
 events_namespace = Namespace("events")
 
 event = events_namespace.model(
@@ -29,6 +31,7 @@ event = events_namespace.model(
         "points": fields.Integer(required=True),
         "created_date": fields.DateTime,
         "user_id": fields.Integer(required=True),
+        "sponsor_name": fields.String(required=True)
     },
 )
 
@@ -48,43 +51,67 @@ class EventsList(Resource):
         description = post_data.get("description")
         points = post_data.get("points")
         user_id = post_data.get("user_id")
+        sponsor_name = post_data.get("sponsor_name")
         response_object = {}
-        add_event(description, points, user_id)
+        add_event(description, points, user_id, sponsor_name)
 
         # Update points on user record
-        user_record = get_user_by_id(user_id) 
-        updated_points = user_record.current_points + points
+        user = get_user_by_id(user_id)
+        user_affiliations = get_all_affiliations_by_user(user_id) 
 
-        username = user_record.username
-        email = user_record.email
-        role = user_record.role
-        sponsor_name = user_record.sponsor_name
-        current_points = updated_points
-        get_points_alert = user_record.get_points_alert
-        get_order_alert = user_record.get_order_alert
-        get_problem_alert = user_record.get_problem_alert
+        user_record = {}
+        for item in user_affiliations:
+            if item.sponsor_name == sponsor_name:
+                user_record = item
+                user_id = user_record.user_id
+                sponsor_name = user_record.sponsor_name
+                updated_points = item.current_points + points
+                # current_points = updated_points
+                status = user_record.status
 
-        update_user(user_record, username, email, role, sponsor_name, current_points, get_points_alert, get_order_alert, get_problem_alert)
 
-        if user_record.get_points_alert:
-            try:
-                # Req Change 3:
-                msg = "You now have "+ updated_points +" points in the GoodDriver App."
-                send_email(email, "Points updated in GoodDriver App", msg)
-            except:
-                pass
+                update_affiliation(user_record, user_id, sponsor_name, updated_points, status)
 
-        response_object["message"] = f"Event was added!"
-        return response_object, 201
+                if user.get_points_alert:
+                    try:
+                        # Req Change 3:
+                        msg = "You now have "+ updated_points +" points in the GoodDriver App."
+                        send_email(user.email, "Points updated in GoodDriver App", msg)
+                    except:
+                        pass
+
+                response_object["message"] = f"Event was added!"
+                return response_object, 201
 
 
 class EventsListbyUser(Resource):
     @events_namespace.marshal_with(event, as_list=True)
-    def get(self, user_id):
-        """Returns all events for a single user."""
-        return get_all_events_by_user_id(user_id), 200
+    # def get(self, user_id):
+    #     """Returns all events for a single user."""
+    #     return get_all_events_by_user_id(user_id), 200
 
 
+
+    def get(self, user_id, caller_id):
+        """Returns all events for a single user that are authorized for the caller."""
+
+        authorized_list = get_all_events_by_user_id(user_id)
+
+        if user_id == caller_id:
+            return authorized_list, 200
+        else:
+            caller = get_user_by_id(caller_id)
+            if caller.role == 'admin':
+                return authorized_list, 200
+            elif caller.role == 'driver':
+                events_namespace.abort(404, f"Unauthorized request") 
+            else:
+                caller = get_all_affiliations_by_user(caller_id)
+                filtered_list = []
+                for item in authorized_list:
+                    if item.sponsor_name == caller[0].sponsor_name:
+                        filtered_list.append(item)
+                return filtered_list, 200
 
 class Events(Resource):
     @events_namespace.marshal_with(event)
@@ -111,9 +138,11 @@ class Events(Resource):
         post_data = request.get_json()
         description = post_data.get("description") or event.description
         points = post_data.get("points") or event.points
+        current_points = post_data.get("current_points") or event.current_points
+        status = post_data.get("status") or event.status
         response_object = {}
 
-        update_event(event, description, points)
+        update_event(event, description, points, current_points, status)
 
         user_record = get_user_by_id(user_id)
         if user_record.get_points_alert and points != event.points:
@@ -141,5 +170,6 @@ class Events(Resource):
 
 
 events_namespace.add_resource(EventsList, "/")
-events_namespace.add_resource(EventsListbyUser, "/by_user/<int:user_id>")
+# events_namespace.add_resource(EventsListbyUser, "/by_user/<int:user_id>")
+events_namespace.add_resource(EventsListbyUser, "/by_user/<int:user_id>/by_caller/<int:caller_id>")
 events_namespace.add_resource(Events, "/<int:event_id>")

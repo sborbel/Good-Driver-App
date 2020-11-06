@@ -52,8 +52,8 @@ def seed_affiliations():
     db.session.commit()
 
 def seed_events(): 
-    db.session.add(Event(description="Safe driving award.", points=15, user_id=7))
-    db.session.add(Event(description="Avoided hitting pedestrian.", points=25, user_id=8))
+    db.session.add(Event(description="Safe driving award.", points=15, user_id=7, sponsor_name="Yellow Freight"))
+    db.session.add(Event(description="Avoided hitting pedestrian.", points=25, user_id=8, sponsor_name="Great Big Freight"))
     # db.session.add(Event(description="", points=, user_id=))
     db.session.commit()
 

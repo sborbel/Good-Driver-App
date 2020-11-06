@@ -16,16 +16,17 @@ def get_event_by_id(event_id):
     return Event.query.filter_by(id=event_id).first()
 
 
-def add_event(description, points, user_id):
-    event = Event(description=description, points=points, user_id=user_id)
+def add_event(description, points, user_id, sponsor_name):
+    event = Event(description=description, points=points, user_id=user_id, sponsor_name=sponsor_name)
     db.session.add(event)
     db.session.commit()
     return event
 
 
-def update_event(event, description, points):
+def update_event(event, description, points, sponsor_name):
     event.description = description
     event.points = points
+    event.sponsor_name = sponsor_name
     db.session.commit()
     return event
 

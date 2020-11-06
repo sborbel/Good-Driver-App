@@ -20,12 +20,14 @@ class Event(db.Model):
     points = db.Column(db.Integer, nullable=False)
     created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    sponsor_name = db.Column(db.String, nullable=False)
 
 
-    def __init__(self, description="", points="", user_id=""):
+    def __init__(self, description="", points="", user_id="", sponsor_name=""):
         self.description = description
         self.points = points
         self.user_id = user_id
+        self.sponsor_name = sponsor_name
 
 
 if os.getenv("FLASK_ENV") == "development":

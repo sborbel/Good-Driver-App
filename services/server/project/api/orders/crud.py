@@ -17,16 +17,17 @@ def get_order_by_id(order_id):
     return Order.query.filter_by(id=order_id).first()
 
 
-def add_order(status, user_id):
-    order = Order(status=status, user_id=user_id)
+def add_order(status, user_id, sponsor_name):
+    order = Order(status=status, user_id=user_id, sponsor_name=sponsor_name)
     db.session.add(order)
     db.session.commit()
     return order
 
 
-def update_order(order, status, user_id):
+def update_order(order, status, user_id, sponsor_name):
     order.status = status
     order.user_id = user_id
+    order.sponsor_name = sponsor_name
     db.session.commit()
     return order
 
