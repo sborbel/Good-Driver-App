@@ -21,10 +21,12 @@ class Order(db.Model):
     status = db.Column(db.String(32), default="active", nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     created_date = db.Column(db.DateTime, default=func.now())
+    sponsor_name = db.Column(db.String, nullable=False)
 
-    def __init__(self, status="", user_id=""):
+    def __init__(self, status="", user_id="", sponsor_name=""):
         self.status = status
         self.user_id = user_id
+        self.sponsor_name = sponsor_name
 
 class OrderItem(db.Model):
 

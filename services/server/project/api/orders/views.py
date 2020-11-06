@@ -2,7 +2,7 @@
 
 
 from flask import request
-from flask_restx import Resource, fields, Namespace
+from flask_restx import Resource, fields, Namespace, reqparse
 from project.helpers.mail_service import send_email
 
 from project.api.orders.crud import (
@@ -23,6 +23,7 @@ from project.api.orders.crud import (
 from project.api.users.crud import (
     get_user_by_id,
     update_user,
+    get_all_affiliations_by_user
 )
 
 from project.api.catalogs.crud import (
@@ -37,9 +38,11 @@ order = orders_namespace.model(
         "id": fields.Integer(readOnly=True),
         "status": fields.String(required=False),
         "user_id": fields.Integer(required=True),
+        "sponsor_name": fields.String(required=True),
         "created_date": fields.DateTime,
     },
 )
+
 
 
 class OrdersList(Resource):
@@ -56,18 +59,35 @@ class OrdersList(Resource):
         post_data = request.get_json()
         status = post_data.get("status") or "active"
         user_id = post_data.get("user_id")
+        sponsor_name = post_data.get("sponsor_name")
         response_object = {}
-        new_order = add_order(status, user_id)
+        new_order = add_order(status, user_id, sponsor_name)
         response_object["id"] = new_order.id
         response_object["message"] = f"Order was added!"
         return response_object, 201
 
-
 class OrdersListbyUser(Resource):
     @orders_namespace.marshal_with(order, as_list=True)
-    def get(self, user_id):
+    def get(self, user_id, caller_id):
         """Returns all orders for a single user."""
-        return get_all_orders_by_user_id(user_id), 200
+
+        authorized_list = get_all_orders_by_user_id(user_id)
+
+        if user_id == caller_id:
+            return authorized_list, 200
+        else:
+            caller = get_user_by_id(caller_id)
+            if caller.role == 'admin':
+                return authorized_list, 200
+            elif caller.role == 'driver':
+                orders_namespace.abort(404, f"Unauthorized request") 
+            else:
+                caller = get_all_affiliations_by_user(caller_id)
+                filtered_list = []
+                for item in authorized_list:
+                    if item.sponsor_name == caller[0].sponsor_name:
+                        filtered_list.append(item)
+                return filtered_list, 200
 
 
 class Orders(Resource):
@@ -281,7 +301,8 @@ class OrderItems(Resource):
 
 
 orders_namespace.add_resource(OrdersList, "")
-orders_namespace.add_resource(OrdersListbyUser, "/by_user/<int:user_id>")
+orders_namespace.add_resource(OrdersListbyUser, "/by_user/<int:user_id>/by_caller/<int:caller_id>")
+# orders_namespace.add_resource(OrdersListbyUser, "/by_user")
 orders_namespace.add_resource(Orders, "/<int:order_id>")
 
 order_items_namespace.add_resource(OrderItemsList, "")

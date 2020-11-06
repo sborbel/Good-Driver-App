@@ -41,9 +41,10 @@ def seed_users():
 
 def seed_affiliations():
     db.session.add(Affiliation(user_id=3, sponsor_name="", current_points=0, status="active"))
-    db.session.add(Affiliation(user_id=4, sponsor_name="", current_points=0, status="active"))
-    db.session.add(Affiliation(user_id=5, sponsor_name="", current_points=0, status="active"))
+    db.session.add(Affiliation(user_id=4, sponsor_name="Yellow Freight", current_points=0, status="active"))
+    db.session.add(Affiliation(user_id=5, sponsor_name="Great Big Freight", current_points=0, status="active"))
     db.session.add(Affiliation(user_id=6, sponsor_name="Yellow Freight", current_points="500", status="active"))
+    db.session.add(Affiliation(user_id=6, sponsor_name="Great Big Freight", current_points="900", status="active"))
     db.session.add(Affiliation(user_id=7, sponsor_name="Yellow Freight", current_points="850", status="active"))
     db.session.add(Affiliation(user_id=8, sponsor_name="Great Big Freight", current_points="25", status="active"))
     db.session.add(Affiliation(user_id=9, sponsor_name="Great Big Freight", current_points="1500", status="active"))
@@ -63,8 +64,8 @@ def seed_annc():
     db.session.commit()
 
 def seed_catalogs():
-    db.session.add(Catalog(name = "Yellow Freight Awards", supplier = "Amazon", sponsor_name="Yellow Freight"))
-    db.session.add(Catalog(name = "Great Big Awards Catalog", supplier = "Amazon", sponsor_name="Great Big Freight"))
+    db.session.add(Catalog(name = "Yellow Freight Awards", supplier = "ebay", sponsor_name="Yellow Freight"))
+    db.session.add(Catalog(name = "Great Big Awards Catalog", supplier = "ebay", sponsor_name="Great Big Freight"))
     # db.session.add(Catalog(name = "", supplier = "", sponsor_name =))
 
     db.session.add(CatalogItem( name = "Carfka Train Horn for Trucks", 
@@ -95,11 +96,13 @@ def seed_catalogs():
     db.session.commit()
 
 def seed_orders():
-    db.session.add(Order(status = "active", user_id = 6))
+    db.session.add(Order(status = "active", user_id = 6, sponsor_name="Yellow Freight"))
+    db.session.add(Order(status = "active", user_id = 6, sponsor_name="Great Big Freight"))
     # db.session.add(Order(status = "", user_id =))
 
     db.session.add(OrderItem(order_id = 1, catalog_id = 1, catalog_item_id = 1, quantity = 1, actual_cost = 29.99, points_cost = 150))
     db.session.add(OrderItem(order_id = 1, catalog_id = 1, catalog_item_id = 2, quantity = 1, actual_cost = 34.99, points_cost = 200))
+    db.session.add(OrderItem(order_id = 2, catalog_id = 1, catalog_item_id = 2, quantity = 1, actual_cost = 34.99, points_cost = 200))
     # db.session.add(OrderItem(order_id =, catalog_id =, catalog_item_id =, quantity =, actual_cost =, points_cost =))
     
     db.session.commit()

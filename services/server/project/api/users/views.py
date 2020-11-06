@@ -11,7 +11,6 @@ from project.api.users.crud import (
     get_user_by_email,
     add_user,
     get_user_by_id,
-    get_users_by_sponsor_name,
     update_user,
     update_user_password,
     delete_user,
@@ -95,17 +94,6 @@ class UsersList(Resource):
             pass
 
         return response_object, 201
-
-class UsersBySponsor(Resource):
-    @users_namespace.marshal_with(user)
-    @users_namespace.response(200, "Success")
-    @users_namespace.response(404, "Sponsor <user_id> does not exist")
-    def get(self, sponsor_name):
-        """Returns all users for a single sponsor."""
-        users = get_users_by_sponsor_name(sponsor_name)
-        if not users:
-            users_namespace.abort(404, f"Sponsor {sponsor_name} does not exist")
-        return users, 200
 
 class Users(Resource):
     @users_namespace.marshal_with(user)
@@ -361,7 +349,7 @@ class Affiliations(Resource):
 
 users_namespace.add_resource(UsersList, "")
 users_namespace.add_resource(Users, "/<int:user_id>")
-users_namespace.add_resource(UsersBySponsor, "/by_sponsor/<string:sponsor_name>")
+# users_namespace.add_resource(UsersBySponsor, "/by_sponsor/<string:sponsor_name>")
 users_namespace.add_resource(UsersPass, "/change_password/<int:user_id>")
 
 affiliations_namespace.add_resource(AffiliationsList, "/affiliations")
