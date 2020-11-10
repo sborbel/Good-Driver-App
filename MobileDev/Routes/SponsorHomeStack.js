@@ -6,11 +6,16 @@ const SponsorHomeStack = createStackNavigator({
         screen: SponsorHome,
         navigationOptions: {
             title: 'Sponsor Home',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },
-});
+    },
+    {
+        
+    }
+);
 export default SponsorHomeStack;

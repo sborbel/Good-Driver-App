@@ -6,15 +6,16 @@ class UserContextProvider extends Component{
     constructor(){
         super();   
         this.state = {
-            baseUrl: 'http://192.168.1.145:5001/', //this will change in production
+            //baseUrl: 'http://good-driver-alb-1469583345.us-east-1.elb.amazonaws.com/',
+            baseUrl: 'http://192.168.1.145:5001/',
             relevantUsers: [],
-            points: 0,
+            currPoints: 0,
             email: '',
             password: '',
             username: '',
             role: '',
-            sponsor_name: '',
-            sponsor_id: '',
+            curr_sponsor: [],       // holds point values now
+            sponsors: [],           // affiliations here
             access_token: '',
             refresh_token: '',
             id: -1,
@@ -34,34 +35,58 @@ class UserContextProvider extends Component{
         })
     }
 
-    setSpons = async (spon) => {
-        // set sponsor manager name
-        this.setState({
-            sponsor_name: spon,
-        })
+    // Don't need sponsor ID as driver
+    /* First call to set sponsor, this sets an initial sponsor,
+    but also returns an object of all affiliate sponsors for in-app switching*/
+    setSponsInit = async () => {
         var self = this;
-        var temp = [];
+        var temp = []
+        var curr;
         await axios
-        .get(self.state.baseUrl + 'users/by_sponsor/' + self.state.sponsor_name)
-        .then(res =>{
-            console.log(res.data);
-            temp = res.data
+        .get(self.state.baseUrl + 'api/affiliations/affiliations/by_user/' + self.state.id)
+        /* will have to pull sponsor name then call sponsor route, then
+            itr through those users till sponsor manager is found */
+        .then(res =>{                                                           
+            console.log(res.data);                                                     
+            temp = res.data                                                        
         })
-        // set sponsor manager id
-        for(var i=0; i<temp.length; i++){
-            if(temp[i].role == "sponsor_mgr"){
-                self.setState({sponsor_id: temp[i].id})
-                console.log(self.state.sponsor_id);
+        .then(function(){
+            self.setState({sponsors: temp})   
+        })
+        .then(function(){
+            if(temp.length > 0){
+                curr = temp[0];
+            }
+        })
+        .then(function(){
+            self.setState({curr_sponsor: curr})
+        })
+        .catch(err =>{
+            console.log('Could not retrieve sponsor');
+        })
+    }
+
+    setSpons = async (spon) => {
+        // update sponsor
+        // refresh api
+        // update again
+        var self = this;
+        for(var i=0; i<this.state.sponsors.length; i++){
+            if(this.state.sponsors[i].sponsor_name == spon){ // get updated values of affiliation
+                await axios
+                    .get(self.state.baseUrl + 'api/affiliations/affiliations/' + this.state.sponsors[i].id)
+                    .then(res =>{
+                        self.setState({curr_sponsor: res.data})
+                    })
             }
         }
-        console.log(this.state.id);
     }
 
     getOrderDetails = () =>{
         var self = this;
-        console.log(self.state.baseUrl + 'orders/by_user/' + self.state.id)
+        console.log(self.state.baseUrl + 'api/orders/by_user/' + self.state.id)
         axios
-            .get(self.state.baseUrl + 'orders/by_user/' + self.state.id)
+            .get(self.state.baseUrl + 'api/orders/by_user/' + self.state.id)
             .then(res =>{
                 console.log(res.data);
                 self.setState({order: res.data})
@@ -76,7 +101,7 @@ class UserContextProvider extends Component{
         for(var i=0; i<this.state.order.length; i++){
             tempEvents.push([]);
             await axios
-                .get(self.state.baseUrl + 'order_items/by_order/' + self.state.order[i].id)
+                .get(self.state.baseUrl + 'api/order_items/by_order/' + self.state.order[i].id)
                 .then(res =>{
                     console.log(res.data);
                     tempEvents[i].push(res.data);
@@ -85,70 +110,62 @@ class UserContextProvider extends Component{
         self.setState({orderItems: tempEvents});
     }
     
-    // tally points from events, tally points from orders. save net total.
-    setPoints = async () => {
-        var self = this;
-        var currTemp = [];
-        var pointTotal = 0;
-        
-        self.getOrderDetails();
-        // add up all points spent across all orderItems from all orders for this user
-        for(var i=0; i<this.state.order.length; i++){
-            await axios
-                .get(self.state.baseUrl + 'order_items/by_order/' + self.state.order[i].id)
-                .then(res =>{
-                    currTemp = res.data;
-                    console.log('Orders: '+ currTemp);
-                })
-                .catch(err =>{
-                    console.log(err);
-                    console.log("Well there's been a problem now, hasn't there part 1?")
-                })
-            for(var j=0; j<currTemp.length; j++){
-                pointTotal -= currTemp[j].points_cost;
-            }
-        }
-
-        // add up all points gained across all events for this user
-        await axios
-            .get(self.state.baseUrl + 'events/by_user/' + self.state.id)
-            .then(res =>{
-                currTemp = res.data;
-            })
-            .catch(err =>{
-                console.log("Well there's been a problem now, hasn't there part 2?")
-            })
-        for(var i=0; i<currTemp.length; i++){
-            pointTotal += currTemp[i].points;
-        }
-        self.setState({points: pointTotal});
+    noChange = () =>{
+        if(this.state.curr_sponsor.current_points == this.state.currPoints)
+            return true;
+        this.setState({currPoints: this.state.curr_sponsor.current_points})
+        return false;
     }
-    
+
     setRelUsers = async () => {
+        userID = [];
         // base 
         if(this.state.role == 'driver') 
             return;
         
         var ext = '';
         if(this.state.role == 'admin'){
-            ext = 'users';
+            ext = 'api/affiliations/affiliations';
         }
         else if(this.state.role == 'sponsor_mgr' || this.state.role == 'sponsor'){
-            ext = 'users/by_sponsor/' + this.state.sponsor_name;
+            ext = 'api/affiliations/affiliations/by_sponsor/' + this.state.curr_sponsor.sponsor_name;
         }
-        //ext.replace('\s', '%20');
         console.log(this.state.baseUrl + ext);
         var self = this;
+        let userID = []
         await axios
             .get(self.state.baseUrl + ext)
             .then(res =>{
                 console.log(res.data);
-                self.setState({relevantUsers: res.data})
+                userID = res.data;
             })
             .catch(err => {
                 console.log(err);
-                console.log("Something has gone horribly wrong");
-            })  
+                console.log("error assigning user data");
+            })
+        // pull other info from id
+        let users = [{}];
+        for(var i=0; i<userID.length; i++){
+            await axios
+            .get(self.state.baseUrl + 'api/users/' + userID[i].user_id) // pull each user id and assign info
+            .then(res =>{
+                console.log(res.data);
+                let user = {
+                    email: res.data.email,
+                    username: res.data.username,
+                    role: res.data.role,
+                    id: userID[i].user_id
+                }
+                users.push(user);
+            })
+            .catch(err => {
+                console.log(err);
+                console.log("error in user data loop");
+            })
+        }
+        users.shift()       
+        self.setState({relevantUsers: users})  
+        console.log(self.state.relevantUsers)
     }
 
     isAuthenticated = async () => {
@@ -171,26 +188,28 @@ class UserContextProvider extends Component{
     resetUser = () => {
         this.setState({
             relevantUsers: [],
-            points: 0,
+            currPoints: 0,
             email: '',
             password: '',
             username: '',
             role: '',
-            sponsor_name: '',
+            curr_sponsor: [],       // holds point values now
+            sponsors: [],           // affiliations here
             access_token: '',
             refresh_token: '',
             id: -1,
-            order: []
+            order: [],
+            orderItems: [],
+            events: [],
         })
     }
     
     getEvents = () => {
         var self = this
         axios
-            .get(self.state.baseUrl + 'events/by_user/' + self.state.id)
+            .get(self.state.baseUrl + 'api/events/by_user/' + self.state.id + '/by_caller/' + self.state.id)
             .then(res =>{
                 self.setState({events: res.data});
-                console.log(events)
             })
             .catch(err =>{
                 console.log(err)
@@ -205,6 +224,7 @@ class UserContextProvider extends Component{
     parseDateData = (date) => {
 
     }
+
     render(){
         return(
             <UserContext.Provider value={{...this.state, 
@@ -213,7 +233,8 @@ class UserContextProvider extends Component{
                 resetUser: this.resetUser, 
                 setRelUsers: this.setRelUsers,
                 setSpons: this.setSpons,
-                setPoints: this.setPoints,
+                setSponsInit: this.setSponsInit,
+                noChange: this.noChange,
                 getOrderDetails: this.getOrderDetails,
                 getOrderItemDetails: this.getOrderItemDetails,
                 isAuthenticated: this.isAuthenticated,

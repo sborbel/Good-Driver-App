@@ -6,9 +6,10 @@ const SponsorProfStack = createStackNavigator({
         screen: SponsorProf,
         navigationOptions: {
             title: 'Sponsor Home',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },

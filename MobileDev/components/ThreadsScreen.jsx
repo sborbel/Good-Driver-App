@@ -21,22 +21,19 @@ class Threads extends Component{
             isLoading: true,
         }
     };
-    
-    /* Fetch threads on a need to know basis
-        drivers fetch threads they're on
-        sponsors fetch threds they are on and their drivers
-        admins fetch all threads
-    */
     fetchThreads = async () =>{
         const {navigation} = this.props;
         var self = this;    
-        console.log('http://192.168.1.145:5001/threads/by_user/' + (self.context.role != "driver" ? navigation.getParam('userID') : self.context.id));
+        console.log(self.context.baseUrl + 'api/threads/by_user/' + (self.context.role != "driver" ? navigation.getParam('userID') : self.context.id));
         await axios
-            .get('http://192.168.1.145:5001/threads/by_user/' + (self.context.role != "driver" ? navigation.getParam('userID') : self.context.id))
+            .get(self.context.baseUrl + 'api/threads/by_user/' + (self.context.role != "driver" ? navigation.getParam('userID') : self.context.id))
             .then(res =>{
                 self.setState({threads: res.data})
                 self.setState({isLoading: false})
                 console.log(res.data);
+            })
+            .then(function(res){
+                self.setState({isLoading: false})
             })
             .catch(err =>{
                 console.log(err);
@@ -52,7 +49,7 @@ class Threads extends Component{
             creator_id: parseInt(self.context.id),
         }
         await axios
-            .post('http://192.168.1.145:5001/threads', threadInfo) // set thread to be owned by the sponsor manager
+            .post(self.context.baseUrl + 'api/threads', threadInfo) // set thread to be owned by the sponsor manager
             .then(res=>{
                 console.log("Thread should be created")
             })

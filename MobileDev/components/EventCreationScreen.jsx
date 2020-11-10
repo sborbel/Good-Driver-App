@@ -21,11 +21,12 @@ export default class EventHandler extends Component{
     createEvent = async (info) =>{
         var self = this
         const {navigation} = this.props; 
-        const url = this.context.baseUrl + 'events/';
+        const url = this.context.baseUrl + 'api/events/';
         const newEvent = {
             points: parseInt(info.points),
             description: info.description,
-            user_id: navigation.getParam('userID')
+            user_id: navigation.getParam('userID'),
+            sponsor_name: this.context.curr_sponsor.sponsor_name
         }
 
         await axios
@@ -59,7 +60,7 @@ export default class EventHandler extends Component{
                                     placeholder="Point Value"
                                     onChangeText={props.handleChange('points')}
                                     value={props.values.points}
-                                    onBlur={props.handleBlur('usernapointsme')}
+                                    onBlur={props.handleBlur('points')}
                                 />
                                 <Text style={{color: 'crimson'}}>{props.touched.points && props.errors.points}</Text>
                                 

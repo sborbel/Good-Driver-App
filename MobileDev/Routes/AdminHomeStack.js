@@ -6,9 +6,10 @@ const AdminHomeStack = createStackNavigator({
         screen: AdminHome,
         navigationOptions: {
             title: 'Admin Home',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },

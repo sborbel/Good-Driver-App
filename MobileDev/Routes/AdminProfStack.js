@@ -7,9 +7,10 @@ const AdminProfStack = createStackNavigator({
         screen: AdminProf,
         navigationOptions: {
             title: 'Profile',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },
@@ -19,7 +20,6 @@ const AdminProfStack = createStackNavigator({
             title: 'Edit Info',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
             }
         }
     }

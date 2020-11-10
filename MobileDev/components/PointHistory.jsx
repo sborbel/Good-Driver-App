@@ -35,9 +35,9 @@ export default class PointHistory extends Component{
     
     componentDidMount(){
         this.context.getEvents();
-        this.context.getOrderDetails();
-        this.context.getOrderItemDetails();
-        this.flattenItems();
+        //this.context.getOrderDetails();
+        //this.context.getOrderItemDetails();
+        //this.flattenItems();
         this.setState({isLoading: false});
     }
     

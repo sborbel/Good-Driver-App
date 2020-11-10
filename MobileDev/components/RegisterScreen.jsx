@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {Text, StyleSheet, View, TouchableWithoutFeedback, Keyboard, Button, TextInput} from 'react-native';
+import { UserContext } from '../contexts/UserContext';
 import {Formik} from 'formik';
 import * as yup from 'yup';
 import axios from 'axios';
@@ -17,12 +18,12 @@ const RegisterSchema = yup.object({
 })
 
 export default class Register extends Component{
-
+    static contextType = UserContext;
     createUser = async (info) =>{
         console.log(info.username);
         var self = this
         const {navigation} = this.props; 
-        const url = `http://192.168.1.145:5001/auth/`;
+        const url = 'auth/api/';
         const freshUser = {
             username: info.username,
             email: info.email,
@@ -32,7 +33,7 @@ export default class Register extends Component{
         }
         console.log(freshUser);
         await axios
-            .post(url + 'register', freshUser)
+            .post(this.context.baseUrl + url + 'register', freshUser)
             .then(res =>{
                 console.log("Account created!")
                 navigation.pop();

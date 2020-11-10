@@ -10,9 +10,9 @@ export default class SelectForEvent extends Component{
     state = {
         isLoading: true,
     };
-    componentDidMount(){
+    /*componentDidMount(){
         this.context.setRelUsers();
-    }
+    }*/
 
     render(){
         

@@ -12,9 +12,10 @@ const AuthStack = createStackNavigator({
         screen: StartUp,
         navigationOptions: {
             title: 'Unlogged App Home',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },
@@ -22,9 +23,10 @@ const AuthStack = createStackNavigator({
         screen: Login,
         navigationOptions: {
             title: 'Login Page',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },
@@ -32,9 +34,10 @@ const AuthStack = createStackNavigator({
         screen: Register,
         navigationOptions: {
             title: 'Registration Page',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },

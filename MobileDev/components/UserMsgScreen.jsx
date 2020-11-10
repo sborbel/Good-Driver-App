@@ -40,9 +40,9 @@ class UserMsg extends Component{
     getMessages = async () => {
         const {navigation} = this.props;    
         var self = this;   
-        console.log('http://192.168.1.145:5001/messages/by_thread/' + navigation.getParam('threadID'));
+        console.log(this.context.baseUrl + 'api/messages/by_thread/' + navigation.getParam('threadID'));
         await axios
-            .get('http://192.168.1.145:5001/messages/by_thread/' + navigation.getParam('threadID'))
+            .get(this.context.baseUrl + 'api/messages/by_thread/' + navigation.getParam('threadID'))
             .then(res=>{
                 console.log(res.data);
                 self.setState({messages: res.data});
@@ -59,14 +59,14 @@ class UserMsg extends Component{
         console.log("going here");
         const newMsg = {
             content: info.content,
-            recipient_id: parseInt(this.context.sponsor_id),
+            recipient_id: parseInt(this.context.id),
             sender_id: parseInt(this.context.id),
             subject: info.subject,
             thread_id: navigation.getParam('threadID'),
         };
         console.log(newMsg);
         await axios
-            .post('http://192.168.1.145:5001/messages', newMsg)
+            .post(this.context.baseUrl + 'api/messages', newMsg)
             .then(res => {
                 console.log(res);
             })

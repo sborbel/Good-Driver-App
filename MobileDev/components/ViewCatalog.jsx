@@ -2,7 +2,6 @@ import axios from 'axios';
 import React, {Component} from 'react';
 import {Text, StyleSheet, TouchableOpacity, View, TouchableWithoutFeedback, Image, Modal, SafeAreaView, FlatList, ScrollView, Keyboard} from 'react-native';
 import { Notifier, Easing } from 'react-native-notifier';
-import {Picker} from '@react-native-community/picker';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { UserContext } from '../contexts/UserContext';
 import { gStyles } from '../styles/global';
@@ -45,26 +44,6 @@ export default class CatalogView extends Component{
         };
     }
 
-    hasEnoughPoints = () => {
-        return true;
-    }
-    
-    sortItems = () => {
-        var sortedItems = this.state.catalogItem;
-        switch(this.state.sortOrder){
-            case 'Alphabetical':
-                sortedItems.sort(function(a, b){return a.name-b.name});
-                break;
-            case 'Price (Ascending)':
-                sortedItems.sort(function(a, b){return b.points_cost-a.points_cost});
-                break;
-            case 'Price (Descending)':
-                sortedItems.sort(function(a, b){return a.points_cost-b.points_cost});
-                break; 
-        }
-        this.setState({catalogItem: sortedItems})
-    }
-
     getCatolog = async () => {
         var self = this;
         console.log(self.context.baseUrl + 'api/catalogs/by_sponsor/' + self.context.curr_sponsor.sponsor_name)
@@ -87,23 +66,7 @@ export default class CatalogView extends Component{
                 console.log("There was a conundrum2");
             })
         }
-        this.sortItems();
         self.setState({isLoading: false});
-    }
-    
-    createOrder = () => {
-        var self = this;
-        axios
-            .post(self.context.baseUrl + 'orders', {status: "active", user_id: parseInt(self.id)})
-            // doesn't return an id. can just retroactively collect based on status (must assume that all other orders
-            // for this user are closed, thus must PUT that), add an array of orderItems to order AFTER checkout complete
-    }
-    
-    addOrderItem = () => {
-        if(this.state.order.length == 0){
-            this.createOrder();
-        }
-
     }
     
     componentDidUpdate(prevProps){
@@ -111,7 +74,6 @@ export default class CatalogView extends Component{
         if (prevProps.isFocused !== this.props.isFocused) {
             console.log("Proper updated")
             this.getCatolog()
-            this.setState({pointsToBe: this.context.currPoints})
         }
         if(!this.context.noChange()){
             console.log("Hello! We updated")
@@ -122,59 +84,12 @@ export default class CatalogView extends Component{
     componentDidMount(){
         console.log("Hello")
         this.getCatolog()
-        this.setState({pointsToBe: this.context.curr_points})
     }
     componentWillUnmount(){
         console.log("Goodbye")
     }
 
     render(){
-
-        if(this.state.updated){
-            console.log("Notification pop")
-            Notifier.showNotification({
-                title: 'Congratulations!',
-                description: 'Points have been added to your account!',
-                duration: 0,
-                showAnimationDuration: 800,
-                showEasing: Easing.bounce,
-                onHidden: () => this.setState({updated: false}),
-                onPress: () => this.setState({updated: false}),
-                hideOnPress: true,
-            });
-        }
-
-        const PickerModal = () =>{
-            if(!this.state.displaySortModal){
-                return(
-                    <Text>Sort by: {this.state.sortOrder}</Text>
-                )
-            }
-            else{
-                return( 
-                    <View style={styles.centeredView}>
-                        <Modal visible={this.state.displaySortModal}
-                            animationType="slide">
-                            <View>
-                                <Picker
-                                    selectedValue={this.state.sortOrder}
-                                    enabled={true}
-                                    onValueChange={(itemValue, itemIndex) =>{                                        
-                                        this.setState({sortOrder: itemValue})
-                                        this.sortItems();
-                                        this.setState({displaySortModal: false})
-                                    }
-                                }>
-                                    <Picker.Item label="Alphabetical" value="Alphabetical" />
-                                    <Picker.Item label="Price (Ascending)" value="Price (Ascending)" />
-                                    <Picker.Item label="Price (Descending)" value="Price (Descending)" />
-                                </Picker>
-                            </View>
-                        </Modal>
-                    </View>
-                );
-            }
-        }
 
         const InfoModal = () =>{  
             if(!this.state.displayModal){
@@ -187,22 +102,16 @@ export default class CatalogView extends Component{
                             <View style={styles.modalView}>
                                 <Image source={{uri: this.state.currDisplayItem.image_url}} style={{ width: 300, height: 300, borderWidth: 2 }}/>
                                 <ScrollView>
-                                <Text style={{padding: 10, fontWeight: 'bold', fontSize: 22, alignSelf: 'flex-start'}}>{this.state.currDisplayItem.name}</Text>
-                                <Text style={{padding: 10, fontSize: 16, alignSelf: 'flex-start'}}>{this.state.currDisplayItem.description}</Text>
-                                <Text style={{padding: 8, fontWeight: 'bold', fontSize: 20, alignSelf: 'flex-start'}}>Point Cost: {this.state.currDisplayItem.points_cost}</Text>
-                                <Text style={{padding: 10, fontWeight: 'bold', fontSize: 16, alignSelf: 'flex-start'}}>Updated Points Available: {this.state.pointsToBe}</Text>
+                                    <Text style={{padding: 10, fontWeight: 'bold', fontSize: 22, alignSelf: 'flex-start'}}>{this.state.currDisplayItem.name}</Text>
+                                    <Text style={{padding: 10, fontSize: 16, alignSelf: 'flex-start'}}>{this.state.currDisplayItem.description}</Text>
+                                    <Text style={{padding: 8, fontWeight: 'bold', fontSize: 20, alignSelf: 'flex-start'}}>Point Cost: {this.state.currDisplayItem.points_cost}</Text>
                                 </ScrollView>
                                 <View style={{flexDirection: 'row'}}>
-                                <TouchableOpacity onPress={() => this.setState({displayModal: false})}>
-                                    <View style={{backgroundColor: 'white', marginRight: 25, marginTop: 20, padding: 10}}>
-                                        <Text>Return To Catalog</Text>
-                                    </View>
-                                </TouchableOpacity>  
-                                <TouchableOpacity onPress={() => this.addOrderItem()}>
-                                    <View style={{backgroundColor: 'lightblue', marginLeft: 25, marginTop: 20, padding: 10}}>
-                                        <Text>Add to Order</Text>
-                                    </View>
-                                </TouchableOpacity> 
+                                    <TouchableOpacity onPress={() => this.setState({displayModal: false})}>
+                                        <View style={{backgroundColor: 'white', marginRight: 25, marginTop: 20, padding: 10}}>
+                                            <Text>Return To Catalog</Text>
+                                        </View>
+                                    </TouchableOpacity>  
                                 </View>  
                         </View>   
                     </Modal>                   
@@ -236,11 +145,6 @@ export default class CatalogView extends Component{
                 <TouchableWithoutFeedback onPress={() => {Keyboard.dismiss();}}>
                     <SafeAreaView style={{flex: 1, backgroundColor: 'gray', height: 200}}>
                             <InfoModal/>
-                            <View style={{alignSelf: 'center', borderWidth: 1, margin: 5, borderColor: 'blue'}}>
-                                <TouchableOpacity onPress={() => this.setState({displaySortModal: true})}>
-                                    <PickerModal/>
-                                </TouchableOpacity>
-                            </View>
                             <FlatList
                                 data={this.state.catalogItem}
                                 renderItem={renderItem}

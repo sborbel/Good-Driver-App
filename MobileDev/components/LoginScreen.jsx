@@ -15,8 +15,6 @@ const LoginSchema = yup.object({
         .min(3)
 })
 
-axiosRetry(axios, { retries: 5 });
-
 export default class Login extends Component{  
     static contextType = UserContext;
     constructor(){
@@ -30,25 +28,12 @@ export default class Login extends Component{
         };       
     }
     
-    validateUser = async (eml, pass) => {
+    
+    // make 3 different functions for the axios sequence
+    getUserInfo = async (eml, pass) =>{
         var self = this
-        const {navigation} = this.props; 
-        const url = `http://192.168.1.145:5001/auth/`;
         await axios
-            .post(url + 'login', {email: eml, password: pass})
-            .then(function(res){
-                self.setState({
-                    userID: res.data.user_id, 
-                    access_token: res.data.access_token, 
-                    refresh_token: res.data.refresh_token})
-            })
-            .catch(err => {
-                console.log(err);
-                console.log("Incorrect Login");
-                self.setState({dispModal: true, msg: 'Incorrect Email or password'});
-            });
-        await axios
-            .get(url +'status', {
+            .get(self.context.baseUrl +'auth/status', {
                 headers: {
                     Authorization: self.state.access_token
                 }
@@ -56,35 +41,57 @@ export default class Login extends Component{
             .then(function(res){
                 self.context.setAuthUser(eml, pass, res.data.username, res.data.role, self.state.refresh_token, self.state.userID);                                          
             })
-            .catch(err => {
+            .then(function(){
+                self.context.setSponsInit();                
+            })
+            .catch(err => { 
                 console.log(err);
                 console.log("Invalid Login");
                 self.setState({dispModal: true, msg: 'Incorrect Email or password'});
             });
+    }
+
+    redirectUser = async () =>{
+        var self = this
+        const {navigation} = this.props; 
+        switch(self.context.role){
+            case 'driver':
+                navigation.navigate('DriverApp');
+                break;
+            case 'sponsor':
+                navigation.navigate('SponsorApp');
+                break;
+            case 'sponsor_mgr':
+                navigation.navigate('SponsorApp');
+                break;
+            case 'admin':
+                navigation.navigate('AdminApp');
+                break;
+            default:
+                console.log("Something went wrong");
+        }                                           
+    }
+    
+    validateUser = async (eml, pass) => {
+        var self = this; 
         await axios
-            .get('http://192.168.1.145:5001/users/' + self.context.id)
+            .post(self.context.baseUrl + 'auth/login', {email: eml, password: pass})
             .then(function(res){
-                self.context.setSpons(res.data.sponsor_name);
-                switch(self.context.role){
-                    case 'driver':
-                        navigation.navigate('DriverApp');
-                        break;
-                    case 'sponsor':
-                        navigation.navigate('SponsorApp');
-                        break;
-                    case 'sponsor_mgr':
-                        navigation.navigate('SponsorApp');
-                        break;
-                    case 'admin':
-                        navigation.navigate('AdminApp');
-                        break;
-                    default:
-                        console.log("Something went wrong");
-                    }                                           
+                self.setState({
+                    userID: res.data.user_id, 
+                    access_token: res.data.access_token, 
+                    refresh_token: res.data.refresh_token})
+            })
+            .then(function(res){
+                self.getUserInfo(eml, pass);
+            })
+            .then(function(res){
+                self.redirectUser();
             })
             .catch(err => {
                 console.log(err);
-                return false;
+                console.log("Unable to validate");
+                self.setState({dispModal: true, msg: 'Unable to validate'});
             });
     }
 

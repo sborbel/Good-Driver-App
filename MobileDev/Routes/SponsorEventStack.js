@@ -1,14 +1,15 @@
 import {createStackNavigator} from 'react-navigation-stack';
 import SelectUserForEvent from '../components/EventSelector';
 import SelectEvent from '../components/EventCreationScreen';
-const SponsorHomeStack = createStackNavigator({
+const SponsorEventStack = createStackNavigator({
     SelectUser: {       
         screen: SelectUserForEvent,
         navigationOptions: {
             title: 'Driver Select',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },
@@ -16,11 +17,12 @@ const SponsorHomeStack = createStackNavigator({
         screen: SelectEvent,
         navigationOptions: {
             title: 'Event Select',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },
 });
-export default SponsorHomeStack;
+export default SponsorEventStack;

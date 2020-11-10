@@ -15,7 +15,7 @@ const EditSchema = yup.object({
         .min(4)
 })
 
-export default class Prof extends React.Component{
+export default class Prof extends Component{
     render(){
         return(
             <ThemeContext.Consumer>{(themeContext) =>(

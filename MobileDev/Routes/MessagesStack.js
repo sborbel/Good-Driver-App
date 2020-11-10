@@ -7,9 +7,10 @@ const MessagesStack = createStackNavigator({
         screen: Messages,
         navigationOptions: {
             title: 'Message',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },
@@ -17,9 +18,10 @@ const MessagesStack = createStackNavigator({
         screen: ThreadScreen,
         navgiationOptions: {
             title: 'Threads',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },
@@ -27,9 +29,10 @@ const MessagesStack = createStackNavigator({
         screen: ViewUserMsg,
         navgiationOptions: {
             title: 'User Messages',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },

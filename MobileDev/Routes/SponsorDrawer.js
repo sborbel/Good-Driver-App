@@ -4,6 +4,7 @@ import SponsorProfStack from '../Routes/SponsorProfStack'
 import SponsorLogout from '../components/LogoutUser';
 import MessagesStack from '../Routes/MessagesStack';
 import SponsorEventStack from '../Routes/SponsorEventStack';
+import SponsorCatTab from '../Routes/SponsorCatTab';
 const SponsorDrawer = createDrawerNavigator({
     home: {
         screen: SponsorHomeStack,
@@ -18,6 +19,16 @@ const SponsorDrawer = createDrawerNavigator({
         screen: SponsorProfStack,
         navigationOptions: {
             title: 'Profile',
+            headerStyle: {
+                backgroundColor: 'gray',
+                
+            }
+        }
+    },
+    catalog: {
+        screen: SponsorCatTab,
+        navigationOptions: {
+            title: 'Edit Catalog',
             headerStyle: {
                 backgroundColor: 'gray',
             }
@@ -43,7 +54,8 @@ const SponsorDrawer = createDrawerNavigator({
     },
     logout: {
         screen: SponsorLogout,
+    },
     }
-});
+);
 
 export default SponsorDrawer;

@@ -3,6 +3,7 @@ import {createStackNavigator} from 'react-navigation-stack';
 import DriverHome from '../components/DriverHomeScreen';
 import DriverProf from '../components/DriverProfileScreen';
 import DriverEditInfo from '../components/EditInfo';
+import SponsorSelect from '../components/SelectSponsor';
 import DriverHistory from '../components/PointHistory';
 import DriverFaq from '../components/DriverFaqScreen';
 import DriverCatalog from '../components/CatalogScreen';
@@ -14,9 +15,10 @@ const DriverHomeStack = createStackNavigator({
         screen: DriverHome,
         navigationOptions: {
             title: 'Driver Home',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },
@@ -27,9 +29,10 @@ const DriverProfStack = createStackNavigator({
         screen: DriverProf,
         navigationOptions: {
             title: 'Profile',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },
@@ -37,9 +40,10 @@ const DriverProfStack = createStackNavigator({
         screen: DriverEditInfo,
         navigationOptions: {
             title: 'Edit Info',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },
@@ -47,12 +51,24 @@ const DriverProfStack = createStackNavigator({
         screen: DriverHistory,
         navigationOptions: {
             title: 'Points History',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },
+    sponsorSelect: {
+        screen: SponsorSelect,
+        navigationOptions: {
+            title: 'Sponsor Select',
+            headerTitleAlign: 'center',
+            headerStyle: {
+                backgroundColor: 'gray',
+                height: 40,
+            }
+        } 
+    }
 });
 
 const DriverFaqStack = createStackNavigator({
@@ -60,9 +76,10 @@ const DriverFaqStack = createStackNavigator({
         screen: DriverFaq,
         navigationOptions: {
             title: 'Frequently Asked Questions',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },
@@ -73,9 +90,10 @@ const DriverCatalogStack = createStackNavigator({
         screen: DriverCatalog,
         navigationOptions: {
             title: 'Catalog',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },

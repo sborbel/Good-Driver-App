@@ -7,9 +7,10 @@ const AdminProfStack = createStackNavigator({
         screen: AdminTools,
         navigationOptions: {
             title: 'Admin Tools',
+            headerTitleAlign: 'center',
             headerStyle: {
                 backgroundColor: 'gray',
-                height: 60,
+                height: 40,
             }
         }
     },
