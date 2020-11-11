@@ -3,8 +3,8 @@ import { Formik } from "formik";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CatalogueItem from "./CatalogueItem";
 import { MDBContainer, MDBRow } from "mdbreact";
-//import "./TestPage.css";
-import "./TestPage.scss";
+import "./TestPage.css";
+// import "./TestPage.scss";
 
 
 const DriverStore = props => {

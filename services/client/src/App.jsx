@@ -867,7 +867,7 @@ getName = (id) => {
   getAllEvents = () => {
     let prom = this.apiReturnAllEvents();
     prom.then(res => {
-      console.log("Events: ", res.data);
+      // console.log("Events: ", res.data);
       this.setState({events: res.data});
     })
     .catch(err => {
