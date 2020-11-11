@@ -69,7 +69,6 @@ const AnnouncementForm = props => {
 };
 
 AnnouncementForm.propTypes = {
-  handleRegisterFormSubmit: PropTypes.func.isRequired,
   isAuthenticated: PropTypes.func.isRequired,
   editAnnouncement: PropTypes.func
 };

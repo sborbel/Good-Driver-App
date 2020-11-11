@@ -25,6 +25,7 @@ const EventsTable = props => {
     //props.getEventsByUser(8);
     //props.getEventsBySponsor();
     console.log(props.state.events);
+    console.log(props.state);
 
     const [modalIsOpen,setIsOpen] = React.useState(false);
 
@@ -66,7 +67,7 @@ const EventsTable = props => {
   return (
     <div>
     <h1 className="title is-1">Events List</h1>
-    <h3 className="title is-3">{props.state.currentUser.sponsor_name}: {props.state.currentUser.role} view</h3>
+    <h3 className="title is-3">{props.state.affiliations[props.state.current_affiliation].sponsor_name}: {props.state.currentUser.role} view</h3>
     <hr />
     <br />
       {props.state.currentUser.role !== "driver" && 
@@ -140,7 +141,6 @@ const EventsTable = props => {
                         </header>
                         <section className="modal-card-body">
                             <div>
-                            <h1 className="title is-1">Add Thread</h1>
                             <hr />
                             <br />
                             <Formik

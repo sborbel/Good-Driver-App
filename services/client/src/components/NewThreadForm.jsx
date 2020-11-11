@@ -15,7 +15,7 @@ const NewThreadForm = props => {
         console.log(users);
         let items = [];         
         for (let i = 0; i < users.length; i++) {             
-             items.push(<option value={users[i].id}>{`${users[i].username}, ${users[i].role}`}</option>);  
+             items.push(<option key={users[i].id} value={users[i].id}>{`${users[i].username}, ${users[i].role}`}</option>);  
              console.log(users[i]); 
              
         }

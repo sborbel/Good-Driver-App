@@ -20,7 +20,7 @@ def get_catalog_by_id(catalog_id):
 
 
 def add_catalog(name, supplier, sponsor_id):
-    catalog = Catalog(name=name, supplier=supplier, sponsor_id=sponsor_id)
+    catalog = Catalog(name=name, supplier=supplier, sponsor_name=sponsor_id)
     db.session.add(catalog)
     db.session.commit()
     return catalog

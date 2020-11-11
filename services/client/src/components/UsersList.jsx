@@ -5,7 +5,7 @@ const UsersList = props => {
   return (
     <div>
     <h1 className="title is-1">Users List</h1>
-    <h3 className="title is-3">{props.state.currentUser.sponsor_name}: {props.state.currentUser.role} view</h3>
+    <h3 className="title is-3">{props.state.affiliations[props.state.current_affiliation].sponsor_name}: {props.state.currentUser.role} view</h3>
     <hr />
     <br />
       <table className="table is-hoverable is-fullwidth">
@@ -46,7 +46,6 @@ const UsersList = props => {
 };
 
 UsersList.propTypes = {
-  users: PropTypes.array.isRequired,
   removeUser: PropTypes.func.isRequired,
   isAuthenticated: PropTypes.func.isRequired
 };

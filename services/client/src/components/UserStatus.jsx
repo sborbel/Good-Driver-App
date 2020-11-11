@@ -104,10 +104,10 @@ function UserStatus(props) {
                 <td>{user.role}</td>
                 <td>{user.email}</td>
                 <td className="username">{user.username}</td>
-                <td>{user.sponsor_name}</td>
+                {/*<td>{user.sponsor_name}</td>*/}
                 <td>
                   <button
-                    onClick={() => openModal([{id: user.id, role: user.role, email: user.email, username: user.username, sponsor_name: user.sponsor_name}])}
+                    onClick={() => openModal([{id: user.id, role: user.role, email: user.email, username: user.username/*, sponsor_name: user.sponsor_name*/}])}
                     className="button is-primary"
                   >
                     Edit User

@@ -12,7 +12,7 @@ const EditUser = props => (
     initialValues={{
       username: props.thisuser.username, //add thisuser in userlist and everything else
       role: props.thisuser.role,
-      sponsor_name: props.thisuser.sponsor_name,
+      sponsor_name: props.state.affiliations[props.state.current_affiliation].sponsor_name,
       myRole: props.state.currentUser.role
     }}
     onSubmit={

@@ -23,6 +23,11 @@ const DriverStore = props => {
 
 return(
 <>
+    {props.state.currentUser.role === "driver" && (
+    <div>
+      <h5 className="title is-5">{"Points: " + props.state.points}</h5>
+    </div>
+    )}
     <Formik
     initialValues={{
         description: ""

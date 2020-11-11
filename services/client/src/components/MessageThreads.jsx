@@ -69,7 +69,7 @@ function MessageThreads(props) {
   return (
     <div>
       <h1 className="title is-1">{title}</h1>
-      <h3 className="title is-3">{props.state.currentUser.sponsor_name}: {props.state.currentUser.role} view</h3>
+      <h3 className="title is-3">{props.state.affiliations[props.state.current_affiliation].sponsor_name}: {props.state.currentUser.role} view</h3>
       <table className="table is-hoverable is-fullwidth">
         <thead>
           <tr>

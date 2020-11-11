@@ -5,7 +5,7 @@ import Logo from './truck.jpeg'
 const HomePage = (props) => (
   <div>
     <h1 className="title is-1">Home</h1>
-    <h3 className="title is-3">{props.state.currentUser.username}</h3>
+<h3 className="title is-3">{props.state.currentUser.sponsor_name}: {props.state.currentUser.username}</h3>
     <hr />
     <br />
     {props.state.currentUser.role === "driver" && (
@@ -13,15 +13,15 @@ const HomePage = (props) => (
       <h5 className="title is-5">{"Points: " + props.state.points}</h5>
     </div>
     )}
-    {props.state.currentUser.role !== "admin" &&
+    {props.state.currentUser.role !== "admin" && props.state.affiliations.length > 0 && props.state.affiliations[props.state.current_affiliation].sponsor_name &&
     <Announcement
-            title={props.state.currentUser.sponsor_name}
+            title={props.state.affiliations[props.state.current_affiliation].sponsor_name}
             subtitle={props.state.announcement.content}
             imageSource={Logo}
             daysToLive={0}
             secondsBeforeBannerShows={2}
             closeIconSize={30}
-      />}
+    />}
     </div>
 
 );
