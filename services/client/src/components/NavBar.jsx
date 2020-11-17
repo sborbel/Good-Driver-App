@@ -13,7 +13,6 @@ const NavBar = props => {
     for(let i in props.state.affiliations){
       ret.push(<option key={props.state.affiliations[i].id} value={i}>{props.state.affiliations[i].sponsor_name}</option>);
     }
-    console.log(ret);
     return ret;
   }
   let menu = (
@@ -161,7 +160,8 @@ const NavBar = props => {
           
           
           <Nav.Item>
-          <Formik
+          {props.state.affiliations.length > 1 &&
+           <Formik
         initialValues={{
           aff: props.state.current_affiliation
         }}
@@ -198,7 +198,7 @@ const NavBar = props => {
             </div>
           );
         }}
-      </Formik>
+      </Formik>}
           </Nav.Item>
 
           {props.state.isDriver === false &&

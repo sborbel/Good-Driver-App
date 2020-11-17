@@ -24,7 +24,7 @@ const AnnouncementForm = props => {
           props.editAnnouncement(values);
           resetForm();
           setSubmitting(false);
-          this.createMessage("success", "You have successfully created a new announcement.");
+          props.createMessage("success", "You have successfully created a new announcement.");
         }}
         validationSchema={Yup.object().shape({
           
