@@ -48,7 +48,7 @@ const EventsTable = props => {
   function getOptions(){
     let ret = [];
     for(let i = 0; i < props.state.users.length; i++){
-      if(currentUser.id !== props.state.users[i].id){
+      if(currentUser.id !== props.state.users[i].id && props.state.users[i].role === "driver"){
         ret.push(<option key={props.state.users[i].id} value={props.state.users[i].id}>{props.state.users[i].id}: {props.state.users[i].username}</option>);
       }
     }
@@ -117,7 +117,8 @@ const EventsTable = props => {
             <th>Points</th>
             <th>Description</th>  
             <th>Date</th>
-            <th>
+            <th>Sponsor</th>
+            {props.state.currentUser.role !== "driver" && <th>
               <button
                 onClick={() => openModal()}
                 className="button is-primary"
@@ -147,10 +148,10 @@ const EventsTable = props => {
                                 initialValues={{
                                     description: "",
                                     points: 0,
-                                    user_id: parseInt(correctID)
+                                    user_id: parseInt(correctID),
+                                    sponsor_name: props.state.currentUser.sponsor_name
                                 }}
                                 onSubmit={(values, { setSubmitting, resetForm }) => {
-                                    console.log("Submitted: ", values);
                                 props.createNewEvent(values);//Make this
                                 props.getUserDataByID(props.state.currentUser.id);
                                 closeModal();
@@ -215,18 +216,20 @@ const EventsTable = props => {
                     </div>
 
                   </Modal>
-            </th>
+            </th>}
             {props.isAuthenticated() && <th />}
           </tr>
         </thead>
         <tbody>
           {sortedEvents.map(event => {
+            let eventDate = event.created_date.substr(5,5).concat("-").concat(event.created_date.substr(0,4));
             return (
               <tr key={event.id}>
                 <td>{event.user_id}</td>  
                 <td>{event.points}</td>
                 <td>{event.description}</td>
-                <td>{event.created_date}</td>
+                <td>{eventDate}</td>
+                <td>{event.sponsor_name}</td>
               </tr>
             );
           })}

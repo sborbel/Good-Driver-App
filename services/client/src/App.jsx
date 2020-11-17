@@ -8,7 +8,7 @@ import About from "./components/About";
 import NavBar from "./components/NavBar";
 import LoginForm from "./components/LoginForm";
 import RegisterForm from "./components/RegisterForm";
-import Message from "./components/Message";
+import FeedbackMessage from "./components/FeedbackMessage";
 import HomePage from "./components/HomePage";
 import UserStatus from "./components/UserStatus";
 import MessageThreads from "./components/MessageThreads";
@@ -40,7 +40,8 @@ class App extends Component {
       catalogs: [],
       affiliations: [],
       current_affiliation: 0,
-      isDriver: true
+      isDriver: true,
+      orders: []
     };
   }
 
@@ -565,14 +566,11 @@ testAllRoutes = () => {
       })
       .catch(err => {
         ////console.log(err);
-        this.createMessage("danger", `${id}`);
+        this.createMessage("danger", `Error: Could not update user`);
       });
   };
   
   getThreads = (id) => {
-
-    //////console.log(this.props.state.users);
-    ////console.log(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/threads/by_user/${id}`);
     let promises = [];
     let newThreads = [];
     let prom = this.apiReturnAllThreadsByUser(id);
@@ -599,7 +597,6 @@ testAllRoutes = () => {
               recpID = senderID;
             }
             for(let idx in this.state.users){
-              console.log(`${idx}: ${this.state.users[idx].id}, ${recpID}`)
               if(this.state.users[idx].id === recpID){
                 recpNAME = this.state.users[idx].username;
               }
@@ -951,6 +948,11 @@ getName = (id) => {
                 this.getcatalogs();
               }
             })
+            let ordersProm = this.apiReturnOrdersForUserByCaller(id, id);
+            ordersProm.then(res => {
+              this.setState({orders: res.data});
+            }
+            )
           })
           window.localStorage.setItem("userstate", JSON.stringify(res.data));
       })
@@ -996,15 +998,15 @@ getName = (id) => {
     });
   }
 
+
   createNewEvent = (data) => {
     axios
     .post(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/events/`, data)
     .then(res => {
-      ////console.log("Event created: ", res);
-    })
-    .catch(err => {
-      ////console.log(err);
-    });
+      this.createMessage("success", "Added event");
+    }).catch(err =>{
+      this.createMessage("danger", "Error: Could not add event");
+  });
   }
   
 
@@ -1195,7 +1197,7 @@ getName = (id) => {
         <section className="section">
           <div className="container">
             {this.state.messageType && this.state.messageText && (
-              <Message
+              <FeedbackMessage
                 messageType={this.state.messageType}
                 messageText={this.state.messageText}
                 removeMessage={this.removeMessage}
@@ -1246,7 +1248,7 @@ getName = (id) => {
                   />
                   <Route exact path="/messenger" 
                       render = {(props) => (
-                        this.isAuthenticated()  ? <MessageThreads {...props} state={this.state} createNewThread={this.createNewThread} isAuthenticated={this.isAuthenticated} getThreads={this.getThreads} getUserDataByID={this.getUserDataById} currentUser={this.state.currentUser}/> : <Redirect to="/login" />
+                        this.isAuthenticated()  ? <MessageThreads {...props} state={this.state} createMessage={this.createMessage} createNewThread={this.createNewThread} isAuthenticated={this.isAuthenticated} getThreads={this.getThreads} getUserDataByID={this.getUserDataById} currentUser={this.state.currentUser}/> : <Redirect to="/login" />
                       )}
                   />
                   <Route exact path="/userlist" 
@@ -1263,18 +1265,18 @@ getName = (id) => {
 
                   <Route exact path="/eventstable" 
                       render = {(props) => (
-                        this.isAuthenticated()  ? <EventsTable {...props} state={this.state} isAuthenticated={this.isAuthenticated} createNewEvent={this.createNewEvent} getEventsByUser={this.getEventsByUser} getUserDataByID={this.getUserDataById} getEventsBySponsor={this.getEventsBySponsor} /> : <Redirect to="/login" />
+                        this.isAuthenticated()  ? <EventsTable {...props} state={this.state} isAuthenticated={this.isAuthenticated} createMessage={this.createMessage} createNewEvent={this.createNewEvent} getEventsByUser={this.getEventsByUser} getUserDataByID={this.getUserDataById} getEventsBySponsor={this.getEventsBySponsor} /> : <Redirect to="/login" />
                       )}
                   />
                   <Route exact path="/driverstore" 
                       render = {(props) => (
-                        this.isAuthenticated()  ? <DriverStore {...props} state={this.state} isAuthenticated={this.isAuthenticated} createNewEvent={this.createNewEvent} getUserDataByID={this.getUserDataById} getEventsBySponsor={this.getEventsBySponsor} /> : <Redirect to="/login" />
+                        this.isAuthenticated()  ? <DriverStore {...props} state={this.state} apiCreateCatalogItem={this.apiCreateCatalogItem} createMessage={this.createMessage} apiSendItemRequest={this.apiSendItemRequest} apiReturnAllOrderItemsByOrder={this.apiReturnAllOrderItemsByOrder} apiCreateOrderItem={this.apiCreateOrderItem} apiCreateOrder={this.apiCreateOrder} isAuthenticated={this.isAuthenticated} createNewEvent={this.createNewEvent} getUserDataByID={this.getUserDataById} getEventsBySponsor={this.getEventsBySponsor} /> : <Redirect to="/login" />
                       )}
                   />
 
                   <Route exact path="/announcementform" 
                       render = {(props) => (
-                        this.isAuthenticated() && (this.state.currentUser.role !== "driver") ? <AnnouncementForm {...props} state={this.state} isAuthenticated={this.isAuthenticated} editAnnouncement={this.editAnnouncement} /> : <Redirect to="/login" />
+                        this.isAuthenticated() && (this.state.currentUser.role !== "driver") ? <AnnouncementForm {...props} state={this.state} createMessage={this.createMessage} isAuthenticated={this.isAuthenticated} editAnnouncement={this.editAnnouncement} /> : <Redirect to="/login" />
                       )}
                   />
                     

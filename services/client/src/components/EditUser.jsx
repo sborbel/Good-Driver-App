@@ -20,7 +20,7 @@ const EditUser = props => (
         let res = {role: values.role, sponsor_name: values.sponsor_name, username: values.username};
       
         console.log(props.state.currentUser.role);
-        props.editUser(res, props.thisuser.id);//add in app.jsx
+        props.editUser(res, props.thisuser.id);
       
         resetForm();
         setSubmitting(false);
