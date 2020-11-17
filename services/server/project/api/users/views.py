@@ -40,6 +40,10 @@ user = users_namespace.model(
         "get_points_alert": fields.Boolean,
         "get_order_alert": fields.Boolean,
         "get_problem_alert": fields.Boolean,
+        "preferred_contact": fields.String(required=False),
+        "sponsor_logo": fields.String(required=False),
+        "sponsor_headline": fields.String(required=False),
+        "sponsor_slug": fields.String(required=False)
     },
 )
 
@@ -74,6 +78,9 @@ class UsersList(Resource):
         email = post_data.get("email")
         password = post_data.get("password")
         role = post_data.get("role")
+        sponsor_logo = post_data.get("sponsor_logo")
+        sponsor_headline = post_data.get("sponsor_headline")
+        sponsor_slug = post_data.get("sponsor_slug")
         response_object = {}
 
         user = get_user_by_email(email)

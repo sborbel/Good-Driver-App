@@ -6,8 +6,8 @@ import { MDBContainer, MDBRow } from "mdbreact";
 import {Navbar, Nav, Button, NavDropdown} from 'react-bootstrap'
 
 import { Link } from "react-router-dom";
-//import "./TestPage.css";
-import "./TestPage.scss";
+import "./TestPage.css";
+// import "./TestPage.scss";
 let pageType = 1;
 
 const DriverStore = props => {

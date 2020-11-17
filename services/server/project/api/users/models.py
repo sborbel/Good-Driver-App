@@ -31,7 +31,7 @@ class User(db.Model):
     sponsor_headline = db.Column(db.String(128), nullable=True)
     sponsor_slug = db.Column(db.String(255), nullable=True)
 
-    def __init__(self, username="", email="", password="", role=""):
+    def __init__(self, username="", email="", password="", role="",sponsor_logo="", sponsor_headline="", sponsor_slug=""):
         self.username = username
         self.email = email
         self.role = role
@@ -39,6 +39,9 @@ class User(db.Model):
             password, current_app.config.get("BCRYPT_LOG_ROUNDS")
         ).decode()
         self.failed_attempts = 0
+        self.sponsor_logo = sponsor_logo
+        self.sponsor_headline = sponsor_headline
+        self.sponsor_slug = sponsor_slug
 
 
     def encode_token(self, user_id, token_type):
