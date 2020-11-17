@@ -27,8 +27,8 @@ def recreate_db():
     db.session.commit()
 
 def seed_users():
-    db.session.add(User(username="Yellow Freight", email="info@yf.com", password="yellow", role="sponsor"))
-    db.session.add(User(username="Great Big Freight", email="big@freight.com", password="big", role="sponsor"))
+    db.session.add(User(username="Yellow Freight", email="info@yf.com", password="yellow", role="sponsor", sponsor_logo="https://logodix.com/logo/441272.png", sponsor_headline="We Deliver", sponsor_slug="The original LTL Experts"))
+    db.session.add(User(username="Great Big Freight", email="big@freight.com", password="big", role="sponsor", sponsor_logo="https://www.jing.fm/clipimg/detail/9-98595_driving-clipart-semi-truck-semi-trucks.png", sponsor_headline="The Biggest Freight Company", sponsor_slug="We are very big."))
     db.session.add(User(username="Wes Bailey", email="jwb4@clemson.edu", password="jwb4", role="admin"))
     db.session.add(User(username="Shelton Shaw", email="sshaw5@clemson.edu", password="sshaw", role="sponsor_mgr"))
     db.session.add(User(username="Sean Borbely", email="sborbel@clemson.edu", password="sborbel", role="sponsor_mgr"))

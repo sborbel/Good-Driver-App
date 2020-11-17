@@ -26,6 +26,10 @@ class User(db.Model):
     get_points_alert = db.Column(db.Boolean(), default=True, nullable=True)
     get_order_alert = db.Column(db.Boolean(), default=True, nullable=True)
     get_problem_alert = db.Column(db.Boolean(), default=True, nullable=True)
+    preferred_contact = db.Column(db.String(16), default="email", nullable=False)
+    sponsor_logo = db.Column(db.String(255), nullable=True)
+    sponsor_headline = db.Column(db.String(128), nullable=True)
+    sponsor_slug = db.Column(db.String(255), nullable=True)
 
     def __init__(self, username="", email="", password="", role=""):
         self.username = username

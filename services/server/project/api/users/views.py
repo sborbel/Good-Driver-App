@@ -121,15 +121,16 @@ class Users(Resource):
         username = post_data.get("username") or user.username
         email = post_data.get("email") or user.email
         role = post_data.get("role") or user.role
-
         get_points_alert = post_data.get("get_points_alert") if post_data.get("get_points_alert") == True or post_data.get("get_points_alert") == False else user.get_points_alert
-
         get_order_alert = post_data.get("get_order_alert") if post_data.get("get_order_alert") == True or post_data.get("get_order_alert") == False else user.get_order_alert 
-
         get_problem_alert = post_data.get("get_problem_alert") if post_data.get("get_problem_alert") == True or post_data.get("get_problem_alert") == False else user.get_problem_alert
+        preferred_contact = post_data.get("preferred_contact") or user.preferred_contact
+        sponsor_logo = post_data.get("sponsor_logo") or user.sponsor_logo
+        sponsor_headline = post_data.get("sponsor_headline") or user.sponsor_headline
+        sponsor_slug = post_data.get("sponsor_slug") or user.sponsor_slug
 
         response_object = {}
-        update_user(user, username, email, role, get_points_alert, get_order_alert, get_problem_alert)
+        update_user(user, username, email, role, get_points_alert, get_order_alert, get_problem_alert, preferred_contact, sponsor_logo, sponsor_headline, sponsor_slug)
         response_object["message"] = f"{user.id} was updated!"
         return response_object, 200
 
