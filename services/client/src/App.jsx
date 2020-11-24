@@ -41,7 +41,8 @@ class App extends Component {
       affiliations: [],
       current_affiliation: 0,
       isDriver: true,
-      orders: []
+      orders: [],
+      order_items: []
     };
   }
 
@@ -661,13 +662,11 @@ testAllRoutes = () => {
 
     
     let newThreads = [];
-    let item;
 
     for (let i = 0; i < myThreads.length; i++) {
 
       ////console.log("myThreads.length: ", myThreads.length);
       ////console.log("this index: ", myThreads);
-      item = myThreads[i];
       //console.log(item);
 
       
@@ -826,7 +825,6 @@ getName = (id) => {
     this.setState({events: []});
     let fullUsers = [];
     let promises = [];
-    let events = [];
     let aff = [];
     console.log(this.state.affiliations[this.state.current_affiliation].sponsor_name);
     let prom = this.apiReturnAffiliationsBySponsor(this.state.affiliations[this.state.current_affiliation].sponsor_name);
@@ -891,6 +889,7 @@ getName = (id) => {
           console.log(this.state.events)
           console.log(this.state.users)
           this.getThreads(this.state.currentUser.id);
+          
           return this.getEventsBySponsor();
         });
 
@@ -951,6 +950,22 @@ getName = (id) => {
             let ordersProm = this.apiReturnOrdersForUserByCaller(id, id);
             ordersProm.then(res => {
               this.setState({orders: res.data});
+              this.setState({order_items: []});
+              for(let idx in this.state.orders){
+                if(this.state.orders[idx].sponsor_name === this.state.currentUser.sponsor_name){
+                let prom = this.apiReturnAllOrderItemsByOrder(this.state.orders[idx].id);
+                prom.then(res => {
+                    this.setState({order_items: [...this.state.order_items, {
+                      orderID: this.state.orders[idx].id,
+                      sponsor: this.state.orders[idx].sponsor_name,
+                      quantity: res.data[0].quantity,
+                      aCost: res.data[0].actual_cost,
+                      pCost: res.data[0].points_cost,
+                      dateOrdered: res.data[0].created_date,
+                      status: this.state.orders[idx].status
+                  }]})
+                });}
+            }
             }
             )
           })
@@ -969,7 +984,6 @@ getName = (id) => {
 
   getEventsBySponsor = () => {
     this.setState({events: []});
-    let url = ``;
     let i = 0;
     let promises = [];
     for(i = 0; i < this.state.users.length; i++){
@@ -1270,7 +1284,7 @@ getName = (id) => {
                   />
                   <Route exact path="/driverstore" 
                       render = {(props) => (
-                        this.isAuthenticated()  ? <DriverStore {...props} state={this.state} apiCreateCatalogItem={this.apiCreateCatalogItem} createMessage={this.createMessage} apiSendItemRequest={this.apiSendItemRequest} apiReturnAllOrderItemsByOrder={this.apiReturnAllOrderItemsByOrder} apiCreateOrderItem={this.apiCreateOrderItem} apiCreateOrder={this.apiCreateOrder} isAuthenticated={this.isAuthenticated} createNewEvent={this.createNewEvent} getUserDataByID={this.getUserDataById} getEventsBySponsor={this.getEventsBySponsor} /> : <Redirect to="/login" />
+                        this.isAuthenticated()  ? <DriverStore {...props} state={this.state} apiCreateCatalogItem={this.apiCreateCatalogItem} apiCreateEvent={this.apiCreateEvent} createMessage={this.createMessage} apiSendItemRequest={this.apiSendItemRequest} apiReturnAllOrderItemsByOrder={this.apiReturnAllOrderItemsByOrder} apiCreateOrderItem={this.apiCreateOrderItem} apiCreateOrder={this.apiCreateOrder} isAuthenticated={this.isAuthenticated} createNewEvent={this.createNewEvent} getUserDataByID={this.getUserDataById} getEventsBySponsor={this.getEventsBySponsor} /> : <Redirect to="/login" />
                       )}
                   />
 
