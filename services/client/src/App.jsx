@@ -937,7 +937,9 @@ getName = (id) => {
         let affProm = this.apiReturnAffiliationsByUser(id);
           affProm.then(affs => {
             let newUser = res.data;
-            newUser.sponsor_name = affs.data[this.state.current_affiliation].sponsor_name;
+            if(this.state.currentUser.role != 'admin'){
+              newUser.sponsor_name = affs.data[this.state.current_affiliation].sponsor_name;
+            }
             this.setState({currentUser: newUser});
             this.setState({affiliations: affs.data})
             let prom = this.getAuthorizedData();
