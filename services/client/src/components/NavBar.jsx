@@ -49,6 +49,9 @@ const NavBar = props => {
           <Nav.Item as={Link} to="/eventstable" bsPrefix='nav-link'>
           Events
           </Nav.Item>
+          <Nav.Item as={Link} to="/reports" bsPrefix='nav-link'>
+          Reports
+          </Nav.Item>
         </Nav>
 
         <Nav>

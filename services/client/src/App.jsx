@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import axios from "axios";
 import { Route, Switch, Redirect} from "react-router-dom";
 import Modal from "react-modal";
+import { saveAs } from 'file-saver';
 
 import UsersList from "./components/UsersList";
 import About from "./components/About";
@@ -15,7 +16,7 @@ import MessageThreads from "./components/MessageThreads";
 import EventsTable from "./components/EventsTable";
 import AnnouncementForm from "./components/AnnouncementForm";
 import DriverStore from "./components/DriverStore";
-
+import Reports from "./components/Reports";
 
 Modal.setAppElement(document.getElementById("root"));
 
@@ -1181,6 +1182,39 @@ getName = (id) => {
       });
   };
 
+  getUserReport = () => {
+    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/reports/users`;
+    axios.get(url, { responseType: "blob" })
+        .then(res => {
+          saveAs(res.data, 'users_report.csv');
+        })
+        .catch(err => {
+          this.createMessage("danger", `Cannot get user report.`);
+        });
+  };
+
+  getAffiliationsReport = () => {
+    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/reports/affiliations`;
+    axios.get(url, { responseType: "blob" })
+        .then(res => {
+          saveAs(res.data, 'affiliations_report.csv');
+        })
+        .catch(err => {
+          this.createMessage("danger", `Cannot get affiliations report.`);
+        });
+  };
+
+  getFeesReport = () => {
+    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/reports/fees`;
+    axios.get(url, { responseType: "blob" })
+        .then(res => {
+          saveAs(res.data, 'fees_report.csv');
+        })
+        .catch(err => {
+          this.createMessage("danger", `Cannot get fees report.`);
+        });
+  };
+
   render() {
     return (
       <div>
@@ -1277,6 +1311,12 @@ getName = (id) => {
                   <Route exact path="/announcementform" 
                       render = {(props) => (
                         this.isAuthenticated() && (this.state.currentUser.role !== "driver") ? <AnnouncementForm {...props} state={this.state} createMessage={this.createMessage} isAuthenticated={this.isAuthenticated} editAnnouncement={this.editAnnouncement} /> : <Redirect to="/login" />
+                      )}
+                  />
+
+                  <Route exact path="/reports" 
+                      render = {() => (
+                        this.isAuthenticated()  ? <Reports state={this.state} isAuthenticated={this.isAuthenticated} getUserReport={this.getUserReport} getAffiliationsReport={this.getAffiliationsReport} getFeesReport={this.getFeesReport} /> : <Redirect to="/login" />
                       )}
                   />
                     
