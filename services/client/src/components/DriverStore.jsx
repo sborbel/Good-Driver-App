@@ -3,7 +3,7 @@ import { Formik } from "formik";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CatalogueItem from "./CatalogueItem";
 import { MDBContainer, MDBRow } from "mdbreact";
-import {Navbar, Nav, Button, NavDropdown} from 'react-bootstrap'
+import {Navbar, Nav} from 'react-bootstrap'
 
 import { Link } from "react-router-dom";
 import "./TestPage.css";
@@ -23,23 +23,6 @@ const DriverStore = props => {
         }
     }
 
-    let ordersToDisplay = [];
-/*
-    for(let idx in props.state.orders){
-        let prom = props.apiReturnAllOrderItemsByOrder(props.state.orders[idx].id);
-        prom.then(res => {
-            console.log(res.data);
-            ordersToDisplay.push({
-                orderID: props.state.orders[idx].id,
-                sponsor: props.state.orders[idx].sponsor_name,
-                quantity: res.data[0].quantity,
-                aCost: res.data[0].actual_cost,
-                pCost: res.data[0].points_cost,
-                dateOrdered: res.data[0].created_date,
-                status: props.state.orders[idx].status
-            });
-        });
-    }*/
 
     let navbar = (<Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
   
@@ -156,6 +139,7 @@ return(
                     catalog={item.catalog_id}
                     item_id={item.id}
                     pageType={pageType}
+                    apiCreateEvent={props.apiCreateEvent}
                     createMessage={props.createMessage}
                     apiCreateOrderItem={props.apiCreateOrderItem}
                     apiCreateOrder={props.apiCreateOrder}
@@ -171,8 +155,9 @@ return(
 </MDBContainer>}
 
         {pageType === 2 &&
+        <>
         <h4>Your orders</h4>
-        /*
+        
         <table className="table is-hoverable is-fullwidth">
         <thead>
           <tr>
@@ -186,24 +171,24 @@ return(
           </tr>
           </thead>
         <tbody>
-            );
-         {ordersToDisplay.map(order => {
-             let eventDate = order.dateOrdered.substr(5,5).concat("-").concat(order.dateOrdered.substr(0,4));
+         {props.state.order_items.map(order => {
+             let orderDate = order.dateOrdered.substr(5,5).concat("-").concat(order.dateOrdered.substr(0,4));
              return (
-               <tr key={order.id}>
+               <tr key={order.orderID}>
                  <td>{order.orderID}</td>  
                  <td>{order.sponsor}</td>
                  <td>{order.quantity}</td>
                  <td>{order.aCost}</td>
                  <td>{order.pCost}</td>
-                 <td>{order.dateOrdered}</td>
+                 <td>{orderDate}</td>
                  <td>{order.status}</td>
                </tr>
              );
          })}
         </tbody>
       </table>
-*/
+      </>
+
             }
             {pageType === 3 &&
             <>
@@ -229,8 +214,7 @@ return(
                 handleChange,
                 handleBlur,
                 handleSubmit,
-                handleReset,
-                resetForm
+                handleReset
             } = props;
             return (
                 <form onSubmit={handleSubmit} onReset={handleSubmit}>
@@ -282,6 +266,7 @@ return(
                                     cst={parseFloat(item.actual_cost[0])}
                                     catalog={item.catalog_id}
                                     item_id={item.id}
+                                    apiCreateEvent={props.apiCreateEvent}
                                     createMessage={props.createMessage}
                                     apiCreateCatalogItem={props.apiCreateCatalogItem}
                                     apiCreateOrderItem={props.apiCreateOrderItem}

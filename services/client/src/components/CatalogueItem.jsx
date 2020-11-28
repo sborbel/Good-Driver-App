@@ -23,13 +23,20 @@ const CatalogueItem = props => {
     //Item View Modal
     function createNewOrder(){
         let prom = props.apiCreateOrder("active", props.state.currentUser.id, props.state.currentUser.sponsor_name);
-        let orderID = prom.then(res => {
+        prom.then(res => {
             
             let orderProm = props.apiCreateOrderItem(res.data.id, props.catalog, props.item_id, 1, parseFloat(props.cst), parseInt(props.pts));
             orderProm.then(newOrder => {
-                props.createMessage("success", "Item Ordered");
                 props.getUserDataByID(props.state.currentUser.id);
+                let eventProm = props.apiCreateEvent("Purchase: Order ".concat(newOrder.data.id), -1 * props.pts, props.state.currentUser.id, props.state.currentUser.sponsor_name);
+                eventProm.then(r => {
+                    props.createMessage("success", "Item Ordered");
+                    props.getUserDataByID(props.state.currentUser.id);
+                }).catch(err =>{
+                    props.createMessage("danger", "Error: Could not deduct points");
+                });
             }).catch(err =>{
+                console.log(err);
                 props.createMessage("danger", "Error: Could not add item to order");
             });
         }).catch(err =>{
@@ -61,7 +68,6 @@ const CatalogueItem = props => {
 
     let myText = props.text;
     let fullText = props.text;
-    console.log(myText.length);
     if(myText.length > 100){
         myText = (myText.slice(0, 99)+'...');
     }

@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
-import {Navbar, Nav, Button, NavDropdown} from 'react-bootstrap'
+import {Navbar, Nav, Button} from 'react-bootstrap'
 
 //import "./NavBar.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -19,9 +19,7 @@ const NavBar = props => {
     <>
     <Nav className="mr-auto">
     
-      <Nav.Item as={Link} to="/about" bsPrefix='nav-link'>
-          About
-          </Nav.Item>
+      
       <Nav.Item as={Link} to="/register" bsPrefix='nav-link'>
       Register
           </Nav.Item>
@@ -37,9 +35,7 @@ const NavBar = props => {
     menu = (
       <>
         <Nav className="mr-auto">
-        <Nav.Item as={Link} to="/about" bsPrefix='nav-link'>
-          About
-          </Nav.Item>
+        
           <Nav.Item as={Link} to="/userlist" bsPrefix='nav-link'>
           Users
           </Nav.Item>
@@ -67,9 +63,7 @@ const NavBar = props => {
     menu = (
       <>
         <Nav className="mr-auto">
-        <Nav.Item as={Link} to="/about" bsPrefix='nav-link'>
-          About
-          </Nav.Item>
+        
           <Nav.Item as={Link} to="/messenger" bsPrefix='nav-link'>
           Messenger
           </Nav.Item>
@@ -147,9 +141,6 @@ const NavBar = props => {
 
       <>
         <Nav className="mr-auto">
-        <Nav.Item as={Link} to="/about" bsPrefix='nav-link'>
-          About
-          </Nav.Item>
           
           <Nav.Item as={Link} to="/eventstable" bsPrefix='nav-link'>
           Events
