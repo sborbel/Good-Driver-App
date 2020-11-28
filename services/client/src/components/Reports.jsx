@@ -14,7 +14,7 @@ function Reports(props) {
   return (
     <div>
       <h1 className="title is-1">Create Reports</h1>
-      {/* <h3 className="title is-3">{props.state.currentUser.sponsor_name}: {props.state.currentUser.role} view</h3> */}
+      <h3 className="title is-3">{props.state.currentUser.sponsor_name}: {props.state.currentUser.role} view</h3>
         <Row style={nostyle}>
             <Col md={4}>
                 <Card>
@@ -54,23 +54,15 @@ function Reports(props) {
                     </Card.Body>
                 </Card>
             </Col>
-
-
         </Row>
 
-
-     
     </div>
   );
 
 }
 
-Reports.propTypes = {
-  
-  
+Reports.propTypes = { 
   isAuthenticated: PropTypes.func.isRequired,
-
-
 };
 
 export default Reports;
