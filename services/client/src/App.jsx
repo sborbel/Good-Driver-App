@@ -19,6 +19,7 @@ import DriverStore from "./components/DriverStore";
 import Affiliations from "./components/Affiliations";
 
 import Reports from "./components/Reports";
+import MyAccount from "./components/myAccount";
 
 Modal.setAppElement(document.getElementById("root"));
 
@@ -26,6 +27,7 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
+      sponsor_data: [],
       users: [],
       currentUser: {},
       points: 0,
@@ -47,7 +49,8 @@ class App extends Component {
       isDriver: true,
       orders: [],
       order_items: [],
-      all_sponsors: []
+      all_sponsors: [],
+      is_admin: false
     };
   }
 
@@ -612,6 +615,7 @@ testAllRoutes = () => {
     let newThreads = [];
     let prom = this.apiReturnAllThreadsByUser(id);
     prom.then(res => {
+      console.log(res.data)
       for(let idx in res.data){
         promises.push(this.apiReturnAllMessagesByThread(res.data[idx].id).then(mess => {
           let recpID = 0;
@@ -663,32 +667,6 @@ testAllRoutes = () => {
       });
     })
   }
-    /*
-    axios
-        .get(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/threads/by_user/${id}`)
-        .then(res => {
-            //////console.log(" res  : ", res.data[0].status);
-            
-            //this.setState({threads: res.data});
-                
-            
-            ////console.log("this.state.threads: ", this.state.threads);
-            ////console.log("getThreads.res: ", res);
-
-            // ////console.log(this.state.threads);
-            return res;
-          })
-          .then(res =>  {
-            let a = res.data;
-            this.setState({threads: this.finishThreads(a)});
-            //console.log(this.state.threads)
-          })
-
-          
-          .catch(err => {
-              ////console.log("Error in outer", err);
-          })
-          */
         
 
   finishThreads = (myThreads) => {
@@ -749,10 +727,6 @@ testAllRoutes = () => {
           ////console.log(newThread);
           
           newThreads.push(newThread);
-          //console.log({sendID: senderID, recvID: recverID, CUID: this.state.currentUser.id, recp: recpID, newTh: newThread})
-          ////console.log("New threads: ", newThreads);
-          //this.setState({ threads: newThreads });
-          //////console.log("Threads by user: ", myThreads);
         }
 
         })
@@ -896,10 +870,21 @@ getName = (id) => {
   }
   
   getAuthorizedData = () => {
-    
+    if(this.state.currentUser.role !== "admin"){
+      let allUsersProm = this.apiReturnAllUsers();
+      allUsersProm.then(res => {
+        for(let idx in res.data){
+          if(res.data[idx].username === this.state.affiliations[this.state.current_affiliation].sponsor_name){
+            this.setState({sponsor_data: res.data[idx]});
+          }
+        }
+        console.log(this.state.sponsor_data);
+      });
+    }
     if (this.state.currentUser.role === "admin"){
       
       this.setState({isDriver: false});
+      this.setState({is_admin: true});
       let prom = this.apiReturnAllUsers();
       let finalProm = prom.then(usersRes => {
         this.setState({users: usersRes.data});
@@ -923,6 +908,7 @@ getName = (id) => {
     }
     else if (this.state.currentUser.role === "sponsor_mgr"){
         this.setState({isDriver: false});
+        
       
         let prom = this.getUsersAndEventsBySponsorName();
         let finalProm = prom.then(res => {
@@ -960,6 +946,7 @@ getName = (id) => {
       });
       return finalProm;
     }
+    
   };
   testFunc = () => {
     let p = axios
@@ -977,7 +964,7 @@ getName = (id) => {
           affProm.then(affs => {
             
             let newUser = res.data;
-            if(this.state.currentUser.role !== 'admin'){
+            if(res.data.role !== 'admin'){
               newUser.sponsor_name = affs.data[this.state.current_affiliation].sponsor_name;
             }
             this.setState({currentUser: newUser});
@@ -1128,10 +1115,6 @@ getName = (id) => {
  
   setannouncement = () => {
     
-    //console.log("Here");
-    //console.log(this.state);
-    ////console.log(this.state.affiliations[this.state.current_affiliation].sponsor_name);
-    
     let prom = this.apiGetAnnouncementsBySponsor(this.state.affiliations[this.state.current_affiliation].sponsor_name);
     prom.then(res => {
       this.setState({
@@ -1154,7 +1137,6 @@ getName = (id) => {
         this.setannouncement();
       })
       .catch(err => {
-        ////console.log("Error: ", err);
         this.createMessage("error", "Announcement could not be edited. Please try again.");
       });
   }
@@ -1193,7 +1175,6 @@ getName = (id) => {
           return true;
         })
         .catch(err => {
-          ////console.log("Refresh error", err)
           return false;
         });
     }
@@ -1229,11 +1210,9 @@ getName = (id) => {
     axios
       .delete(`${process.env.REACT_APP_USERS_SERVICE_URL}/api/users/${user_id}`)
       .then(res => {
-        // this.getUsers();
         this.createMessage("success", "User removed.");
       })
       .catch(err => {
-        ////console.log(err);
         this.createMessage("danger", "Something went wrong.");
       });
   };
@@ -1304,7 +1283,6 @@ getName = (id) => {
                     path="/login"
                     render={() => (
                       <LoginForm
-                        // eslint-disable-next-line react/jsx-handler-names
                         handleLoginFormSubmit={this.handleLoginFormSubmit}
                         isAuthenticated={this.isAuthenticated}
                       />
@@ -1315,7 +1293,6 @@ getName = (id) => {
                     path="/register"
                     render={() => (
                       <RegisterForm
-                        // eslint-disable-next-line react/jsx-handler-names
                         handleRegisterFormSubmit={this.handleRegisterFormSubmit}
                         isAuthenticated={this.isAuthenticated}
                         state={this.state}
@@ -1350,6 +1327,16 @@ getName = (id) => {
                       )}
                   />
 
+          <Route exact path="/account" 
+                      render = {(props) => (
+                        this.isAuthenticated()  ? <MyAccount {...props} state={this.state}
+                        isAuthenticated={this.isAuthenticated}
+                        thisuser={this.state.currentUser}
+                        editUser={this.editUser}
+                        getAuthorizedData={this.getAuthorizedData}/> : <Redirect to="/login" />
+                      )}
+                  />
+
                   <Route exact path="/userstatus" 
                       render = {(props) => (
                         this.isAuthenticated()  ? <UserStatus {...props} state={this.state} isAuthenticated={this.isAuthenticated} getUserDataById={this.getUserDataById} editUser={this.editUser} getAuthorizedData={this.getAuthorizedData}/> : <Redirect to="/login" />
@@ -1375,13 +1362,11 @@ getName = (id) => {
 <Route exact path="/affiliations" 
                       render = {(props) => (
                         this.isAuthenticated()  ? <Affiliations {...props} state={this.state} getAuthorizedData={this.getAuthorizedData} apiCreateNewAffiliation={this.apiCreateNewAffiliation} createMessage={this.createMessage} isAuthenticated={this.isAuthenticated} /> : <Redirect to="/login" />
-<<<<<<< HEAD
-                  
-=======
+                        )}
+                      />
                   <Route exact path="/reports" 
                       render = {() => (
                         this.isAuthenticated()  ? <Reports state={this.state} isAuthenticated={this.isAuthenticated} getUserReport={this.getUserReport} getAffiliationsReport={this.getAffiliationsReport} getFeesReport={this.getFeesReport} /> : <Redirect to="/login" />
->>>>>>> 1e3c3fdd49b9512104d166fb77d6ab1dbbdfdc52
                       )}
                   />
                     

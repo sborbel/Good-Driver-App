@@ -231,7 +231,53 @@ const NavBar = props => {
           <Nav.Item as={Link} to="/reports" bsPrefix='nav-link'>
           Reports
           </Nav.Item>
+          <Nav.Item as={Link} to="/account" bsPrefix='nav-link'>
+          My Account
+          </Nav.Item>
         </Nav>
+        {props.state.isDriver === false &&
+          <Nav.Item>
+          <Formik
+        initialValues={{
+          role: props.state.currentUser.role
+        }}
+        onSubmit={(values, { setSubmitting }) => {
+          //setCorrectID(values.user);
+          //props.getUserDataByID(props.state.currentUser.id);
+          props.createMessage("success", "Entering "+values.role+" view");
+          console.log(values.role);
+
+          props.setCurrentRole(values.role);
+          setSubmitting(false);
+        }}
+        
+      >
+        {props => {
+          const {
+            isSubmitting,
+            handleSubmit
+          } = props;
+          return (
+            <div>
+            <form onSubmit={handleSubmit}>
+            <Field as="select" name="role">
+            <option value={"driver"}>Driver</option>
+            <option value={"sponsor_mgr"}>Sponsor</option>
+            <option value={"admin"}>Admin</option>
+            </Field>
+             
+              <input
+                type="submit"
+                className="button is-primary"
+                value="Submit"
+                disabled={isSubmitting}
+              />
+            </form>
+            </div>
+          );
+        }}
+      </Formik>
+          </Nav.Item>}
 
         <Nav>
         <input
@@ -273,26 +319,30 @@ const NavBar = props => {
           <Nav.Item as={Link} to="/driverstore" bsPrefix='nav-link'>
           Store
           </Nav.Item>
+          <Nav.Item as={Link} to="/account" bsPrefix='nav-link'>
+          My Account
+          </Nav.Item>
         </Nav>
 
         {props.state.isDriver === false &&
           <Nav.Item>
           <Formik
         initialValues={{
-          role: props.state.currentUser.role
+          role: props.state.currentUser.role,
+          myIsAdmin: props.state.is_admin
         }}
         onSubmit={(values, { setSubmitting }) => {
           //setCorrectID(values.user);
           //props.getUserDataByID(props.state.currentUser.id);
           console.log(values.role);
-
+          props.createMessage("success", "Entering "+values.role+" view");
           props.setCurrentRole(values.role);
           setSubmitting(false);
         }}
         
       >
         {props => {
-          const {
+          const {values,
             isSubmitting,
             handleSubmit
           } = props;
@@ -302,6 +352,8 @@ const NavBar = props => {
             <Field as="select" name="role">
             <option value={"driver"}>Driver</option>
             <option value={"sponsor_mgr"}>Sponsor</option>
+            {values.myIsAdmin === true &&
+            <option value={"admin"}>Admin</option>}
             </Field>
              
               <input
@@ -353,6 +405,9 @@ const NavBar = props => {
           <Nav.Item as={Link} to="/affiliations" bsPrefix='nav-link'>
           Affiliations
           </Nav.Item>
+          <Nav.Item as={Link} to="/account" bsPrefix='nav-link'>
+          My Account
+          </Nav.Item>
           
           
           <Nav.Item>
@@ -362,8 +417,6 @@ const NavBar = props => {
           aff: props.state.current_affiliation
         }}
         onSubmit={(values, { setSubmitting }) => {
-          //setCorrectID(values.user);
-          //props.getUserDataByID(props.state.currentUser.id);
           console.log(values.aff);
           props.setCurrentAffiliation(values.aff);
           props.getUserDataById(props.state.currentUser.id)
@@ -401,11 +454,13 @@ const NavBar = props => {
           <Nav.Item>
           <Formik
         initialValues={{
-          role: props.state.currentUser.role
+          role: props.state.currentUser.role,
+          myIsAdmin: props.state.is_admin
         }}
         onSubmit={(values, { setSubmitting }) => {
           //setCorrectID(values.user);
           //props.getUserDataByID(props.state.currentUser.id);
+          props.createMessage("success", "Entering "+values.role+" view");
           console.log(values.role);
           props.setCurrentRole(values.role);
           setSubmitting(false);
@@ -414,6 +469,7 @@ const NavBar = props => {
       >
         {props => {
           const {
+            values,
             isSubmitting,
             handleSubmit
           } = props;
@@ -423,6 +479,8 @@ const NavBar = props => {
             <Field as="select" name="role">
             <option value={"driver"}>Driver</option>
             <option value={"sponsor_mgr"}>Sponsor</option>
+            {values.myIsAdmin === true &&
+            <option value={"admin"}>Admin</option>}
             </Field>
              
               <input
