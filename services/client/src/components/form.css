@@ -6,3 +6,7 @@ input.error {
   color: red;
   margin-top: .25rem;
 }
+#button1 , #button2 {
+  display:inline-block;
+  /**other codes**/
+  }

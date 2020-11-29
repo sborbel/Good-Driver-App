@@ -17,7 +17,7 @@ const HomePage = (props) => (
     <Announcement
             title={props.state.affiliations[props.state.current_affiliation].sponsor_name}
             subtitle={props.state.announcement.content}
-            imageSource={Logo}
+            imageSource={props.state.sponsor_data.sponsor_logo}
             daysToLive={0}
             secondsBeforeBannerShows={2}
             closeIconSize={30}
