@@ -16,6 +16,7 @@ from project.api.orders.views import orders_namespace
 from project.api.orders.views import order_items_namespace
 from project.api.threads.views import threads_namespace
 from project.api.threads.views import messages_namespace
+from project.api.reports.views import reports_namespace
 
 api = Api(version="1.0", title="Safe Driver API", doc="/doc/")
 
@@ -33,3 +34,4 @@ api.add_namespace(orders_namespace, path="/api/orders")
 api.add_namespace(order_items_namespace, path="/api/order_items")
 api.add_namespace(threads_namespace, path="/api/threads")
 api.add_namespace(messages_namespace, path="/api/messages")
+api.add_namespace(reports_namespace, path="/api/reports")

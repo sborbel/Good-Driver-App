@@ -228,6 +228,9 @@ const NavBar = props => {
           <Nav.Item as={Link} to="/affiliations" bsPrefix='nav-link'>
           Affiliations
           </Nav.Item>
+          <Nav.Item as={Link} to="/reports" bsPrefix='nav-link'>
+          Reports
+          </Nav.Item>
         </Nav>
 
         <Nav>
