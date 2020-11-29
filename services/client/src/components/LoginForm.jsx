@@ -2,11 +2,31 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Formik } from "formik";
 import * as Yup from "yup";
+
+import Modal from "react-modal";
 import { Redirect } from "react-router-dom";
 
 import "./form.css";
+const modalStyles = {
+  content: {
+    top: "0",
+    left: "0",
+    right: "0",
+    bottom: "0",
+    border: 0,
+    background: "transparent"
+  }
+};
 
 const LoginForm = props => {
+  function openModal() {
+    setIsOpen(true);
+
+  }
+  function closeModal(){
+    setIsOpen(false);
+  }
+  const [modalIsOpen,setIsOpen] = React.useState(false);
   if (props.isAuthenticated()) {
     return <Redirect to="/home" />;
   }
@@ -90,12 +110,14 @@ const LoginForm = props => {
                 type="submit"
                 className="button is-primary"
                 value="Submit"
+                id="button1"
                 disabled={isSubmitting}
               />
             </form>
           );
         }}
       </Formik>
+      
     </div>
   );
 }

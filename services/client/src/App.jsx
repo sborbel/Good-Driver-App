@@ -15,6 +15,7 @@ import MessageThreads from "./components/MessageThreads";
 import EventsTable from "./components/EventsTable";
 import AnnouncementForm from "./components/AnnouncementForm";
 import DriverStore from "./components/DriverStore";
+import Affiliations from "./components/Affiliations";
 
 
 Modal.setAppElement(document.getElementById("root"));
@@ -39,16 +40,27 @@ class App extends Component {
       catalog_items: [],
       catalogs: [],
       affiliations: [],
+      all_affiliations: [],
       current_affiliation: 0,
       isDriver: true,
       orders: [],
-      order_items: []
+      order_items: [],
+      all_sponsors: []
     };
   }
 
   componentDidMount = () => {
-    
+    let spons = [];
+    let prom = this.apiReturnAllUsers();
+    prom.then(res => {
+      for(let idx in res.data){
+        if(res.data[idx].role === "sponsor"){
+          spons.push(res.data[idx].username);
+        }
+      }
+      this.setState({all_sponsors: spons});
 
+    });
     let userstate = localStorage.getItem("userstate");
     let userslist = localStorage.getItem("userslist");
     if (userstate) {
@@ -67,6 +79,18 @@ class App extends Component {
     
   };
 
+  apiCreateNewUser = (uName, pWord, eMail, role) => {
+    let data = {
+      username: uName,
+      password: pWord,
+      email: eMail,
+      role: role
+    };
+    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/auth/register`;
+    let prom = axios
+    .post(url, data)
+    return prom;
+  }
   apiReturnAllUsers = () => {
     let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/users`;
     let prom = axios
@@ -152,7 +176,17 @@ class App extends Component {
     .post(url, data)
     return prom;
   }
+  apiUpdatePassword = (user, oldPass, newPass) => {
+    let data = {
+      "current_password": oldPass,
+      "new_password": newPass
+    }
+    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/users/change_password/${user}`;
+    let prom = axios
+    .put(url, data)
+    return prom;
 
+  }
   apiReturnAllAnnouncements = () => {
     let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/announcements/`;
     let prom = axios
@@ -838,18 +872,7 @@ getName = (id) => {
         }));
       }
       return Promise.all(promises).then(responses => {
-        /*
-        if(this.state.currentUser.role !== "driver"){
-          for(let idx in fullUsers){
-            this.apiReturnAllAuthorizedEventsForUser(fullUsers[idx].id, this.state.currentUser.id).then(even => {
-              for(let idx in even.data){
-                events.push(even.data[idx]);
-              }
-              this.setState({events: events});
-            });
-          }
-          
-        }*/
+       
         this.setState({users: fullUsers});
         console.log(this.state.users);
       });
@@ -873,10 +896,25 @@ getName = (id) => {
   getAuthorizedData = () => {
     
     if (this.state.currentUser.role === "admin"){
+      
       this.setState({isDriver: false});
       let prom = this.apiReturnAllUsers();
-      let finalProm = prom.then(res => {
-        this.setState({users: res.data});
+      let finalProm = prom.then(usersRes => {
+        this.setState({users: usersRes.data});
+        let affsProm = this.apiReturnAllAffiliations();
+        affsProm.then(affsRes => {
+          console.log(affsRes)
+          console.log(usersRes)
+          for(let aff in affsRes.data){
+            for(let usr in usersRes.data){
+              console.log(aff)
+              if(usersRes.data[usr].id === affsRes.data[aff].user_id){
+                affsRes.data[aff].userName = usersRes.data[usr].username;
+              }
+            }
+          }
+          this.setState({affiliations: affsRes.data})
+      });
         return this.getAllEvents();
       })
       return finalProm;
@@ -913,8 +951,7 @@ getName = (id) => {
               sortedEvents.push(res.data[idx]);
             }
           }
-          this.setState({events: sortedEvents})
-          this.getPointsbyID(this.state.currentUser.id);
+          this.setState({events: sortedEvents});
           this.getThreads(this.state.currentUser.id);
         })
         
@@ -936,11 +973,15 @@ getName = (id) => {
       userProm.then(res => {
         let affProm = this.apiReturnAffiliationsByUser(id);
           affProm.then(affs => {
+            
             let newUser = res.data;
-            if(this.state.currentUser.role != 'admin'){
+            if(this.state.currentUser.role !== 'admin'){
               newUser.sponsor_name = affs.data[this.state.current_affiliation].sponsor_name;
             }
             this.setState({currentUser: newUser});
+            if(this.state.currentUser.role === 'driver' && this.state.isDriver === true){
+              this.setState({points: parseInt(affs.data[this.state.current_affiliation].current_points)})
+            }
             this.setState({affiliations: affs.data})
             let prom = this.getAuthorizedData();
             prom.then(res => {
@@ -1042,17 +1083,15 @@ getName = (id) => {
   };
 
   handleRegisterFormSubmit = data => {
-    const url = `${process.env.REACT_APP_USERS_SERVICE_URL}/auth/register`;
-    axios
-      .post(url, data)
-      .then(res => {
-        ////console.log(res.data);
-        this.createMessage("success", "You have registered successfully.");
-      })
-      .catch(err => {
-        ////console.log(err);
-        this.createMessage("danger", "That user already exists.");
-      });
+    let prom = this.apiCreateNewUser(data.username, data.password, data.email, "driver");
+    prom.then(res => {
+      this.createMessage("success", "You have registered successfully.");
+    
+    }).catch(err => {
+      ////console.log(err);
+      this.createMessage("danger", "That user already exists.");
+    });
+    
   };
 
   handleLoginFormSubmit = data => {
@@ -1209,6 +1248,8 @@ getName = (id) => {
           getUserDataById={this.getUserDataById}
           setCurrentAffiliation={this.setCurrentAffiliation}
           setCurrentRole={this.setCurrentRole}
+          apiUpdatePassword={this.apiUpdatePassword}
+          createMessage={this.createMessage}
         />
         <section className="section">
           <div className="container">
@@ -1242,6 +1283,7 @@ getName = (id) => {
                         // eslint-disable-next-line react/jsx-handler-names
                         handleRegisterFormSubmit={this.handleRegisterFormSubmit}
                         isAuthenticated={this.isAuthenticated}
+                        state={this.state}
                       />
                     )}
                   />
@@ -1281,18 +1323,24 @@ getName = (id) => {
 
                   <Route exact path="/eventstable" 
                       render = {(props) => (
-                        this.isAuthenticated()  ? <EventsTable {...props} state={this.state} isAuthenticated={this.isAuthenticated} createMessage={this.createMessage} createNewEvent={this.createNewEvent} getEventsByUser={this.getEventsByUser} getUserDataByID={this.getUserDataById} getEventsBySponsor={this.getEventsBySponsor} /> : <Redirect to="/login" />
+                        this.isAuthenticated()  ? <EventsTable {...props} state={this.state} apiUpdatePassword={this.apiUpdatePassword} isAuthenticated={this.isAuthenticated} createMessage={this.createMessage} createNewEvent={this.createNewEvent} getEventsByUser={this.getEventsByUser} getUserDataByID={this.getUserDataById} getEventsBySponsor={this.getEventsBySponsor} /> : <Redirect to="/login" />
                       )}
                   />
                   <Route exact path="/driverstore" 
                       render = {(props) => (
-                        this.isAuthenticated()  ? <DriverStore {...props} state={this.state} apiCreateCatalogItem={this.apiCreateCatalogItem} apiCreateEvent={this.apiCreateEvent} createMessage={this.createMessage} apiSendItemRequest={this.apiSendItemRequest} apiReturnAllOrderItemsByOrder={this.apiReturnAllOrderItemsByOrder} apiCreateOrderItem={this.apiCreateOrderItem} apiCreateOrder={this.apiCreateOrder} isAuthenticated={this.isAuthenticated} createNewEvent={this.createNewEvent} getUserDataByID={this.getUserDataById} getEventsBySponsor={this.getEventsBySponsor} /> : <Redirect to="/login" />
+                        this.isAuthenticated()  ? <DriverStore {...props} state={this.state} apiUpdateOrder={this.apiUpdateOrder} apiCreateCatalogItem={this.apiCreateCatalogItem} apiCreateEvent={this.apiCreateEvent} createMessage={this.createMessage} apiSendItemRequest={this.apiSendItemRequest} apiReturnAllOrderItemsByOrder={this.apiReturnAllOrderItemsByOrder} apiCreateOrderItem={this.apiCreateOrderItem} apiCreateOrder={this.apiCreateOrder} isAuthenticated={this.isAuthenticated} createNewEvent={this.createNewEvent} getUserDataByID={this.getUserDataById} getEventsBySponsor={this.getEventsBySponsor} /> : <Redirect to="/login" />
                       )}
                   />
 
                   <Route exact path="/announcementform" 
                       render = {(props) => (
                         this.isAuthenticated() && (this.state.currentUser.role !== "driver") ? <AnnouncementForm {...props} state={this.state} createMessage={this.createMessage} isAuthenticated={this.isAuthenticated} editAnnouncement={this.editAnnouncement} /> : <Redirect to="/login" />
+                      )}
+                  />
+
+                  <Route exact path="/affiliations" 
+                      render = {(props) => (
+                        this.isAuthenticated()  ? <Affiliations {...props} state={this.state} getAuthorizedData={this.getAuthorizedData} apiCreateNewAffiliation={this.apiCreateNewAffiliation} createMessage={this.createMessage} isAuthenticated={this.isAuthenticated} /> : <Redirect to="/login" />
                       )}
                   />
                     

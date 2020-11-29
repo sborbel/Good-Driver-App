@@ -132,6 +132,7 @@ return(
             
                 <CatalogueItem
                     title={item.name}
+                    apiUpdateOrder={props.apiUpdateOrder}
                     text={item.description}
                     src={item.image_url}
                     pts={item.points_cost}
@@ -267,6 +268,7 @@ return(
                                     catalog={item.catalog_id}
                                     item_id={item.id}
                                     apiCreateEvent={props.apiCreateEvent}
+                                    apiUpdateOrder={props.apiUpdateOrder}
                                     createMessage={props.createMessage}
                                     apiCreateCatalogItem={props.apiCreateCatalogItem}
                                     apiCreateOrderItem={props.apiCreateOrderItem}
