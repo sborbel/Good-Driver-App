@@ -6,8 +6,8 @@ class UserContextProvider extends Component{
     constructor(){
         super();   
         this.state = {
-            //baseUrl: 'http://good-driver-alb-1469583345.us-east-1.elb.amazonaws.com/',
-            baseUrl: 'http://192.168.1.145:5001/',
+            baseUrl: 'http://good-driver-alb-1469583345.us-east-1.elb.amazonaws.com/',
+            //baseUrl: 'http://192.168.1.145:5001/',
             relevantUsers: [],
             currPoints: 0,
             email: '',
@@ -219,10 +219,6 @@ class UserContextProvider extends Component{
         sortedItems.sort(function(a, b){return parseFloat(b.created_date)-parseFloat(a.created_date)});
         console.log(sortedItems);    
         self.setState({events: sortedItems})
-    }
-    
-    parseDateData = (date) => {
-
     }
 
     render(){

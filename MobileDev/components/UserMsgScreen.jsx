@@ -169,7 +169,6 @@ class UserMsg extends Component{
             return <Text>No messages to display</Text>
         }
         else{
-            console.log(this.state.messages);
             return(
                 <KeyboardAvoidingView
                     behavior={Platform.OS == "ios" ? "padding" : "height"}
@@ -182,8 +181,7 @@ class UserMsg extends Component{
                                 onRefresh={console.log("hiya papaya")}
                                 data={this.state.messages}
                                 renderItem={renderItem}
-                                keyExtractor={item => item.id.toString()}
-                                
+                                keyExtractor={item => item.id.toString()}   
                             />
                         <MessagesBox/>                   
                     </SafeAreaView>

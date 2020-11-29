@@ -1,10 +1,13 @@
 import axios from 'axios';
 import React, {Component} from 'react';
-import {Text, StyleSheet, TouchableOpacity, View, TouchableWithoutFeedback, Image, Modal, SafeAreaView, FlatList, ScrollView, Keyboard} from 'react-native';
+import {Text, StyleSheet, TouchableOpacity, View, TouchableWithoutFeedback, Image, Modal, SafeAreaView, FlatList, ScrollView, Keyboard, RefreshControl} from 'react-native';
 import { Notifier, Easing } from 'react-native-notifier';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { UserContext } from '../contexts/UserContext';
 import { gStyles } from '../styles/global';
+import axiosRetry from 'axios-retry';
+
+axiosRetry(axios, { retries: 5 });
 
 export default class CatalogView extends Component{
     static contextType = UserContext;
@@ -30,6 +33,7 @@ export default class CatalogView extends Component{
                 catalog_id: 0                  
             }], 
             currDisplayItem: {    // curr viewed item
+                id: -1,
                 name: "string",
                 description: "string",
                 image_url: "string",
@@ -44,39 +48,58 @@ export default class CatalogView extends Component{
         };
     }
 
-    getCatolog = async () => {
+    removeItem = () =>{
         var self = this;
-        console.log(self.context.baseUrl + 'api/catalogs/by_sponsor/' + self.context.curr_sponsor.sponsor_name)
-        await axios
-            .get(self.context.baseUrl + 'api/catalogs/by_sponsor/' + self.context.curr_sponsor.sponsor_name)
+        axios({
+            method: 'delete',
+            timeout: 10000,
+            url: self.context.baseUrl + 'api/catalog_items/' + self.state.currDisplayItem.id
+        })
+        .then(function(){
+            self.setState({displayModal: false})
+        })
+    }
+    
+    getItems = () =>{
+        var self = this;
+        for(let itr=0; itr<self.state.catalog.length; itr++){ 
+            axios({
+                method: 'get',
+                timeout: 10000,
+                url: self.context.baseUrl + 'api/catalog_items/by_catalog/' + self.state.catalog[itr].id,
+            })
+                .then(res =>{
+                    self.setState({catalogItem: res.data});
+                })
+                .catch(err =>{
+                    console.log("Could not fetch catalog items");
+                })
+        }
+    }
+
+    getCatolog = () => {
+        var self = this;
+        axios({
+            method: 'get',
+            timeout: 10000,
+            url: self.context.baseUrl + 'api/catalogs/by_sponsor/' + self.context.curr_sponsor.sponsor_name,
+        })
             .then(res =>{
                 self.setState({catalog: res.data});
             })
-            .catch(err =>{
-                console.log("There was a conundrum");
+            .then(function(){
+                self.getItems()
             })
-        for(let itr=0; itr<self.state.catalog.length; itr++){ 
-            console.log(self.context.baseUrl + 'api/catalog_items/by_catalog/' + self.state.catalog[itr].id);
-        await axios
-            .get(self.context.baseUrl + 'api/catalog_items/by_catalog/' + self.state.catalog[itr].id)
-            .then(res =>{
-                self.setState({catalogItem: res.data});
+            .then(function(){
+                self.setState({isLoading: false});
             })
             .catch(err =>{
-                console.log("There was a conundrum2");
+                console.log("Could not fetch catalog");
             })
-        }
-        self.setState({isLoading: false});
     }
     
     componentDidUpdate(prevProps){
-        console.log("Updated catalog")
-        if (prevProps.isFocused !== this.props.isFocused) {
-            console.log("Proper updated")
-            this.getCatolog()
-        }
         if(!this.context.noChange()){
-            console.log("Hello! We updated")
             this.setState({updated: true})
         }
     }
@@ -104,7 +127,7 @@ export default class CatalogView extends Component{
                                 <ScrollView>
                                     <Text style={{padding: 10, fontWeight: 'bold', fontSize: 22, alignSelf: 'flex-start'}}>{this.state.currDisplayItem.name}</Text>
                                     <Text style={{padding: 10, fontSize: 16, alignSelf: 'flex-start'}}>{this.state.currDisplayItem.description}</Text>
-                                    <Text style={{padding: 8, fontWeight: 'bold', fontSize: 20, alignSelf: 'flex-start'}}>Point Cost: {this.state.currDisplayItem.points_cost}</Text>
+                                    <Text style={{padding: 6, fontWeight: 'bold', fontSize: 20, alignSelf: 'flex-start'}}>Point Cost: {this.state.currDisplayItem.points_cost}</Text>
                                 </ScrollView>
                                 <View style={{flexDirection: 'row'}}>
                                     <TouchableOpacity onPress={() => this.setState({displayModal: false})}>
@@ -112,6 +135,11 @@ export default class CatalogView extends Component{
                                             <Text>Return To Catalog</Text>
                                         </View>
                                     </TouchableOpacity>  
+                                    <TouchableOpacity onPress={() => this.removeItem()}>
+                                        <View style={{backgroundColor: 'white', marginRight: 25, marginTop: 20, padding: 10}}>
+                                            <Text>Remove Catalog Item</Text>
+                                        </View>
+                                    </TouchableOpacity> 
                                 </View>  
                         </View>   
                     </Modal>                   
@@ -124,7 +152,7 @@ export default class CatalogView extends Component{
             <TouchableOpacity onPress={ () => this.setState({displayModal: true, currDisplayItem: item})}>
                 <View style={styles.container}>
                     <View>
-                        <Text style={{flexWrap: 'wrap', maxWidth: 240, fontSize: 17, margin: 5, fontWeight: 'bold'}}>{item.name}</Text>
+                        <Text numberOfLines={3} style={{flexWrap: 'wrap', maxWidth: 240, fontSize: 17, margin: 5, fontWeight: 'bold'}}>{item.name}</Text>
                         <Text style={(this.context.curr_sponsor.current_points >= parseInt(item.points_cost)) ? styles.inPriceText : styles.outPriceText}>{item.points_cost} points</Text>
                     </View>
                     <Image source={{uri: item.image_url}} style={{width: 80, height: 80}}/>
@@ -136,9 +164,26 @@ export default class CatalogView extends Component{
             <Item item={item}/> // set option to toggle cost from points to dollar
         );
 
+        const wait = (timeout) => {
+            return new Promise(resolve => {
+              setTimeout(resolve, timeout);
+            });
+        }
+
+        const onRefresh = () =>{
+            this.setState({isLoading: true})
+            this.getCatolog()
+            wait(1000).then(() => this.setState({isLoading: false}));
+            console.log('refreshed')
+        }
+
         const {navigation} = this.props;
         if(this.state.isLoading){
-            return (<Text>No Items to display</Text>)
+            return (
+                <View style={{flex: 1, backgroundColor: 'gray', height: 200}}>
+                    <Text style={{alignSelf: 'center', justifyContent: 'center'}}>Loading items...</Text>
+                </View>
+            )
         }
         else{
             return (
@@ -148,7 +193,10 @@ export default class CatalogView extends Component{
                             <FlatList
                                 data={this.state.catalogItem}
                                 renderItem={renderItem}
-                                keyExtractor={item => item.id.toString()}                                
+                                keyExtractor={item => item.id.toString()}
+                                refreshControl={
+                                    <RefreshControl refreshing={this.state.isLoading} onRefresh={onRefresh} />  
+                                }                                
                             />                  
                     </SafeAreaView>
                 </TouchableWithoutFeedback>

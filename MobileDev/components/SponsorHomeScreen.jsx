@@ -11,7 +11,7 @@ class Home extends Component{
     render(){
         const {navigation} = this.props;
         return(
-            <Text>This is the sponsor home screen, home slice</Text>
+            <Text>Welcome to the Sponsor Home Screen</Text>
         );
     }
 } 

@@ -1,7 +1,6 @@
 import 'react-native-gesture-handler';
-import { StatusBar } from 'expo-status-bar';
 import React, {useState, useEffect, Component} from 'react';
-import {Text, View} from 'react-native';
+import {View} from 'react-native';
 import { NotifierWrapper } from 'react-native-notifier';
 import Navigator from './Routes/routingTime';
 import UserContextProvider from './contexts/UserContext'
@@ -12,7 +11,7 @@ export default class App extends React.Component {
     return (
       <ThemeContextProvider>
           <UserContextProvider>
-            <View style={{width: "1000%", padding: 26, backgroundColor: 'light-gray'}}/>
+            <View style={{width: "1000%", padding: 10, backgroundColor: 'black'}}/>
               <NotifierWrapper>
                 <Navigator/>  
               </NotifierWrapper>    

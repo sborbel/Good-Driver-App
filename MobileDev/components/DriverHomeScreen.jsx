@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text, StyleSheet, TextInput, View, TouchableWithoutFeedback, Keyboard, Button} from 'react-native';
+import {Text, View, TouchableWithoutFeedback, Keyboard} from 'react-native';
 import { Notifier, Easing } from 'react-native-notifier';
 import { UserContext } from '../contexts/UserContext';
 import { ThemeContext } from '../contexts/ThemeContext';
@@ -19,14 +19,12 @@ export default class Home extends Component{
             console.log("Hello! We updated")
             this.setState({updated: true})
         }
-
     }
     componentDidMount(){
         console.log("HomeScreen");
     }
     render(){
         if(this.state.updated){
-            console.log("Notification pop")
             Notifier.showNotification({
                 title: 'Congratulations!',
                 description: 'Points have been added to your account!',
@@ -48,9 +46,6 @@ export default class Home extends Component{
                     <View style={lightTheme ? gStyles.lightBG : gStyles.darkBG}>
                     {console.log(this.context.relevantUsers)}
                         <Text style={lightTheme ? gStyles.lightText : gStyles.darkText}>Hi, {this.context.username}. Welcome to the driver home page.</Text>
-                        <Text style={lightTheme ? gStyles.lightSubText : gStyles.darkSubText}>
-                            This page is currently under construction. There will be more soon!
-                        </Text>
                         <Text style={lightTheme ? gStyles.lightText : gStyles.darkText}>Current Sponsor: {this.context.curr_sponsor.sponsor_name}</Text>
                         <Text style={lightTheme ? gStyles.lightText : gStyles.darkText}>Point Total: {this.context.curr_sponsor.current_points}</Text>
                     </View>

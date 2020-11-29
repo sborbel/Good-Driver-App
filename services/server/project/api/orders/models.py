@@ -20,7 +20,7 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     status = db.Column(db.String(32), default="active", nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    created_date = db.Column(db.DateTime, default=func.now())
+    created_date = db.Column(db.DateTime, default=func.now(), nullable=False)
     sponsor_name = db.Column(db.String, nullable=False)
 
     def __init__(self, status="", user_id="", sponsor_name=""):

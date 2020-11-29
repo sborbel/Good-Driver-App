@@ -13,6 +13,11 @@ export default class Prof extends Component{
             console.log("going to edit page");
             navigation.navigate('editName');
         }
+
+        const onRegPress = () =>{
+            console.log("going to driver registration page");
+            navigation.navigate('newUser');
+        }
         return (
         <ThemeContext.Consumer>{(ThemeContext) => {
              const {lightTheme, swapTheme} = ThemeContext;
@@ -26,6 +31,7 @@ export default class Prof extends Component{
                     <Text style={lightTheme ? gStyles.lightText : gStyles.darkText}>ID: {this.context.id}</Text>
                     <Button title="Edit Info" onPress={onEditPress}/> 
                     <Button color='purple' title="Toggle Theme" onPress={swapTheme}/>
+                    <Button title="Register New Driver" onPress={onRegPress}/>
                 </View>
             </TouchableWithoutFeedback> 
             )

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, {Component} from 'react';
-import {Text, StyleSheet, TouchableOpacity, View, TouchableWithoutFeedback, Image, Modal, SafeAreaView, FlatList} from 'react-native';
+import {Text, StyleSheet, TouchableOpacity, View, TouchableWithoutFeedback, Image, Modal, SafeAreaView, FlatList, RefreshControl} from 'react-native';
 import { ThemeContext } from '../contexts/ThemeContext';
 import { UserContext } from '../contexts/UserContext';
 import { gStyles } from '../styles/global';
@@ -8,11 +8,8 @@ import { gStyles } from '../styles/global';
 export default class SelectForEvent extends Component{
     static contextType = UserContext;
     state = {
-        isLoading: true,
+        isLoading: false,
     };
-    /*componentDidMount(){
-        this.context.setRelUsers();
-    }*/
 
     render(){
         
@@ -30,7 +27,7 @@ export default class SelectForEvent extends Component{
                         </View>
                     </TouchableOpacity>
                 )
-                }
+            }
         }
           
         const renderItem = ({ item }) => (
@@ -38,16 +35,42 @@ export default class SelectForEvent extends Component{
         );
 
         const {navigation} = this.props;
-        return(
-            <SafeAreaView>
-                <FlatList
-                    onRefresh={console.log("hiya papaya")}
-                    data={this.context.relevantUsers}
-                    renderItem={renderItem}
-                    keyExtractor={item => item.id.toString()}
-                />
-            </SafeAreaView>
-        );
+
+        const wait = (timeout) => {
+            return new Promise(resolve => {
+              setTimeout(resolve, timeout);
+            });
+        }
+
+        const onRefresh = () =>{
+            this.setState({isLoading: true})
+            this.context.setRelUsers();
+            wait(1000).then(() => this.setState({isLoading: false}));
+            console.log('refreshed')
+        }
+
+        if(this.state.isLoading){
+            return (
+                <View style={{flex: 1, backgroundColor: 'gray', height: 200}}>
+                    <Text style={{alignSelf: 'center', justifyContent: 'center'}}>Loading items...</Text>
+                </View>
+            )
+        }
+        else{
+            return(
+                <SafeAreaView>
+                    <FlatList
+                        onRefresh={console.log("hiya papaya")}
+                        data={this.context.relevantUsers}
+                        renderItem={renderItem}
+                        keyExtractor={item => item.id.toString()}
+                        refreshControl={
+                            <RefreshControl refreshing={this.state.isLoading} onRefresh={onRefresh} />  
+                        }
+                    />
+                </SafeAreaView>
+            );
+        }
         
     }
 }

@@ -22,7 +22,7 @@ export default class Prof extends Component{
         }
 
         const onSponPress = () =>{
-            console.log("going to history page");
+            console.log("going to sponsor select page");
             navigation.navigate('sponsorSelect');
         }
 
