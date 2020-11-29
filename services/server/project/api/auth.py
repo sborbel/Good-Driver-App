@@ -53,7 +53,7 @@ class Register(Resource):
         user = get_user_by_email(email)
         if user:
             auth_namespace.abort(400, "Sorry. That email already exists.")
-        user = add_user(username, email, password, role, sponsor_name)
+        user = add_user(username, email, password, role)
         return user, 201
 
 

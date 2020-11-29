@@ -1,7 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Field, Formik } from "formik";
 import * as Yup from "yup";
+import  render  from 'react-dom';
+import ReactDOM from "react-dom";
+import { Formik, Field, Form } from 'formik';
 
 import "./form.css";
 
@@ -13,13 +15,17 @@ const EditUser = props => (
       username: props.thisuser.username, //add thisuser in userlist and everything else
       role: props.thisuser.role,
       sponsor_name: props.state.affiliations[props.state.current_affiliation].sponsor_name,
-      myRole: props.state.currentUser.role
+      myRole: props.state.currentUser.role,
+      getPointsAlert: false,
+      getOrderAlert: false,
+      getProblemAlert: false
     }}
     onSubmit={
       (values, { setSubmitting, resetForm }) => {
-        let res = {role: values.role, sponsor_name: values.sponsor_name, username: values.username};
+        console.log(values)
+        let res = {role: values.role, get_points_alert: values.getPointsAlert, get_order_alert: values.getOrderAlert, get_problem_alert: values.getProblemAlert, sponsor_name: values.sponsor_name, username: values.username};
       
-        console.log(props.state.currentUser.role);
+        console.log(res);
         props.editUser(res, props.thisuser.id);
       
         resetForm();
@@ -51,15 +57,7 @@ const EditUser = props => (
         handleSubmit
       } = props;
       
-      let changeSponsor = <div></div>;
-      if(values.myRole === "admin"){
-        changeSponsor = <div className="field">
-                          <Field as="select" name="sponsor_name">
-                            <option value="Great Big Freight">Great Big Freight</option>
-                            <option value="Yellow Freight">Yellow Freight</option>
-                          </Field>
-                        </div>
-      }
+      
       return (
         <form onSubmit={handleSubmit}>
           <div className="field">
@@ -89,7 +87,37 @@ const EditUser = props => (
                 <option value="admin">Admin</option>
             </Field>
           </div>
-          {changeSponsor}
+          <div className="field">
+            <Field
+              name="getPointsAlert"
+              id="input-points-alert"
+              type="checkbox"
+              value="true"
+              checked={values.getPointsAlert}></Field>
+            <label htmlFor="input-points-alert">Subscribe to points alerts?</label>
+          </div>
+          <div className="field">
+          <Field
+              name="getOrderAlert"
+              id="input-order-alert"
+              type="checkbox"
+              value="true"
+              checked={values.getOrderAlert}></Field>
+            
+            <label htmlFor="input-order-alert">Subscribe to order alerts?</label>
+            
+          </div>
+          <div className="field">
+            <Field
+              name="getProblemAlert"
+              id="input-problem-alert"
+              type="checkbox"
+              value="true"
+              checked={values.getProblemAlert}></Field>
+            
+            <label htmlFor="input-problem-alert">Subscribe to problem alerts?</label>
+            
+          </div>
           
           <input
             type="submit"

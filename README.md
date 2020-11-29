@@ -1,13 +1,28 @@
 # Introduction 
 ## Good (Truck) Driver Incentive Program
 
-This program provides an easy to use application to help trucking companies encourage good driving through incentives. 
+This program provides an easy to use application to help trucking companies encourage good driving through incentives. It is hosted on AWS at the URL:
 
-## Setup
+Good Driver App - http://good-driver-alb-1469583345.us-east-1.elb.amazonaws.com/login
+
+You can login to test using the following credentials:
+
+| Type | User | Password|
+|:-----|:----:|:--------:|
+Driver Credentials | fred@bedrock.com | fred
+Sponsor Credentials | sborbel@clemson.edu | sborbel
+Admin Credentials | jwb4@clemson.edu  | jwb4
+
+You can interact directly with the API by navigating to:
+
+API - http://good-driver-alb-1469583345.us-east-1.elb.amazonaws.com/doc/
+
+---
+
+## Setup for Local Development
 
 This project requires [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/). Please verify that these are installed and running correctly before proceeding.
 
----
 
 
 ### Clone the Repo
@@ -28,6 +43,10 @@ If you do it this way, be sure to add double quotes around the value like this:
 ```
 export REACT_APP_USERS_SERVICE_URL="http://localhost:5001"
 ```
+## Important for testing this repo for CPSC4910
+
+We have used an offline file to manage our confidential environment variables called `dev_env.env`. This file is not included in the DevOps repo, it is included in the zipped files that are included with the final project submission. You will need to copy this file into the project ROOT (same directory as `docker-compose.yaml`). Then you can proceed with the container build as described in the next step.
+
 
 ### Build the images
 ```

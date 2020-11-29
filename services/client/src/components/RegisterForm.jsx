@@ -1,12 +1,19 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Formik } from "formik";
+import { Formik, Field } from "formik";
 import * as Yup from "yup";
 import { Redirect } from "react-router-dom";
 
 import "./form.css";
 
 const RegisterForm = props => {
+  function getOptions(){
+    let ret = [];
+    for(let i in props.state.all_sponsors){
+      ret.push(<option key={i} value={props.state.all_sponsors[i]}>{props.state.all_sponsors[i]}</option>);
+    }
+    return ret;
+  }
   if (props.isAuthenticated()) {
     return <Redirect to="/" />;
   }
@@ -19,10 +26,12 @@ const RegisterForm = props => {
         initialValues={{
           username: "",
           email: "",
-          password: ""
+          password: "",
+          sponsor: ""
         }}
         onSubmit={(values, { setSubmitting, resetForm }) => {
           props.handleRegisterFormSubmit(values);
+          console.log(values);
           resetForm();
           setSubmitting(false);
         }}
@@ -120,6 +129,11 @@ const RegisterForm = props => {
                     {errors.password}
                   </div>
                 )}
+              </div>
+              <div className="field">
+              <Field as="select" name="sponsor">
+                {getOptions()}
+              </Field>
               </div>
               <input
                 type="submit"

@@ -27,6 +27,7 @@ const EventsTable = props => {
     console.log(props.state.events);
     console.log(props.state);
 
+
     const [modalIsOpen,setIsOpen] = React.useState(false);
 
   const {events} = props.state;
