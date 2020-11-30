@@ -13,7 +13,8 @@ const AddUser = props => (
       password: ""
     }}
     onSubmit={(values, { setSubmitting, resetForm }) => {
-      props.addUser(values);
+      //props.addUser(values);
+      console.log(values);
       resetForm();
       setSubmitting(false);
     }}

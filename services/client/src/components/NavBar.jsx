@@ -352,7 +352,7 @@ const NavBar = props => {
             <Field as="select" name="role">
             <option value={"driver"}>Driver</option>
             <option value={"sponsor_mgr"}>Sponsor</option>
-            {values.myIsAdmin === true &&
+            {values.myIsAdmin &&
             <option value={"admin"}>Admin</option>}
             </Field>
              
