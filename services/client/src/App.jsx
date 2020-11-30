@@ -91,7 +91,7 @@ class App extends Component {
       email: eMail,
       role: role
     };
-    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/auth/register`;
+    let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/users`;
     let prom = axios
     .post(url, data)
     return prom;
@@ -110,13 +110,14 @@ class App extends Component {
     return prom;
   }
 
-  apiCreateNewAffiliation = (user, sponsor, status, points) => {
+  apiCreateNewAffiliation = (userNum, sponsor, status, points) => {
     let data = {
-      user_id: user,
+      user_id: userNum,
       sponsor_name: sponsor,
       status: status,
       current_points: points
     }
+    console.log(data);
     let url = `${process.env.REACT_APP_USERS_SERVICE_URL}/api/affiliations/affiliations`;
     let prom = axios
     .post(url, data)
@@ -1073,8 +1074,15 @@ getName = (id) => {
 
   handleRegisterFormSubmit = data => {
     let prom = this.apiCreateNewUser(data.username, data.password, data.email, "driver");
+    
     prom.then(res => {
-      this.createMessage("success", "You have registered successfully.");
+      console.log(res);
+      let affProm = this.apiCreateNewAffiliation(res.data.user_id, data.sponsor, "active", 0);
+      affProm.then(res1 => {
+        if(this.isAuthenticated()){
+        this.getUserDataById(this.state.currentUser.id);}
+        this.createMessage("success", "You have registered successfully.");
+      });
     
     }).catch(err => {
       ////console.log(err);
@@ -1295,7 +1303,9 @@ getName = (id) => {
                       <RegisterForm
                         handleRegisterFormSubmit={this.handleRegisterFormSubmit}
                         isAuthenticated={this.isAuthenticated}
+                        getUserDataById={this.getUserDataById}
                         state={this.state}
+                        createMessage={this.createMessage}
                       />
                     )}
                   />
@@ -1323,7 +1333,7 @@ getName = (id) => {
                   />
                   <Route exact path="/userlist" 
                       render = {(props) => (
-                        this.isAuthenticated()  ? <UsersList {...props} state={this.state} isAuthenticated={this.isAuthenticated} removeUser={this.removeUser}/> : <Redirect to="/login" />
+                        this.isAuthenticated()  ? <UsersList {...props} state={this.state} handleRegisterFormSubmit={this.handleRegisterFormSubmit} getUserDataById={this.getUserDataById} createMessage={this.createMessage} isAuthenticated={this.isAuthenticated} removeUser={this.removeUser}/> : <Redirect to="/login" />
                       )}
                   />
 
@@ -1361,7 +1371,7 @@ getName = (id) => {
                   />
 <Route exact path="/affiliations" 
                       render = {(props) => (
-                        this.isAuthenticated()  ? <Affiliations {...props} state={this.state} getAuthorizedData={this.getAuthorizedData} apiCreateNewAffiliation={this.apiCreateNewAffiliation} createMessage={this.createMessage} isAuthenticated={this.isAuthenticated} /> : <Redirect to="/login" />
+                        this.isAuthenticated()  ? <Affiliations {...props} state={this.state} getUserDataById={this.getUserDataById} getAuthorizedData={this.getAuthorizedData} apiCreateNewAffiliation={this.apiCreateNewAffiliation} createMessage={this.createMessage} isAuthenticated={this.isAuthenticated} /> : <Redirect to="/login" />
                         )}
                       />
                   <Route exact path="/reports" 

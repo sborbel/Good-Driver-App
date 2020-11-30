@@ -81,8 +81,8 @@ const MyAccount = props => (
             <div className="field">
               <Field as="select" name="role">
                   <option value="driver">Driver</option>
-                  <option value="sponsor_mgr">Sponsor</option>
-                  <option value="admin">Admin</option>
+                  {(values.role === "admin" || values.role === "sponsor_mgr") && <option value="sponsor_mgr">Sponsor</option>}
+                  {values.role === "admin" && <option value="admin">Admin</option>}
               </Field>
             </div>
             <div className="field">

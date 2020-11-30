@@ -145,7 +145,7 @@ const Affiliations = props => {
                                 onSubmit={(values, { setSubmitting, resetForm }) => {
                                 let promise = props.apiCreateNewAffiliation(parseInt(correctID), values.sponsor, "active", values.points);///////////
                                 promise.then(res=>{
-                                    props.getAuthorizedData(props.state.currentUser.id);
+                                    props.getUserDataById(props.state.currentUser.id);
                                     closeModal();
                                     resetForm();
                                     setSubmitting(false);

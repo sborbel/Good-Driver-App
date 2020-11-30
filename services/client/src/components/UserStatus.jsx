@@ -88,11 +88,7 @@ function UserStatus(props) {
                 Username
               </button>
             </th>
-            <th>
-              <button type="button" onClick={() => setSortedField('sponsor_name')}>
-                Sponsor
-              </button>
-            </th>
+            
             {props.isAuthenticated() && <th />}
           </tr>
         </thead>

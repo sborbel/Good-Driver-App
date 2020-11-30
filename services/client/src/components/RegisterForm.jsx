@@ -9,13 +9,20 @@ import "./form.css";
 const RegisterForm = props => {
   function getOptions(){
     let ret = [];
-    for(let i in props.state.all_sponsors){
-      ret.push(<option key={i} value={props.state.all_sponsors[i]}>{props.state.all_sponsors[i]}</option>);
+    if(props.state.currentUser.role==="sponsor_mgr"){
+      ret.push(<option key="1" value={props.state.currentUser.sponsor_name}>{props.state.currentUser.sponsor_name}</option>)
+      return ret;
     }
-    return ret;
+    else{
+      
+      for(let i in props.state.all_sponsors){
+        ret.push(<option key={i} value={props.state.all_sponsors[i]}>{props.state.all_sponsors[i]}</option>);
+      }
+      return ret;
+    }
   }
   if (props.isAuthenticated()) {
-    return <Redirect to="/" />;
+    //return <Redirect to="/" />;
   }
   return (
     <div>
@@ -27,11 +34,26 @@ const RegisterForm = props => {
           username: "",
           email: "",
           password: "",
-          sponsor: ""
+          sponsor: props.state.all_sponsors[0]
         }}
         onSubmit={(values, { setSubmitting, resetForm }) => {
+          props.createMessage("success", "Creating User: Please Wait")
+          //console.log(props.state)
+          //console.log(values);
+          if(props.state.currentUser.role === "sponsor_mgr"){
+            values.sponsor = props.state.currentUser.sponsor_name
+          }
+          if(values.sponsor === undefined){
+            values.sponsor = props.state.all_sponsors[0];
+          }
+          //console.log(values);
+          //console.log(values.all_sponsorslist);
           props.handleRegisterFormSubmit(values);
-          console.log(values);
+          if(props.isAuthenticated() === true){
+            props.getUserDataById(props.state.currentUser.id);
+            props.closeModal();
+          }
+          
           resetForm();
           setSubmitting(false);
         }}
@@ -130,11 +152,11 @@ const RegisterForm = props => {
                   </div>
                 )}
               </div>
-              <div className="field">
-              <Field as="select" name="sponsor">
+              {/*props.state.currentUser.role !== "sponsor_mgr" &&*/ <div className="field">
+              <Field as="select" name="sponsor" value={values.sponsor}>
                 {getOptions()}
               </Field>
-              </div>
+              </div>}
               <input
                 type="submit"
                 className="button is-primary"
